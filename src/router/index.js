@@ -62,5 +62,15 @@ const router = createRouter({
   routes
 })
 
+// Track page views for Google Analytics
+router.afterEach((to) => {
+  // Only track if gtag is available (Google Analytics is loaded)
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('config', 'G-R6DC0Y49B9', {
+      page_path: to.fullPath
+    })
+  }
+})
+
 export default router
 

@@ -17,10 +17,6 @@
                 <a class="value" href="https://github.com/Tylerzhangyi" target="_blank" rel="noopener">github.com/Tylerzhangyi</a>
               </li>
               <li>
-                <span class="label">{{ t('contact.phone') }}</span>
-                <span class="value">+86 15618003850</span>
-              </li>
-              <li>
                 <span class="label">{{ t('contact.gameAccount') }}</span>
                 <span class="value">2894936641</span>
               </li>

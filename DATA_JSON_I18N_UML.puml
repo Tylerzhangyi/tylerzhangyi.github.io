@@ -1,0 +1,279 @@
+@startuml JSON & i18n Data Mapping
+
+title JSON 结构与 i18n 文案映射
+
+skinparam class {
+  BackgroundColor #FDF7F0
+  ArrowColor #777777
+  BorderColor #D4A373
+  FontName monospace
+}
+
+!define TABLE(name,desc) class name as "desc" << (T,#FFFBF5) >>
+
+TABLE(ProjectsJson, "projects*.json 根对象") {
+  file : projects.json / projects.en.json
+  projects : ProjectSummary[1..*]
+}
+
+TABLE(ProjectSummary, "项目列表记录") {
+  id : INT
+  name : STRING
+  intro : STRING
+  image : PATH|URL
+}
+
+TABLE(ProjectDetail, "项目详情记录") {
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  section_key : ENUM('intro','tech','description','links','screenshots','meta')
+  label : STRING
+  description : MARKDOWN
+  demo : URL?
+  github : URL?
+}
+
+TABLE(ProjectTechnologyRow, "项目技术栈行") {
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  label : STRING
+}
+
+TABLE(ProjectScreenshotRow, "项目截图行") {
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  image : PATH|URL
+}
+
+TABLE(BlogJson, "blog*.json 根对象") {
+  file : blog.json / blog.en.json
+  posts : BlogSummary[1..*]
+}
+
+TABLE(BlogSummary, "博客列表记录") {
+  id : INT
+  title : STRING
+  excerpt : STRING
+  date : DATE
+  category : STRING
+}
+
+TABLE(BlogDetail, "博客详情记录") {
+  FOREIGN_KEY(post_id) : INT <<FK>>
+  content : MARKDOWN
+}
+
+TABLE(BlogTagRow, "博客标签行") {
+  FOREIGN_KEY(post_id) : INT <<FK>>
+  label : STRING
+}
+
+TABLE(I18nStore, "i18n.js 数据源") {
+  lang : 'zh' | 'en'
+  dict : Record<LangCode, LocaleBundle>
+}
+
+TABLE(LocaleBundle, "语言包 (zh/en)") {
+  nav : NavStrings
+  footer : FooterStrings
+  home : HomeStrings
+  about : AboutStrings
+  skills : SkillsStrings
+  projects : ProjectsStrings
+  blog : BlogStrings
+  links : LinksStrings
+  contact : ContactStrings
+}
+
+TABLE(NavStrings, "导航菜单") {
+  home : STRING
+  about : STRING
+  skills : STRING
+  projects : STRING
+  blog : STRING
+  links : STRING
+  contact : STRING
+  siteTitle : STRING
+}
+
+TABLE(FooterStrings, "页脚") {
+  navigation : STRING
+  privacyPolicy : STRING
+  termsOfUse : STRING
+}
+
+TABLE(HomeStrings, "首页文案") {
+  eyebrow : STRING
+  greeting : STRING
+  welcome : STRING
+  role : STRING
+  subtitle : STRING
+  avatarAlt : STRING
+  ctaProjects : STRING
+  ctaContact : STRING
+  features.projects : STRING
+  features.projectsDesc : STRING
+  features.blog : STRING
+  features.blogDesc : STRING
+  features.skills : STRING
+  features.skillsDesc : STRING
+  features.view : STRING
+  features.read : STRING
+  features.more : STRING
+  footer : STRING
+}
+
+TABLE(AboutStrings, "关于页面") {
+  title : STRING
+  intro : STRING
+  introText : STRING
+  interests : STRING
+  interestsList : STRING[1..*]
+  hobbies : STRING
+  hobbiesText : STRING
+  goals : STRING
+  goalsText : STRING
+  education : STRING
+  courses : STRING
+  awards : STRING
+}
+
+TABLE(SkillsStrings, "技能与履历") {
+  title : STRING
+  skillset : STRING
+  education : STRING
+  courses : STRING
+  awards : STRING
+}
+
+TABLE(SkillEntry, "技能项") {
+  name : STRING
+  level : INT (0-100)
+}
+
+TABLE(EducationEntry, "教育经历项") {
+  degree : STRING
+  institution : STRING
+  period : STRING
+  description : STRING
+  link : URL?
+}
+
+TABLE(CoursesRow, "课程文案行") {
+  label : STRING
+}
+
+TABLE(AwardsRow, "奖项文案行") {
+  label : STRING
+}
+
+TABLE(ProjectsStrings, "项目列表文案") {
+  title : STRING
+  loading : STRING
+  github : STRING
+  details : STRING
+  demo : STRING
+  visit : STRING
+  portfolioDesc : STRING
+  loadError : STRING
+}
+
+TABLE(ProjectDetailStrings, "项目详情文案") {
+  loading : STRING
+  back : STRING
+  intro : STRING
+  tech : STRING
+  description : STRING
+  links : STRING
+  screenshots : STRING
+  github : STRING
+  demo : STRING
+  screenshot : STRING
+  notFound : STRING
+  loadError : STRING
+}
+
+TABLE(BlogStrings, "博客列表文案") {
+  title : STRING
+  loading : STRING
+  readMore : STRING
+  empty : STRING
+  back : STRING
+  notFound : STRING
+  loadError : STRING
+}
+
+TABLE(BlogDetailStrings, "博客详情文案") {
+  loading : STRING
+  back : STRING
+  notFound : STRING
+  loadError : STRING
+}
+
+TABLE(LinksStrings, "链接页面") {
+  title : STRING
+  visit : STRING
+}
+
+TABLE(LinkEntry, "推荐链接") {
+  title : STRING
+  description : STRING
+}
+
+TABLE(ContactStrings, "联系页面") {
+  title : STRING
+  contactInfo : STRING
+  email : STRING
+  github : STRING
+  location : STRING
+  phone : STRING
+  gameAccount : STRING
+  sendMail : STRING
+  viewProjects : STRING
+  cooperation : STRING
+  cooperationText : STRING
+}
+
+I18nStore "1" *-- "many" LocaleBundle : dict
+LocaleBundle o-- NavStrings
+LocaleBundle o-- FooterStrings
+LocaleBundle o-- HomeStrings
+LocaleBundle o-- AboutStrings
+LocaleBundle o-- SkillsStrings
+LocaleBundle o-- ProjectsStrings
+LocaleBundle o-- BlogStrings
+ProjectsStrings "1" o-- "many" ProjectDetailStrings
+BlogStrings "1" o-- "many" BlogDetailStrings
+LocaleBundle o-- LinksStrings
+LocaleBundle o-- ContactStrings
+
+SkillsStrings "1" o-- "many" SkillEntry
+SkillsStrings "1" o-- "many" EducationEntry
+SkillsStrings "1" o-- "many" CoursesRow
+SkillsStrings "1" o-- "many" AwardsRow
+LinksStrings "1" o-- "many" LinkEntry
+ProjectsJson "1" *-- "many" ProjectSummary
+ProjectSummary "1" o-- "many" ProjectDetail : detail_sections
+ProjectSummary "1" o-- "many" ProjectTechnologyRow
+ProjectSummary "1" o-- "many" ProjectScreenshotRow
+BlogJson "1" *-- "many" BlogSummary
+BlogSummary "1" o-- "1" BlogDetail : detail
+BlogSummary "1" o-- "many" BlogTagRow
+
+note right of ProjectsJson
+  JSON 文件按语言拆分（zh/en），
+  列表记录按 id 关联 ProjectDetail/
+  ProjectTechnologyRow 等子表。
+end note
+
+note left of BlogJson
+  博客 JSON 同样按语言拆分，
+  BlogSummary 负责列表所需字段，
+  BlogDetail / BlogTagRow 通过 post_id 关联详情。
+end note
+
+note bottom of I18nStore
+  i18n.js 通过 reactive 状态记录当前语言，
+  setLanguage(lang) 会更新 localStorage 并写入 <html lang="">，
+  t(path) 函数按路径解析 LocaleBundle。
+end note
+
+@enduml
+

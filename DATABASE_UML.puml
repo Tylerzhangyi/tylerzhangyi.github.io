@@ -1,0 +1,182 @@
+@startuml Database Schema - ER Diagram
+
+!define TABLE(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define PRIMARY_KEY(x) <b>PK</b> x
+!define FOREIGN_KEY(x) <b>FK</b> x
+
+' ============================================
+' 核心实体表
+' ============================================
+
+TABLE(languages, "语言表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  code : VARCHAR(10) <<UNIQUE>>
+  name : VARCHAR(50)
+  is_default : BOOLEAN
+}
+
+TABLE(projects, "项目表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  image : VARCHAR(500)
+  demo_url : VARCHAR(500)
+  github_url : VARCHAR(500)
+  created_at : DATETIME
+  updated_at : DATETIME
+}
+
+TABLE(project_translations, "项目多语言内容表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  FOREIGN_KEY(language_id) : INT <<FK>>
+  name : VARCHAR(200)
+  intro : TEXT
+  description : TEXT
+}
+
+TABLE(technologies, "技术栈表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  name : VARCHAR(100) <<UNIQUE>>
+}
+
+TABLE(project_technologies, "项目技术关联表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  FOREIGN_KEY(technology_id) : INT <<FK>>
+}
+
+TABLE(project_screenshots, "项目截图表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(project_id) : INT <<FK>>
+  image_url : VARCHAR(500)
+  display_order : INT
+}
+
+TABLE(blog_posts, "博客文章表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  date : DATE
+  category : VARCHAR(100)
+  created_at : DATETIME
+  updated_at : DATETIME
+}
+
+TABLE(blog_post_translations, "博客文章多语言内容表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(post_id) : INT <<FK>>
+  FOREIGN_KEY(language_id) : INT <<FK>>
+  title : VARCHAR(500)
+  excerpt : TEXT
+  content : TEXT
+}
+
+TABLE(tags, "标签表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  name : VARCHAR(100) <<UNIQUE>>
+}
+
+TABLE(blog_post_tags, "博客标签关联表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(post_id) : INT <<FK>>
+  FOREIGN_KEY(tag_id) : INT <<FK>>
+}
+
+TABLE(skills, "技能表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  name : VARCHAR(100) <<UNIQUE>>
+  level : INT
+  display_order : INT
+}
+
+TABLE(education, "教育经历表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  degree : VARCHAR(200)
+  institution : VARCHAR(200)
+  period : VARCHAR(100)
+  description : TEXT
+  link : VARCHAR(500)
+  display_order : INT
+}
+
+TABLE(courses, "课程表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  name : VARCHAR(200) <<UNIQUE>>
+  display_order : INT
+}
+
+TABLE(awards, "奖项表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  name : VARCHAR(500)
+  display_order : INT
+}
+
+TABLE(links, "链接表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  url : VARCHAR(500)
+  display_order : INT
+}
+
+TABLE(link_translations, "链接多语言内容表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(link_id) : INT <<FK>>
+  FOREIGN_KEY(language_id) : INT <<FK>>
+  title : VARCHAR(200)
+  description : TEXT
+}
+
+TABLE(personal_info, "个人信息表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  email : VARCHAR(200)
+  github : VARCHAR(200)
+  phone : VARCHAR(50)
+  qq : VARCHAR(50)
+  location : VARCHAR(200)
+  avatar_url : VARCHAR(500)
+  updated_at : DATETIME
+}
+
+TABLE(personal_info_translations, "个人简介多语言内容表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(language_id) : INT <<FK>>
+  intro_text : TEXT
+  interests : JSON
+  hobbies : TEXT
+  goals_text : TEXT
+}
+
+TABLE(translation_keys, "翻译键值表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  key_path : VARCHAR(200) <<UNIQUE>>
+  category : VARCHAR(50)
+}
+
+TABLE(translation_values, "翻译值表") {
+  PRIMARY_KEY(id) : INT <<PK>>
+  FOREIGN_KEY(key_id) : INT <<FK>>
+  FOREIGN_KEY(language_id) : INT <<FK>>
+  value : TEXT
+}
+
+' ============================================
+' 关系定义
+' ============================================
+
+languages ||--o{ project_translations : "has"
+projects ||--o{ project_translations : "has"
+projects ||--o{ project_technologies : "has"
+technologies ||--o{ project_technologies : "used_in"
+projects ||--o{ project_screenshots : "has"
+
+languages ||--o{ blog_post_translations : "has"
+blog_posts ||--o{ blog_post_translations : "has"
+blog_posts ||--o{ blog_post_tags : "has"
+tags ||--o{ blog_post_tags : "tagged_with"
+
+languages ||--o{ link_translations : "has"
+links ||--o{ link_translations : "has"
+
+languages ||--o{ personal_info_translations : "has"
+
+languages ||--o{ translation_values : "has"
+translation_keys ||--o{ translation_values : "has"
+
+@enduml
+

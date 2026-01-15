@@ -1,0 +1,198 @@
+@startuml Class Diagram - Portfolio Website
+
+package "Core Entities" {
+  class Language {
+    +id: INT <<PK>>
+    +code: VARCHAR(10) <<UNIQUE>>
+    +name: VARCHAR(50)
+    +is_default: BOOLEAN
+  }
+
+  class Project {
+    +id: INT <<PK>>
+    +image: VARCHAR(500)
+    +demo_url: VARCHAR(500)
+    +github_url: VARCHAR(500)
+    +created_at: DATETIME
+    +updated_at: DATETIME
+    --
+    +getTranslations(lang: Language): ProjectTranslation[]
+    +getTechnologies(): Technology[]
+    +getScreenshots(): ProjectScreenshot[]
+  }
+
+  class ProjectTranslation {
+    +id: INT <<PK>>
+    +project_id: INT <<FK>>
+    +language_id: INT <<FK>>
+    +name: VARCHAR(200)
+    +intro: TEXT
+    +description: TEXT
+  }
+
+  class Technology {
+    +id: INT <<PK>>
+    +name: VARCHAR(100) <<UNIQUE>>
+  }
+
+  class ProjectTechnology {
+    +id: INT <<PK>>
+    +project_id: INT <<FK>>
+    +technology_id: INT <<FK>>
+  }
+
+  class ProjectScreenshot {
+    +id: INT <<PK>>
+    +project_id: INT <<FK>>
+    +image_url: VARCHAR(500)
+    +display_order: INT
+  }
+}
+
+package "Blog Entities" {
+  class BlogPost {
+    +id: INT <<PK>>
+    +date: DATE
+    +category: VARCHAR(100)
+    +created_at: DATETIME
+    +updated_at: DATETIME
+    --
+    +getTranslations(lang: Language): BlogPostTranslation[]
+    +getTags(): Tag[]
+  }
+
+  class BlogPostTranslation {
+    +id: INT <<PK>>
+    +post_id: INT <<FK>>
+    +language_id: INT <<FK>>
+    +title: VARCHAR(500)
+    +excerpt: TEXT
+    +content: TEXT
+  }
+
+  class Tag {
+    +id: INT <<PK>>
+    +name: VARCHAR(100) <<UNIQUE>>
+  }
+
+  class BlogPostTag {
+    +id: INT <<PK>>
+    +post_id: INT <<FK>>
+    +tag_id: INT <<FK>>
+  }
+}
+
+package "Profile Entities" {
+  class Skill {
+    +id: INT <<PK>>
+    +name: VARCHAR(100) <<UNIQUE>>
+    +level: INT
+    +display_order: INT
+  }
+
+  class Education {
+    +id: INT <<PK>>
+    +degree: VARCHAR(200)
+    +institution: VARCHAR(200)
+    +period: VARCHAR(100)
+    +description: TEXT
+    +link: VARCHAR(500)
+    +display_order: INT
+  }
+
+  class Course {
+    +id: INT <<PK>>
+    +name: VARCHAR(200) <<UNIQUE>>
+    +display_order: INT
+  }
+
+  class Award {
+    +id: INT <<PK>>
+    +name: VARCHAR(500)
+    +display_order: INT
+  }
+
+  class PersonalInfo {
+    +id: INT <<PK>>
+    +email: VARCHAR(200)
+    +github: VARCHAR(200)
+    +phone: VARCHAR(50)
+    +qq: VARCHAR(50)
+    +location: VARCHAR(200)
+    +avatar_url: VARCHAR(500)
+    +updated_at: DATETIME
+    --
+    +getTranslations(lang: Language): PersonalInfoTranslation
+  }
+
+  class PersonalInfoTranslation {
+    +id: INT <<PK>>
+    +language_id: INT <<FK>>
+    +intro_text: TEXT
+    +interests: JSON
+    +hobbies: TEXT
+    +goals_text: TEXT
+  }
+}
+
+package "Link Entities" {
+  class Link {
+    +id: INT <<PK>>
+    +url: VARCHAR(500)
+    +display_order: INT
+    --
+    +getTranslations(lang: Language): LinkTranslation[]
+  }
+
+  class LinkTranslation {
+    +id: INT <<PK>>
+    +link_id: INT <<FK>>
+    +language_id: INT <<FK>>
+    +title: VARCHAR(200)
+    +description: TEXT
+  }
+}
+
+package "Translation System" {
+  class TranslationKey {
+    +id: INT <<PK>>
+    +key_path: VARCHAR(200) <<UNIQUE>>
+    +category: VARCHAR(50)
+    --
+    +getValues(): TranslationValue[]
+  }
+
+  class TranslationValue {
+    +id: INT <<PK>>
+    +key_id: INT <<FK>>
+    +language_id: INT <<FK>>
+    +value: TEXT
+  }
+}
+
+' ============================================
+' 关系定义
+' ============================================
+
+Language "1" --> "*" ProjectTranslation : translates
+Project "1" --> "*" ProjectTranslation : has
+Project "1" --> "*" ProjectTechnology : uses
+Technology "*" --> "*" ProjectTechnology : used_in
+Project "1" --> "*" ProjectScreenshot : has
+
+Language "1" --> "*" BlogPostTranslation : translates
+BlogPost "1" --> "*" BlogPostTranslation : has
+BlogPost "*" --> "*" BlogPostTag : tagged_with
+Tag "*" --> "*" BlogPostTag : tags
+
+Language "1" --> "*" LinkTranslation : translates
+Link "1" --> "*" LinkTranslation : has
+
+Language "1" --> "*" PersonalInfoTranslation : translates
+PersonalInfo "1" --> "*" PersonalInfoTranslation : has
+
+Language "1" --> "*" TranslationValue : translates
+TranslationKey "1" --> "*" TranslationValue : has
+
+@enduml
+
