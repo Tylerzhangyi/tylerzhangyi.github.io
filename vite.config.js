@@ -6,11 +6,21 @@ export default defineConfig({
   base: '/',
   server: {
     port: 8805,
-    host: true // 允许外部访问
+    host: true, // 允许外部访问
+    allowedHosts: [
+      'tyler.yunguhs.com',
+      'localhost',
+      '.yunguhs.com' // 允许所有 yunguhs.com 的子域名
+    ]
   },
   preview: {
     port: 8805,
-    host: true
+    host: true,
+    allowedHosts: [
+      'tyler.yunguhs.com',
+      'localhost',
+      '.yunguhs.com' // 允许所有 yunguhs.com 的子域名
+    ]
   }
 })
 
