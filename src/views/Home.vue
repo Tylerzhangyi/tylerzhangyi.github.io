@@ -1,305 +1,344 @@
 <template>
-  <div class="home page no-padding">
-    <section class="hero-section">
-      <MatrixRain />
-      <div class="container">
-        <div class="hero-content">
-          <div class="hero-copy">
-            <p class="welcome">{{ t('home.welcome') }}</p>
-            <h1 class="headline">
-              <span class="greeting-line">{{ t('home.greeting') }}</span>
-              <span class="accent">Zhang&nbsp;Yi</span>
-              <span class="role-line">{{ t('home.role') }}</span>
-            </h1>
-            <p class="subtitle">{{ t('home.subtitle') }}</p>
-            <div class="cta-group">
-              <router-link to="/projects" class="btn btn-primary">{{ t('home.ctaProjects') }}</router-link>
-              <a href="https://github.com/Tylerzhangyi" target="_blank" rel="noopener" aria-label="GitHub" class="btn btn-secondary social-link">
-                <CodeBracketIcon class="icon-inline" /> GitHub
-              </a>
-              <router-link to="/blog" class="btn btn-secondary social-link">
-                <DocumentTextIcon class="icon-inline" /> Blog
-              </router-link>
-            </div>
-          </div>
-          <div class="hero-photo">
-            <img src="/photos/tyler.png" :alt="t('home.avatarAlt')" @error="handleImageError" />
-          </div>
+  <div class="onepage">
+    <section id="section-home" data-scroll-section="home" class="hero" aria-label="主视觉">
+      <div class="hero-media">
+        <img
+          v-if="hasHeroImage"
+          class="hero-img"
+          :src="heroImageSrc"
+          alt=""
+          @error="hasHeroImage = false"
+        />
+        <div v-else class="hero-fallback" aria-hidden="true"></div>
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </div>
+
+      <div class="hero-ui hero-reveal">
+        <div class="hero-title">
+          <div class="line hero-line" style="--i: 0">{{ t('home.greeting') }}</div>
+          <div class="line accent hero-line" style="--i: 1">Zhang Yi</div>
+          <div class="line hero-line" style="--i: 2">{{ t('home.role') }}</div>
+        </div>
+        <div class="hero-actions hero-line" style="--i: 3">
+          <button type="button" class="btn btn-primary" @click="scrollToSection('projects')">{{ t('home.ctaProjects') }}</button>
+          <button type="button" class="btn btn-secondary" @click="scrollToSection('contact')">{{ t('nav.contact') }}</button>
         </div>
       </div>
-      <div class="hero-bg" aria-hidden="true"></div>
     </section>
 
-    <section class="features">
-      <div class="container">
-        <div class="features-grid">
-          <router-link to="/projects" class="feature-card">
-            <div class="icon">
-              <RocketLaunchIcon />
-            </div>
-            <h3>{{ t('home.features.projects') }}</h3>
-            <p>{{ t('home.features.projectsDesc') }}</p>
-            <span class="more">{{ t('home.features.view') }}</span>
-          </router-link>
-          <router-link to="/blog" class="feature-card">
-            <div class="icon">
-              <DocumentTextIcon />
-            </div>
-            <h3>{{ t('home.features.blog') }}</h3>
-            <p>{{ t('home.features.blogDesc') }}</p>
-            <span class="more">{{ t('home.features.read') }}</span>
-          </router-link>
-          <router-link to="/skills" class="feature-card">
-            <div class="icon">
-              <WrenchScrewdriverIcon />
-            </div>
-            <h3>{{ t('home.features.skills') }}</h3>
-            <p>{{ t('home.features.skillsDesc') }}</p>
-            <span class="more">{{ t('home.features.more') }}</span>
-          </router-link>
-        </div>
-      </div>
+    <!-- About 含横向 pin：父级不能用 translate 入场，否则 ScrollTrigger 锁定失效 -->
+    <section id="section-about" data-scroll-section="about" class="stack-section reveal-fade-only">
+      <AboutSection />
+    </section>
+    <section id="section-education" data-scroll-section="education" class="stack-section reveal-on-scroll" data-reveal-delay="2">
+      <EducationSection />
+    </section>
+    <ProjectsSection />
+    <BlogSection embedded />
+    <LinksSection />
+    <section id="section-contact" data-scroll-section="contact" class="stack-section reveal-on-scroll" data-reveal-delay="1">
+      <ContactSection />
     </section>
   </div>
-  
 </template>
 
 <script>
-import { CodeBracketIcon, DocumentTextIcon, RocketLaunchIcon, WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
 import { i18n, t as $t } from '../utils/i18n'
-import MatrixRain from '../components/MatrixRain.vue'
+import AboutSection from './About.vue'
+import EducationSection from './Education.vue'
+import ProjectsSection from './ProjectsSection.vue'
+import BlogSection from './Blog.vue'
+import LinksSection from './Links.vue'
+import ContactSection from './Contact.vue'
+import { observeReveals } from '../utils/motion'
 
 export default {
   name: 'Home',
   components: {
-    CodeBracketIcon,
-    DocumentTextIcon,
-    RocketLaunchIcon,
-    WrenchScrewdriverIcon,
-    MatrixRain
+    AboutSection,
+    EducationSection,
+    ProjectsSection,
+    BlogSection,
+    LinksSection,
+    ContactSection  
+  },
+  data() {
+    return {
+      hasHeroImage: true,
+      teardownReveals: null
+    }
   },
   computed: {
     currentLang() {
       return i18n.lang
+    },
+    /** public 目录资源：勿写静态 src，否则 Vite 会当成模块 import */
+    heroImageSrc() {
+      return `${import.meta.env.BASE_URL}photos/home-hero.JPG`
     }
   },
   methods: {
     t(key) {
       return $t(key)
     },
-    handleImageError(e) {
-      e.target.style.display = 'none'
-      const parent = e.target.parentElement
-      parent.classList.add('avatar-fallback')
-      const fallbackChar = i18n.lang === 'zh' ? '我' : 'Me'
-      parent.innerHTML = `<span class="fallback-char">${fallbackChar}</span>`
+    scrollToSection(id) {
+      const section = document.getElementById(`section-${id}`)
+      if (!section) return
+      const top = section.getBoundingClientRect().top + window.scrollY - 72
+      window.scrollTo({ top, behavior: 'smooth' })
     }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.teardownReveals = observeReveals(this.$el)
+    })
+  },
+  beforeUnmount() {
+    this.teardownReveals?.()
   }
 }
 </script>
 
 <style scoped>
-.no-padding {
-  padding: 0;
+.onepage {
+  width: 100%;
+  background: #f2f2f3;
+  /* 单页正文统一用深色文字，避免白字看不见 */
+  --brand: #16181d;
+  --color-text: #252a33;
+  --color-muted: #5d6674;
+  --color-surface: rgba(255,255,255,0.82);
+  --border: rgba(0,0,0,0.12);
+  --accent: #1a1d23;
+  --accent-600: #0f1116;
 }
 
-.hero-section {
+.stack-section {
+  scroll-margin-top: 0;
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  overflow: hidden;
-  padding-top: 80px; /* 避免与固定导航栏重叠 */
-  background: #0a1528; /* 深蓝色背景，与数字雨渐变匹配 */
+  align-items: stretch;
+  background-image: var(--contour-light-bg);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
 }
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.2); /* 减少遮罩透明度，让数字雨更明显 */
-  z-index: 1;
-  pointer-events: none;
+.stack-section > * {
+  flex: 1 1 auto;
+  min-width: 0;
 }
-
-.hero-content {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  align-items: center;
-  gap: 4rem;
-  padding: 4rem 0 3rem;
-  position: relative;
-  z-index: 2;
-}
-
-.welcome {
-  color: var(--color-muted);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 1.2rem;
-}
-
-.headline {
-  font-size: 4rem;
-  line-height: 1.1;
-  color: var(--brand);
-  margin-bottom: 0.6rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.greeting-line {
-  color: var(--brand);
-  display: block;
-}
-
-.accent { 
-  color: var(--accent);
-  display: block;
-}
-
-.role-line {
-  color: var(--brand);
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  display: block;
-  margin-top: 0.3rem;
-}
-
-.subtitle {
-  color: var(--color-muted);
-  font-size: 1rem;
-  line-height: 1.9;
-  max-width: 640px;
-  margin-bottom: 1.8rem;
-}
-
-.cta-group {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-  align-items: center;
-}
-
-.btn {
-  display: inline-block;
-  padding: 0.8rem 1.4rem;
-  border-radius: 10px;
-  font-weight: 600;
-  transition: all 0.25s ease;
-  text-decoration: none;
-}
-
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-600); transform: translateY(-2px); }
-.btn-secondary { background: rgba(38,58,82,0.12); color: #ffffff; backdrop-filter: blur(2px); border: 1px solid rgba(255,255,255,0.2); }
-.btn-secondary:hover { background: rgba(38,58,82,0.22); transform: translateY(-2px); }
-
-.social-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.social-link:hover {
-  color: var(--accent);
-}
-
-.hero-photo {
-  justify-self: end;
-  width: 380px;
-  height: 550px;
-  border-radius: 20px;
-  overflow: visible;
+/* 项目区背景由 ProjectsSection 自行绘制，避免父级白底网格盖住黄底黑网格 */
+.stack-section--projects,
+.stack-section--blog {
   background: transparent;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hero-photo img {
-  width: 140%;
-  height: 140%;
-  object-fit: contain;
+  background-image: none;
+  overflow: visible;
 }
 
-.features {
-  padding: 3rem 0 4rem;
+.stack-section--projects::after {
+  display: none;
 }
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+.stack-section--links {
+  overflow: visible;
+  background: #fff;
+  background-image: none;
+  min-height: max(100vh, 1120px);
 }
-
-.feature-card {
-  background: var(--color-surface);
-  padding: 1.6rem;
-  border-radius: 16px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  border: 1px solid var(--border);
-}
-
-.feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-md);
-}
-
-.feature-card .icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-bottom: 0.6rem;
-  color: var(--accent);
-}
-
-.feature-card .icon svg {
+.blog-wrap {
   width: 100%;
+  display: grid;
+  grid-template-rows: 160px 1fr;
+  background-image: var(--contour-light-bg);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
+  height: 100vh;
+  position: relative;
+  z-index: 3;
+}
+.skills-wrap {
+  width: 100%;
+  display: grid;
+  grid-template-rows: 160px 1fr;
+  background-image: var(--contour-light-bg);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
+  height: 100vh;
+  position: relative;
+  z-index: 3;
+}
+.skills-pane {
+  min-height: 0;
+  display: flex;
+  height: calc(100vh - 160px);
+}
+.skills-pane > * {
+  flex: 1 1 auto;
+  min-width: 0;
   height: 100%;
 }
-
-.icon-inline {
-  width: 1.2rem;
-  height: 1.2rem;
+.blog-pane {
+  min-height: 0;
+  display: flex;
+  height: calc(100vh - 160px);
+}
+.blog-pane > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+.skills-wrap > :first-child,
+.blog-wrap > :first-child {
+  --band-h: 160px;
+  --band-size: 5.52rem;
+  position: relative;
+  z-index: 4;
 }
 
-.feature-card h3 {
-  color: var(--brand);
-  margin-bottom: 0.4rem;
+.stack-section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.16), transparent);
 }
 
-.feature-card p {
-  color: var(--color-muted);
-  line-height: 1.7;
-  margin-bottom: 0.6rem;
+.stack-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 80px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.55), transparent);
+  pointer-events: none;
+  z-index: 1;
 }
 
-.feature-card .more {
-  color: var(--accent);
-  font-weight: 600;
+.hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  /* 首屏仍然保持亮色大标题 */
+  --brand: rgba(255,255,255,0.96);
+  --color-text: rgba(255,255,255,0.92);
+  --color-muted: rgba(255,255,255,0.72);
+  --accent: #ff2a7d;
+  --accent-600: #e61f6f;
 }
 
+.hero-media {
+  position: absolute;
+  inset: 0;
+}
 
-@media (max-width: 992px) {
-  .hero-content {
-    grid-template-columns: 1fr;
-    text-align: center;
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 520px at 55% 25%, rgba(255,42,125,0.16), transparent 60%),
+    radial-gradient(820px 460px at 45% 65%, rgba(71,227,255,0.12), transparent 60%),
+    linear-gradient(120deg, rgba(0,0,0,0.55), rgba(0,0,0,0.05));
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 42%, rgba(0,0,0,0.0) 70%),
+    radial-gradient(700px 300px at 20% 35%, rgba(0,0,0,0.55), transparent 62%);
+}
+
+.hero-ui {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 100vh;
+  display: grid;
+  align-content: end;
+  gap: 18px;
+  padding: 40px 42px 46px;
+  max-width: 900px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-line {
+    opacity: 0;
+    transform: translateY(28px);
+    animation: hero-rise 860ms cubic-bezier(.22,1,.36,1) forwards;
+    animation-delay: calc(180ms + var(--i, 0) * 110ms);
   }
-  .hero-photo { justify-self: center; width: 80%; height: auto; max-width: 420px; }
-  .headline { font-size: 3rem; }
-  .role-line { font-size: 1.6rem; }
-  .cta-group { justify-content: center; }
+  .hero-media .hero-img,
+  .hero-media .hero-fallback {
+    animation: hero-zoom 1.4s cubic-bezier(.22,1,.36,1) both;
+  }
+}
+@keyframes hero-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hero-zoom {
+  from { transform: scale(1.08); filter: blur(4px); }
+  to { transform: scale(1); filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-line {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
-@media (max-width: 768px) {
-  .subtitle { font-size: 1rem; }
-  .features-grid {
-    grid-template-columns: 1fr;
+.hero-title {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1.03;
+  font-size: clamp(2.1rem, 4.2vw, 4.2rem);
+  color: rgba(255,255,255,0.94);
+  text-shadow: 0 16px 50px rgba(0,0,0,0.55);
+}
+
+.hero-title .accent {
+  color: rgba(255,224,54,0.98);
+  text-shadow:
+    0 18px 55px rgba(0,0,0,0.62),
+    0 0 22px rgba(255,224,54,0.18);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* 只改首页“查看项目/联系我”两颗按钮：去掉渐变，做成更工业的纯色 */
+.hero-actions .btn.btn-primary {
+  background: rgba(255,224,54,0.94);
+  color: rgba(0,0,0,0.82);
+  border: 1px solid rgba(255,224,54,0.55);
+  box-shadow: 0 14px 46px rgba(0,0,0,0.35);
+}
+.hero-actions .btn.btn-primary:hover {
+  background: rgba(255,224,54,0.98);
+}
+.hero-actions .btn.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.92);
+}
+.hero-actions .btn.btn-secondary:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+@media (max-width: 980px) {
+  .hero-ui {
+    padding: 28px 22px 28px;
   }
 }
 </style>

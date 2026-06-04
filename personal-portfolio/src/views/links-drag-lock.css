@@ -1,0 +1,9 @@
+html.scatter-drag-lock,
+body.scatter-drag-lock {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: var(--cursor-grabbing, grabbing) !important;
+  touch-action: none !important;
+}

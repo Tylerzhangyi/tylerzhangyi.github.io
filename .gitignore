@@ -23,3 +23,19 @@ dist-ssr
 *.sln
 *.sw?
 
+# Legacy root app (主站在 personal-portfolio/)
+/src/
+/public/
+/components.d.ts
+
+# Framer 镜像备份站（不参与 GitHub Pages 部署）
+/new-website/
+
+# 开发文档 / 设计稿（非站点运行时内容）
+/DEPLOYMENT.md
+/PROMPTS.md
+/DATA_STRUCTURE.md
+/DATABASE_UML_README.md
+/DATABASE_UML.puml
+/DATABASE_CLASS_DIAGRAM.puml
+/DATA_JSON_I18N_UML.puml

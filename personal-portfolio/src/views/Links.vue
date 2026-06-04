@@ -1,11 +1,20 @@
 <template>
-  <div class="links page">
+  <section
+    ref="section"
+    id="section-links"
+    data-scroll-section="links"
+    class="links-scroll"
+  >
     <div
-      ref="canvas"
-      class="scatter-canvas"
-      :class="{ 'is-drag-active': dragState !== null }"
-      aria-label="链接卡片"
+      ref="content"
+      class="links-scroll__scatter links-scroll__content links page"
     >
+      <div
+        ref="canvas"
+        class="scatter-canvas"
+        :class="{ 'is-drag-active': dragState?.moved }"
+        aria-label="链接卡片"
+      >
       <header class="scatter-header">
         <p class="scatter-kicker">{{ t('links.kicker') }}</p>
         <h1 class="scatter-title">{{ t('links.title') }}</h1>
@@ -16,7 +25,7 @@
         v-for="(link, index) in linksList"
         :key="`${link.title}-${index}`"
         class="scatter-card"
-        :class="{ 'is-dragging': dragState?.index === index }"
+        :class="{ 'is-dragging': dragState?.moved && dragState?.index === index }"
         :style="cardLayout(index)"
         @pointerdown.capture="onCardPointerDown($event, index)"
         @dragstart.capture.prevent
@@ -52,8 +61,9 @@
           </div>
         </div>
       </article>
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
@@ -94,7 +104,7 @@ const CARD_ACCENTS = [
   '#64748b'
 ]
 
-const STORAGE_KEY = 'portfolio-links-scatter-v2'
+const STORAGE_KEY = 'portfolio-links-scatter-v3'
 const DRAG_THRESHOLD = 5
 /** 允许卡片约 40% 超出画布边缘 */
 const OVERFLOW_RATIO = 0.4
@@ -176,6 +186,11 @@ export default {
     this.dragEnabled = !window.matchMedia('(max-width: 820px)').matches
     window.addEventListener('resize', this.onResize)
   },
+  watch: {
+    currentLang() {
+      this.initPositions()
+    }
+  },
   beforeUnmount() {
     window.removeEventListener('resize', this.onResize)
     this.unbindDragListeners()
@@ -190,7 +205,7 @@ export default {
       this.dragEnabled = !window.matchMedia('(max-width: 820px)').matches
     },
     initPositions() {
-      const count = SCATTER_LAYOUT.length
+      const count = this.linksList.length
       let loaded = null
       try {
         const raw = localStorage.getItem(STORAGE_KEY)
@@ -200,11 +215,11 @@ export default {
       }
       if (Array.isArray(loaded) && loaded.length === count) {
         this.cardPositions = loaded.map((p, i) => ({
-          ...SCATTER_LAYOUT[i],
+          ...(SCATTER_LAYOUT[i] || SCATTER_LAYOUT[0]),
           ...p
         }))
       } else {
-        this.cardPositions = SCATTER_LAYOUT.map((p) => ({ ...p }))
+        this.cardPositions = SCATTER_LAYOUT.slice(0, count).map((p) => ({ ...p }))
       }
     },
     savePositions() {
@@ -413,10 +428,10 @@ export default {
 <style scoped>
 .links.page {
   width: 100%;
-  min-height: 100vh;
-  padding: 48px 24px 80px;
+  min-height: max(100vh, 1120px);
+  padding: 48px 24px 120px;
   color: #14161a;
-  background: transparent;
+  background: #fff;
   overflow: visible;
 }
 
@@ -424,7 +439,7 @@ export default {
   position: relative;
   width: 100%;
   max-width: 1180px;
-  min-height: min(100vh, 920px);
+  min-height: max(100vh, 1120px);
   margin: 0 auto;
   touch-action: pan-y;
   overflow: visible;

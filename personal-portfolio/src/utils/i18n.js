@@ -10,13 +10,22 @@ const dict = {
   zh: {
     nav: {
       home: '首页',
+      homeShort: 'Home',
       about: '关于我',
+      aboutShort: 'About',
       education: '教育经历',
       skills: '技能',
       projects: '项目',
+      projectsShort: 'Projects',
       blog: '博客',
+      blogShort: 'Blog',
       links: '链接',
       contact: '联系我',
+      studio: 'Studio',
+      previewHome: 'hang Yi',
+      previewProjects: 'rojects',
+      previewBlog: 'log',
+      previewAbout: 'bout',
       siteTitle: "Tyler Zhang's Portfolio"
     },
     footer: {
@@ -26,10 +35,18 @@ const dict = {
     },
     home: {
       eyebrow: '创新者 · 学生',
+      heroName: 'Tyler Zhang',
+      heroLeft: 'Zhang',
+      heroRight: 'Yi',
       greeting: '你好，我是',
       welcome: '欢迎来到我的世界',
       role: '一名开发者。',
       subtitle: '一位希望通过计算机助益世界的创新者。',
+      introParagraph:
+        '欢迎来到我的作品集——我是一名学生开发者，热衷于构建能移动、能计算、能连接的事物。我相信简洁与真实的设计，也乐于用代码把想法变成可用的产品。',
+      showCaseLeft: 'About',
+      showCaseRight: 'Me',
+      showcaseAlt: 'About Me',
       avatarAlt: '头像',
       ctaProjects: '查看项目',
       ctaContact: '联系我',
@@ -128,8 +145,16 @@ const dict = {
         'IHOSA qualified for the National Round'
       ]
     },
+    projectsIntro: {
+      left: 'My',
+      right: 'Project',
+      aria: 'My Project'
+    },
     projects: {
       title: '项目',
+      show: 'Show',
+      case: 'Case',
+      view: 'View',
       kicker: 'Featured',
       subtitle: '精选作品 · 沉浸式展示',
       loading: '加载中...',
@@ -210,6 +235,14 @@ const dict = {
       notFound: '文章不存在',
       loadError: '无法加载博客数据'
     },
+    tbi: {
+      label: 'Portfolio',
+      line1: 'Personal portfolio — design & engineering.',
+      line2: 'Built with Vue, inspired by Form Studio.',
+      discover: 'Contact',
+      email: 'Email',
+      github: 'GitHub'
+    },
     links: {
       title: '有用链接',
       visit: '访问链接 →',
@@ -276,13 +309,22 @@ const dict = {
   en: {
     nav: {
       home: 'Home',
+      homeShort: 'Home',
       about: 'About',
+      aboutShort: 'About',
       education: 'Education',
       skills: 'Skills',
       projects: 'Projects',
+      projectsShort: 'Projects',
       blog: 'Blog',
+      blogShort: 'Blog',
       links: 'Links',
       contact: 'Contact',
+      studio: 'Studio',
+      previewHome: 'hang Yi',
+      previewProjects: 'rojects',
+      previewBlog: 'log',
+      previewAbout: 'bout',
       siteTitle: "Tyler Zhang's Portfolio"
     },
     footer: {
@@ -292,10 +334,18 @@ const dict = {
     },
     home: {
       eyebrow: 'Innovator · Student',
+      heroName: 'Tyler Zhang',
+      heroLeft: 'Zhang',
+      heroRight: 'Yi',
       greeting: 'Hello, I am',
       welcome: 'Welcome to my world',
       role: 'a Developer.',
       subtitle: 'An innovator who hopes to help the world through computer science.',
+      introParagraph:
+        'Welcome to my portfolio — I am a student developer, builder, and maker of things that move, compute, and connect. I care about clarity, craft, and turning ideas into products people can actually use.',
+      showCaseLeft: 'About',
+      showCaseRight: 'Me',
+      showcaseAlt: 'About Me',
       avatarAlt: 'Avatar',
       ctaProjects: 'View Projects',
       ctaContact: 'Contact',
@@ -394,8 +444,16 @@ const dict = {
         'IHOSA qualified for the National Round'
       ]
     },
+    projectsIntro: {
+      left: 'My',
+      right: 'Project',
+      aria: 'My Project'
+    },
     projects: {
       title: 'Projects',
+      show: 'Show',
+      case: 'Case',
+      view: 'View',
       kicker: 'Featured',
       subtitle: 'Selected works · immersive showcase',
       loading: 'Loading...',
@@ -475,6 +533,14 @@ const dict = {
       back: 'Back to Blog',
       notFound: 'Post not found',
       loadError: 'Failed to load blog data'
+    },
+    tbi: {
+      label: 'Portfolio',
+      line1: 'Personal portfolio — design & engineering.',
+      line2: 'Built with Vue, inspired by Form Studio.',
+      discover: 'Contact',
+      email: 'Email',
+      github: 'GitHub'
     },
     links: {
       title: 'Useful Links',
