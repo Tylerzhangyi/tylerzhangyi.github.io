@@ -131,18 +131,21 @@ const dict = {
       ],
       coursesList: [
         'CL/AP Computer Science A',
-        'CL Applied Python Programming, Information and Communication Technology',
+        'CL Applied Python Programming',
+        'Coursera Machine Learning',
         'CL/AP Physics C:Electricity and Magnetism',
         'CL/AP Physics C: Mechanics',
         'Linear Algebra',
         'CL/AP Calculus BC'
       ],
       awardsList: [
+        'Graduate with honor in Hangzhou Yungu Highschool',
         "2024, 2025 Dean's List, Overall Academic Performance Top 3%",
         'AMC 12 5% percentile',
         'Honors College Schloar, Top3%',
         'Top 25% in Cayley/Fermat Math Contests',
-        'IHOSA qualified for the National Round'
+        'IHOSA qualified for the National Round',
+        
       ]
     },
     projectsIntro: {
@@ -430,18 +433,21 @@ const dict = {
       ],
       coursesList: [
         'CL/AP Computer Science A',
-        'CL Applied Python Programming, Information and Communication Technology',
+        'CL Applied Python Programming',
+        'Coursera Machine Learning',
         'CL/AP Physics C:Electricity and Magnetism',
         'CL/AP Physics C: Mechanics',
         'Linear Algebra',
         'CL/AP Calculus BC'
       ],
       awardsList: [
+        'Graduate with honor in Hangzhou Yungu Highschool',
         "2024, 2025 Dean's List, Overall Academic Performance Top 3%",
         'AMC 12 5% percentile',
         'Honors College Scholar, Top 3%',
         'Top 25% in Cayley/Fermat Math Contests',
-        'IHOSA qualified for the National Round'
+        'IHOSA qualified for the National Round',
+        
       ]
     },
     projectsIntro: {
