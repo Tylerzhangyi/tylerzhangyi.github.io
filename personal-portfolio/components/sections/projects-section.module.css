@@ -1,0 +1,22 @@
+@media (max-width: 992px) {
+  .projectsScrollPin {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .projectsScrollTrack {
+    flex-direction: column;
+    transform: none !important;
+    height: auto;
+  }
+
+  .projectsColumn {
+    flex: none;
+    width: 100%;
+    height: auto;
+    padding: 32px var(--pad-x, 20px);
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}

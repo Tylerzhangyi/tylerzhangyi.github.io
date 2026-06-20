@@ -1,0 +1,130 @@
+.formStudioHome {
+  position: relative;
+  background: var(--fs-bg, #fff);
+  color: var(--fs-fg, #000);
+}
+
+.formStudioHomeGrid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.formStudioHome.isActive .formStudioHomeGrid {
+  opacity: 1;
+}
+
+.formStudioHomeGridLines {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 25.01% 100%;
+  opacity: 0.15;
+}
+
+.formStudioShowcase {
+  min-height: 240vh;
+  position: relative;
+  z-index: 1;
+}
+
+.formStudioShowcaseTail {
+  height: clamp(64px, 12vh, 140px);
+  pointer-events: none;
+}
+
+.aboutMeShowcaseRoot {
+  position: relative;
+  background: var(--fs-bg, #fff);
+  isolation: isolate;
+  z-index: 1;
+}
+
+.formStudioShowcaseSticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: calc(var(--header-h, 72px) + 24px) var(--pad-x, 24px) 48px;
+  box-sizing: border-box;
+}
+
+.formStudioShowcaseStickyFull {
+  padding: 0;
+}
+
+.formStudioShowcaseMedia {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%, -50%) scale(0.55);
+  transform-origin: center center;
+  will-change: transform;
+  z-index: 0;
+}
+
+.formStudioShowcaseMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.formStudioShowcaseLabels {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12em;
+  width: 100%;
+  pointer-events: none;
+}
+
+.formStudioShowcaseLabel {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 12vw, 140px);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: #fff;
+  will-change: transform, opacity;
+  opacity: 0.35;
+  transform-origin: center center;
+}
+
+.formStudioShowcaseLabelLeft,
+.formStudioShowcaseLabelRight {
+  transform: translateX(0);
+}
+
+@media (max-width: 809px) {
+  .formStudioShowcaseLabels {
+    flex-direction: column;
+    gap: 0.12em;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .formStudioShowcaseLabel {
+    font-size: clamp(40px, 16vw, 72px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formStudioShowcaseMedia,
+  .formStudioShowcaseLabel {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

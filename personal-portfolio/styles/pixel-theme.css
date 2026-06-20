@@ -1,0 +1,195 @@
+/* Global pixel-art styling layer */
+
+.pixel-theme {
+  --font-display: var(--font-pixel-display), var(--font-pixel-zh), monospace;
+  --font-body: var(--font-pixel-body), var(--font-pixel-zh), monospace;
+  --font-mono: var(--font-pixel-body), var(--font-pixel-zh), monospace;
+  --pixel-unit: 4px;
+  --pixel-border: 3px solid #101010;
+  --pixel-shadow-sm: var(--pixel-unit) var(--pixel-unit) 0 #101010;
+  --pixel-shadow-md: calc(var(--pixel-unit) * 2) calc(var(--pixel-unit) * 2) 0 #101010;
+  --shadow-sm: var(--pixel-shadow-sm);
+  --shadow-md: var(--pixel-shadow-md);
+}
+
+html.pixel-theme[lang='zh'],
+html.pixel-theme[lang='zh-CN'] {
+  --font-body: var(--font-pixel-zh), var(--font-pixel-body), monospace;
+  --font-display: var(--font-pixel-display), var(--font-pixel-zh), monospace;
+}
+
+html.pixel-theme[lang='en'] {
+  --font-body: var(--font-pixel-body), monospace;
+  --font-display: var(--font-pixel-display), monospace;
+  --font-mono: var(--font-pixel-body), monospace;
+}
+
+.pixel-theme body,
+.pixel-theme .onepage,
+.pixel-theme p,
+.pixel-theme li,
+.pixel-theme .introWelcomeText,
+.pixel-theme .fs-hero__desc,
+.pixel-theme .nodeCard,
+.pixel-theme .aboutPage,
+.pixel-theme .blog-card__excerpt,
+.pixel-theme .project-card__desc {
+  font-family: var(--font-body);
+}
+
+.pixel-theme body {
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  background-color: #fff;
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.pixel-theme .fs-hero__grid {
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.28;
+}
+
+.pixel-theme .fs-hero__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: var(--pixel-shadow-md);
+}
+
+.pixel-theme .fs-hero__title-dot {
+  font-family: var(--font-display);
+}
+
+.pixel-theme .nav-lang,
+.pixel-theme .nav-menu,
+.pixel-theme .nav-menu__text,
+.pixel-theme .menu-overlay__link,
+.pixel-theme .menu-overlay__lang {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pixel-theme .nav-lang,
+.pixel-theme .nav-menu {
+  border: 2px solid #101010;
+  box-shadow: var(--pixel-shadow-sm);
+  background: #fff;
+  padding: 8px 12px;
+}
+
+.pixel-theme .nav-menu {
+  gap: 8px;
+}
+
+.pixel-theme .nav-menu__icon {
+  image-rendering: pixelated;
+}
+
+.pixel-theme .btn,
+.pixel-theme .btn-primary,
+.pixel-theme .btn-secondary {
+  border-radius: 0;
+  border: var(--pixel-border);
+  box-shadow: var(--pixel-shadow-sm);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pixel-theme .btn-primary:hover,
+.pixel-theme .btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: calc(var(--pixel-unit) * 2) calc(var(--pixel-unit) * 2) 0 #101010;
+}
+
+.pixel-theme .btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.pixel-theme .project-card,
+.pixel-theme .blog-card,
+.pixel-theme .blog-card__inner {
+  border-radius: 0;
+}
+
+.pixel-theme .project-card__media-wrap,
+.pixel-theme .blog-card__media-wrap {
+  border: var(--pixel-border);
+  box-shadow: var(--pixel-shadow-sm);
+}
+
+.pixel-theme .project-card__title,
+.pixel-theme .project-card__tag,
+.pixel-theme .blog-card__title,
+.pixel-theme .blog-card__meta,
+.pixel-theme .card-cta__pill {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pixel-theme .card-cta__pill {
+  border-radius: 0;
+  border: 2px solid #101010;
+  box-shadow: 3px 3px 0 #101010;
+}
+
+.pixel-theme .splitTitleSectionTitle {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: var(--pixel-shadow-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pixel-theme .page-enter-from,
+  .pixel-theme .page-leave-to,
+  .pixel-theme .slide-left-enter {
+    filter: none !important;
+  }
+
+  .pixel-theme .reveal-on-scroll {
+    transition:
+      opacity 0.35s steps(3, end),
+      transform 0.35s steps(3, end);
+  }
+
+  .pixel-theme .slide-left-enter {
+    animation: pixelSlideIn 0.28s steps(3, end) both;
+  }
+
+  @keyframes pixelSlideIn {
+    from {
+      transform: translateX(-10px);
+      opacity: 0;
+    }
+
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .pixel-theme body {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-theme .reveal-on-scroll,
+  .pixel-theme .slide-left-enter {
+    transition: none;
+    animation: none;
+  }
+}

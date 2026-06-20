@@ -1,0 +1,94 @@
+.splitTitleSection {
+  min-height: var(--split-scroll-height, 108vh);
+  position: relative;
+  background: #fff;
+  color: #000;
+  z-index: 1;
+  overflow: hidden;
+  margin-bottom: -4vh;
+}
+
+.splitTitleSectionGrid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.splitTitleSection.isActive .splitTitleSectionGrid {
+  opacity: 1;
+}
+
+.splitTitleSectionGridLines {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 25.01% 100%;
+}
+
+.splitTitleSectionSticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: calc(var(--header-h, 72px) + 24px) var(--pad-x, 24px) 48px;
+  box-sizing: border-box;
+}
+
+.splitTitleSectionStickyHidden .splitTitleSectionTitles {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splitTitleSectionTitles {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12em;
+  width: 100%;
+  pointer-events: none;
+}
+
+.splitTitleSectionTitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 12vw, 140px);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  will-change: transform, opacity;
+  opacity: 1;
+  transform-origin: center center;
+}
+
+@media (max-width: 809px) {
+  .splitTitleSectionTitles {
+    flex-direction: column;
+    gap: 0.12em;
+  }
+
+  .splitTitleSectionTitle {
+    font-size: clamp(40px, 16vw, 72px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splitTitleSectionTitle {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

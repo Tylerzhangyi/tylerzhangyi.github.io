@@ -24,11 +24,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: npm
+          cache-dependency-path: personal-portfolio/package-lock.json
 
       - name: Install dependencies
         working-directory: personal-portfolio
-        run: npm install
+        run: npm ci
 
       - name: Build
         working-directory: personal-portfolio
@@ -37,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: personal-portfolio/dist
+          path: personal-portfolio/out
 
   deploy:
     needs: build

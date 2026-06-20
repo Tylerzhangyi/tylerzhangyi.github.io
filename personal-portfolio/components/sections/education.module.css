@@ -1,0 +1,200 @@
+.edu {
+  padding: 0 0 48px;
+  background: #fff;
+}
+
+.head {
+  margin-bottom: 32px;
+  display: grid;
+  gap: 8px;
+}
+
+.kicker {
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.title {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  letter-spacing: -0.02em;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.treeScroll {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+  isolation: isolate;
+}
+
+.treePin {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  padding-bottom: 48px;
+  box-sizing: border-box;
+  background: #fff;
+  z-index: 3;
+}
+
+.treeStage {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.treeSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.treeRoot {
+  fill: #16181d;
+}
+
+.treeTrunk {
+  stroke: #16181d;
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+}
+
+.treeBranch {
+  stroke: rgba(22, 24, 29, 0.72);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+}
+
+.treeNodes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.nodeRow {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.nodeRowLeft {
+  justify-content: flex-start;
+}
+
+.nodeRowRight {
+  justify-content: flex-end;
+}
+
+.nodeCard {
+  width: min(46%, 380px);
+  padding: 16px 18px;
+  border: 2px solid #101010;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.92);
+  will-change: transform, opacity;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.degree {
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.86);
+  font-size: 0.95rem;
+}
+
+.period {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.institution {
+  margin-top: 4px;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 0.88rem;
+}
+
+.desc {
+  margin-top: 8px;
+  color: rgba(0, 0, 0, 0.62);
+  line-height: 1.65;
+  font-size: 0.88rem;
+}
+
+.desc a {
+  color: rgba(0, 0, 0, 0.82);
+  font-weight: 800;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.desc a:hover {
+  border-bottom-color: rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 809px) {
+  .treeStage {
+    max-width: 100%;
+  }
+
+  .nodeRow {
+    min-height: auto;
+    margin-bottom: 16px;
+    justify-content: stretch !important;
+  }
+
+  .nodeCard {
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .treeSvg {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nodeCard {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .treeTrunk,
+  .treeBranch {
+    stroke-dashoffset: 0 !important;
+  }
+}

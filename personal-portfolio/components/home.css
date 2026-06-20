@@ -1,0 +1,97 @@
+.onepage {
+  width: 100%;
+  background: var(--fs-bg, #fff);
+  --brand: #16181d;
+  --color-text: #252a33;
+  --color-muted: #5d6674;
+  --color-surface: rgba(255, 255, 255, 0.82);
+  --border: rgba(0, 0, 0, 0.12);
+  --accent: #1a1d23;
+  --accent-600: #0f1116;
+}
+
+.onepage .stack-section {
+  scroll-margin-top: 0;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background-image: var(--contour-light-bg);
+  background-size: 56px 56px, 56px 56px, 100% 100%;
+}
+
+.onepage .stack-section > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.onepage .stack-section--about {
+  min-height: auto;
+  background: #fff;
+  background-image: none;
+  isolation: isolate;
+  padding-bottom: clamp(48px, 8vh, 96px);
+  margin-top: clamp(48px, 10vh, 120px);
+}
+
+.onepage .stack-section--education {
+  min-height: auto;
+  background: #fff;
+  background-image: none;
+  isolation: isolate;
+  padding-top: clamp(32px, 6vh, 72px);
+  margin-top: clamp(16px, 3vh, 40px);
+  z-index: 4;
+}
+
+.onepage .projects-scroll {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(32px, 6vh, 72px);
+}
+
+.onepage .stack-section--links {
+  overflow: visible;
+  background: #fff;
+  background-image: none;
+  min-height: max(100vh, 1120px);
+}
+
+.onepage .stack-section--solid {
+  background: #fff;
+  background-image: none;
+  isolation: isolate;
+  z-index: 2;
+}
+
+.onepage .stack-section--solid::before,
+.onepage .stack-section--solid::after {
+  z-index: 0;
+}
+
+.onepage .stack-section--solid > * {
+  position: relative;
+  z-index: 1;
+}
+
+.onepage .stack-section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.16), transparent);
+}
+
+.onepage .stack-section::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 80px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), transparent);
+  pointer-events: none;
+  z-index: 1;
+}

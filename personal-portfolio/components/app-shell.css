@@ -1,0 +1,45 @@
+.app-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-content.is-route-anim::after {
+    animation: none;
+  }
+}
+
+.slide-left-enter {
+  animation: slide-left-in 920ms cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes slide-left-in {
+  from {
+    transform: translateX(-14%) scale(0.985);
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-left-enter {
+    animation: none;
+  }
+}

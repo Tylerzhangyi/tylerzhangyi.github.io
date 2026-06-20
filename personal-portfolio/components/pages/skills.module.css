@@ -1,0 +1,213 @@
+.pageTitle {
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: var(--brand);
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.skillsSection {
+  background: var(--color-surface);
+  padding: 1.6rem 1.6rem 1.2rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+.sectionHeading {
+  color: var(--brand);
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.skillsContainer {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(280px, 340px);
+  gap: 12px;
+  align-items: start;
+}
+
+.radarChartWrapper {
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0.4rem 0.8rem 0.4rem;
+}
+
+.skillsListPanel {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.1);
+}
+
+.skillRow {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.skillRow:last-child {
+  border-bottom: 0;
+}
+
+.skillRowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.skillName {
+  color: rgba(0, 0, 0, 0.84);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.skillLevel {
+  color: rgba(0, 0, 0, 0.62);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+}
+
+.skillBar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.skillFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255, 224, 54, 0.96), rgba(255, 224, 54, 0.72));
+}
+
+.radarChart {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+.gridLines polygon {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.34);
+  stroke-width: 1.5;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.radarChart.chartLoaded .gridLines polygon {
+  opacity: 1;
+}
+
+.gridLines polygon.gridLevel4 {
+  stroke-width: 2;
+  stroke: rgba(0, 0, 0, 0.52);
+}
+
+.centerLine {
+  stroke: rgba(0, 0, 0, 0.24);
+  stroke-width: 1;
+  opacity: 0;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: opacity 0.6s ease, stroke-dashoffset 0.8s ease;
+}
+
+.radarChart.chartLoaded .centerLine {
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+
+.radarChart.chartLoaded :global(.line-0) { transition-delay: 0.2s; }
+.radarChart.chartLoaded :global(.line-1) { transition-delay: 0.3s; }
+.radarChart.chartLoaded :global(.line-2) { transition-delay: 0.4s; }
+.radarChart.chartLoaded :global(.line-3) { transition-delay: 0.5s; }
+.radarChart.chartLoaded :global(.line-4) { transition-delay: 0.6s; }
+
+.clipCircle {
+  fill: white;
+}
+
+.skillArea {
+  stroke: rgba(255, 224, 54, 0.95);
+  stroke-width: 2.5;
+  opacity: 0;
+  transition: opacity 1s ease 0.4s;
+}
+
+.radarChart.chartLoaded .skillArea {
+  opacity: 0.9;
+}
+
+.skillPoint {
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.radarChart.chartLoaded .skillPoint {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.radarChart.chartLoaded :global(.point-0) { transition-delay: 0.5s; }
+.radarChart.chartLoaded :global(.point-1) { transition-delay: 0.6s; }
+.radarChart.chartLoaded :global(.point-2) { transition-delay: 0.7s; }
+.radarChart.chartLoaded :global(.point-3) { transition-delay: 0.8s; }
+.radarChart.chartLoaded :global(.point-4) { transition-delay: 0.9s; }
+
+.skillLabel {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--color-text);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  transition-delay: 0.8s;
+}
+
+.radarChart.chartLoaded .skillLabel {
+  opacity: 1;
+}
+
+.skillValue {
+  font-size: 11px;
+  font-weight: 700;
+  fill: rgba(138, 111, 0, 0.95);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  transition-delay: 1s;
+}
+
+.radarChart.chartLoaded .skillValue {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .skillsSection {
+    padding: 1.5rem;
+  }
+
+  .skillsContainer {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .radarChartWrapper {
+    padding: 1rem;
+  }
+}
