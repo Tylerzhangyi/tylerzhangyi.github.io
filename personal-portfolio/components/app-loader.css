@@ -5,328 +5,159 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: var(--color-text);
+  color: #111;
+  background: #fff;
 }
 
 .app-loader.is-boot {
   z-index: 20000;
 }
 
-.boot-pixel-bg {
-  position: absolute;
-  inset: 0;
-  background-color: #101010;
-  background-image:
-    linear-gradient(90deg, rgba(255, 224, 54, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(255, 224, 54, 0.08) 1px, transparent 1px);
-  background-size: 16px 16px;
+.car-loader {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
-.boot-pixel {
+.car-world {
+  --scene-scale: 1.35;
   position: relative;
-  z-index: 1;
-  width: min(94vw, 720px);
-  padding: 20px;
-}
-
-.boot-pixel-frame {
-  border: 5px solid #ffe036;
-  box-shadow:
-    10px 10px 0 #000,
-    inset 0 0 0 2px #000;
-  background: #fff;
-  padding: clamp(36px, 6vw, 52px) clamp(28px, 5vw, 44px);
-  text-align: center;
-}
-
-.boot-pixel-brand {
-  margin: 0 0 16px;
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 5.5vw, 2.75rem);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #101010;
-  text-shadow: 4px 4px 0 rgba(16, 16, 16, 0.18);
-}
-
-.boot-pixel-status {
-  margin: 0 0 28px;
-  font-family: var(--font-mono);
-  font-size: clamp(16px, 2.4vw, 22px);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(16, 16, 16, 0.72);
-}
-
-.boot-pacman-scene {
-  margin-bottom: 24px;
-}
-
-.boot-pacman-track {
-  position: relative;
-  height: 68px;
-  padding: 0 14px;
-  border: 4px solid #101010;
-  background: #0a0a12;
-  box-shadow:
-    inset 0 0 0 2px #2b6cff,
-    5px 5px 0 rgba(16, 16, 16, 0.35);
+  width: min(920px, calc(100vw - 28px));
+  height: 320px;
   overflow: hidden;
+  transform: scale(var(--scene-scale));
+  transform-origin: center center;
 }
 
-.boot-pacman-pellet {
+.car-ground {
   position: absolute;
-  top: 50%;
-  left: calc(10% + (var(--i) / var(--total)) * 80%);
-  width: 10px;
-  height: 10px;
-  background: url('/photos/boot/pellet.png') center / contain no-repeat;
+  left: 0;
+  right: 0;
+  bottom: 54px;
+  height: 2px;
+  background: #111;
+}
+
+.car-ground::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: -240px;
+  top: 9px;
+  height: 8px;
+  background-image:
+    linear-gradient(90deg, #111 0 22px, transparent 22px 68px),
+    linear-gradient(90deg, transparent 0 104px, #111 104px 118px, transparent 118px 170px),
+    linear-gradient(90deg, transparent 0 210px, #111 210px 232px, transparent 232px 280px);
+  background-size: 280px 8px;
+  animation: groundRun 2.4s linear infinite;
+}
+
+.car-road-shine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 46px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(17, 17, 17, 0.45), transparent);
+}
+
+.pixel-car {
+  position: absolute;
+  left: calc(4% + var(--run) * 84%);
+  bottom: 58px;
+  width: 128px;
+  height: 128px;
+  transform: translateX(-50%);
+  animation: carFloat 0.84s steps(2, end) infinite;
+}
+
+.pixel-car img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: grayscale(1);
   image-rendering: pixelated;
-  transform: translate(-50%, -50%);
-  transition:
-    opacity 80ms steps(2, end),
-    transform 80ms steps(2, end);
+  image-rendering: crisp-edges;
 }
 
-.boot-pacman-pellet.is-eaten {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0);
-}
-
-.boot-pacman-runner {
+.car-obstacle {
   position: absolute;
-  top: 50%;
-  left: calc(6% + var(--dash) * 84%);
-  z-index: 2;
-  transform: translate(-50%, -50%);
-  will-change: left;
-  animation: bootPacmanBob 0.32s steps(2, end) infinite;
-}
-
-@keyframes bootPacmanBob {
-  0%,
-  100% {
-    transform: translate(-50%, -50%);
-  }
-
-  50% {
-    transform: translate(-50%, calc(-50% - 2px));
-  }
-}
-
-.pixel-pacman-sprite {
-  width: 48px;
+  bottom: 56px;
+  width: 16px;
   height: 48px;
-  background-repeat: no-repeat;
-  background-position: 0 0;
-  background-size: 144px 48px;
-  image-rendering: pixelated;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.45));
-  animation: pixelPacmanSprite 0.36s steps(3, end) infinite;
+  background: #111;
+  animation: obstacleRun 6.8s linear infinite;
 }
 
-@keyframes pixelPacmanSprite {
-  to {
-    background-position: -144px 0;
-  }
+.car-obstacle::before,
+.car-obstacle::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  background: #111;
 }
 
-.boot-pixel-pct {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.85rem, 5vw, 2.75rem);
-  letter-spacing: 0.08em;
-  color: #101010;
-  text-shadow: 3px 3px 0 rgba(16, 16, 16, 0.2);
+.car-obstacle::before { left: -12px; top: 16px; height: 18px; }
+.car-obstacle::after { right: -12px; top: 10px; height: 24px; }
+.car-obstacle-a { right: -60px; }
+.car-obstacle-b { right: -360px; height: 36px; animation-delay: -1.8s; }
+.car-obstacle-c { right: -680px; width: 22px; height: 58px; animation-delay: -3.4s; }
+
+.car-cloud {
+  position: absolute;
+  width: 66px;
+  height: 18px;
+  border: 2px solid #111;
+  border-left: 0;
+  border-right: 0;
+  opacity: 0.55;
+  animation: cloudRun 24s linear infinite;
 }
 
-.app-loader.is-boot.is-finishing .boot-pixel-frame {
-  animation: bootPixelPop 420ms steps(4, end) both;
+.car-cloud::before,
+.car-cloud::after {
+  content: '';
+  position: absolute;
+  border: 2px solid #111;
+  border-bottom: 0;
+  background: #fff;
 }
+
+.car-cloud::before { left: 8px; top: -14px; width: 20px; height: 20px; }
+.car-cloud::after { right: 10px; top: -20px; width: 28px; height: 28px; }
+.car-cloud-a { top: 34px; right: -90px; }
+.car-cloud-b { top: 72px; right: -420px; transform: scale(0.72); animation-delay: -5.2s; }
 
 .app-loader.is-boot.is-finishing {
-  animation: bootPixelFade 360ms steps(3, end) 420ms both;
+  animation: carOpenScreen 1440ms cubic-bezier(.22,1,.36,1) both;
 }
 
-@keyframes bootPixelPop {
-  0% {
-    transform: scale(1);
+@keyframes carFloat {
+  0%, 100% { margin-bottom: 0; }
+  50% { margin-bottom: 2px; }
+}
+
+@keyframes obstacleRun { from { transform: translateX(0); } to { transform: translateX(calc(-100vw - 760px)); } }
+@keyframes cloudRun { from { transform: translateX(0); } to { transform: translateX(calc(-100vw - 820px)); } }
+@keyframes groundRun { from { background-position: 0 0, 0 0, 0 0; } to { background-position: -280px 0, -280px 0, -280px 0; } }
+@keyframes carOpenScreen { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; visibility: hidden; transform: translateY(-12px); } }
+
+@media (max-width: 640px) {
+  .car-world {
+    --scene-scale: 1.1;
+    width: calc(100vw - 20px);
+    height: 260px;
   }
-
-  50% {
-    transform: scale(1.03);
-    box-shadow:
-      10px 10px 0 #000,
-      inset 0 0 0 2px #000;
-  }
-
-  100% {
-    transform: scale(1);
-    background: #ffe036;
-  }
-}
-
-@keyframes bootPixelFade {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-.loader-bg {
-  position: absolute;
-  inset: -40px;
-  background:
-    radial-gradient(900px 520px at 50% 35%, rgba(255,45,117,0.14), transparent 62%),
-    radial-gradient(820px 460px at 35% 65%, rgba(64,224,255,0.10), transparent 60%),
-    linear-gradient(180deg, #070a10 0%, #0b1018 55%, #070a10 100%);
-  filter: saturate(120%);
-}
-
-.loader-noise {
-  position: absolute;
-  inset: 0;
-  opacity: 0.08;
-  mix-blend-mode: overlay;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 4px);
-}
-
-.loader-center {
-  position: relative;
-  width: min(520px, calc(100vw - 40px));
-  padding: 26px 22px 22px;
-  border-radius: 0;
-  border: 3px solid rgba(255,255,255,0.16);
-  background: rgba(12, 16, 22, 0.82);
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
-}
-
-.mark {
-  width: 64px;
-  height: 64px;
-  position: relative;
-  margin-bottom: 14px;
-}
-
-.mark-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 0;
-  border: 2px solid rgba(255,45,117,0.55);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
-  animation: ring 1.1s linear infinite;
-}
-
-.mark-core {
-  position: absolute;
-  inset: 16px;
-  border-radius: 0;
-  background: #ff2a7d;
-}
-
-.text .title {
-  letter-spacing: 0.22em;
-  font-weight: 800;
-  color: rgba(255,255,255,0.88);
-  font-size: 0.9rem;
-  font-family: var(--font-mono);
-}
-
-.text .sub {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: rgba(229,231,235,0.78);
-}
-
-.mono {
-  font-family: var(--font-mono);
-  letter-spacing: 0.08em;
-  font-weight: 700;
-}
-
-.dots span {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 0;
-  background: rgba(255,45,117,0.75);
-  margin-right: 6px;
-  animation: dot 1.1s ease-in-out infinite;
-}
-.dots span:nth-child(2) { animation-delay: 0.12s; }
-.dots span:nth-child(3) { animation-delay: 0.24s; margin-right: 0; }
-
-.bar {
-  position: relative;
-  margin-top: 16px;
-  height: 12px;
-  border-radius: 0;
-  background: rgba(255,255,255,0.08);
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.14);
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 0;
-  background: #ffe036;
-  transition: width 180ms steps(3, end);
-}
-
-.bar-glow {
-  display: none;
-}
-
-.scan {
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  height: 140px;
-  top: -160px;
-  background: linear-gradient(180deg, transparent, rgba(255,45,117,0.08), rgba(64,224,255,0.10), transparent);
-  filter: blur(2px);
-  transform: skewY(-6deg);
-  animation: scan 1.6s ease-in-out infinite;
-  opacity: 0.95;
-}
-
-.is-route .loader-center {
-  width: min(420px, calc(100vw - 40px));
-  padding: 20px 18px 18px;
-}
-.is-route .mark { width: 52px; height: 52px; }
-.is-route .mark-core { inset: 13px; }
-
-@keyframes ring {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes dot {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.7; }
-  40% { transform: translateY(-5px); opacity: 1; }
-}
-
-@keyframes scan {
-  0% { top: -180px; opacity: 0.0; }
-  15% { opacity: 1; }
-  60% { top: calc(100% + 140px); opacity: 0.9; }
-  100% { top: calc(100% + 180px); opacity: 0.0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pixel-pacman-sprite,
-  .app-loader.is-boot.is-finishing .boot-pixel-frame,
+  .pixel-car,
+  .car-ground::after,
+  .car-obstacle,
+  .car-cloud,
   .app-loader.is-boot.is-finishing {
-    animation: none;
-    transition: none;
-  }
-
-  .boot-pacman-runner {
     animation: none;
   }
 }

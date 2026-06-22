@@ -986,6 +986,7 @@ body.is-projects-active .projects-grid {
   background: #fff;
   color: #000;
   overflow: visible;
+  scroll-margin-top: var(--header-h, 72px);
 }
 
 body.is-blog-active {

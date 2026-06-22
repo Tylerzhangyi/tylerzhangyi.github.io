@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { CubeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, CubeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 import { useI18n } from '@/lib/i18n'
-import { usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
 import { resolveAssetUrl } from '@/lib/assets'
 import { fetchProjectById } from '@/lib/data'
 import styles from '@/components/pages/project-detail.module.css'
@@ -51,7 +51,7 @@ export default function ProjectDetailClient() {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
     else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
 
-    await navigateWithTransition('/', (path) => router.push(path, { scroll: false }))
+    await navigateWithTransition(getDetailReturnHref('projects'), (path) => router.push(path, { scroll: false }))
 
     window.setTimeout(() => {
       ScrollTrigger.refresh()
@@ -81,19 +81,49 @@ export default function ProjectDetailClient() {
         )}
 
         {!loading && !error && project && (
-          <div className={`${styles.projectDetailContent} detail-enter`}>
+          <>
             <button
               type="button"
               className={styles.closeFab}
               onClick={goBack}
               aria-label="关闭详情"
             >
-              CLOSE
+              <ArrowLeftIcon className={styles.closeIcon} />
+              <span>{t('projectDetail.back')}</span>
             </button>
 
-            <h1 className={styles.projectTitle}>{project.name}</h1>
+            <div className={`${styles.projectDetailContent} detail-enter`}>
+            <header className={styles.projectHero}>
+              <div className={styles.heroCopy}>
+                <p className={styles.eyebrow}>Project / {String(project.id).padStart(2, '0')}</p>
+                <h1 className={styles.projectTitle}>{project.name}</h1>
+                <p className={styles.heroIntro}>{project.intro}</p>
+                <div className={styles.heroActions}>
+                  {project.demo && (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`${styles.projectLink} ${styles.projectLinkDemo}`}
+                    >
+                      <RocketLaunchIcon className={styles.iconInline} />
+                      {t('projectDetail.demo')}
+                    </a>
+                  )}
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`${styles.projectLink} ${styles.projectLinkGithub}`}
+                    >
+                      <CubeIcon className={styles.iconInline} />
+                      {t('projectDetail.github')}
+                    </a>
+                  )}
+                </div>
+              </div>
 
-            <div className={styles.projectHeader}>
               <div className={styles.projectImageLarge}>
                 <img
                   src={resolveAssetUrl(project.image) || '/photos/placeholder.jpg'}
@@ -101,61 +131,56 @@ export default function ProjectDetailClient() {
                   onError={handleImageError}
                 />
               </div>
-            </div>
+            </header>
 
-            <div className={styles.contentSection}>
-              <h2 className={styles.sectionHeading}>{t('projectDetail.intro')}</h2>
-              <p className={styles.introText}>{project.intro}</p>
-            </div>
+            <div className={styles.detailGrid}>
+              <aside className={styles.sidePanel}>
+                <div className={styles.panelBlock}>
+                  <p className={styles.panelLabel}>{t('projectDetail.tech')}</p>
+                  <div className={styles.techList}>
+                    {project.technologies?.map((tech) => (
+                      <span key={tech} className={styles.techTagLarge}>
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.panelBlock}>
+                  <p className={styles.panelLabel}>{t('projectDetail.links')}</p>
+                  <div className={styles.projectLinks}>
+                    {project.demo && (
+                      <a href={project.demo} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                        <RocketLaunchIcon className={styles.iconInline} />
+                        {t('projectDetail.demo')}
+                      </a>
+                    )}
+                    {project.github && (
+                      <a href={project.github} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                        <CubeIcon className={styles.iconInline} />
+                        {t('projectDetail.github')}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </aside>
 
-            <div className={styles.contentSection}>
-              <h2 className={styles.sectionHeading}>{t('projectDetail.tech')}</h2>
-              <div className={styles.techList}>
-                {project.technologies?.map((tech) => (
-                  <span key={tech} className={styles.techTagLarge}>
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
+              <div className={styles.mainColumn}>
+                <section className={styles.contentSection}>
+                  <h2 className={styles.sectionHeading}>{t('projectDetail.intro')}</h2>
+                  <p className={styles.introText}>{project.intro}</p>
+                </section>
 
-            {project.description && (
-              <div className={styles.contentSection}>
-                <h2 className={styles.sectionHeading}>{t('projectDetail.description')}</h2>
-                <p className={styles.descriptionText}>{project.description}</p>
-              </div>
-            )}
-
-            <div className={styles.contentSection}>
-              <h2 className={styles.sectionHeading}>{t('projectDetail.links')}</h2>
-              <div className={styles.projectLinks}>
-                {project.github && (
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`${styles.projectLink} ${styles.projectLinkGithub}`}
-                  >
-                    <CubeIcon className={styles.iconInline} />
-                    {t('projectDetail.github')}
-                  </a>
-                )}
-                {project.demo && (
-                  <a
-                    href={project.demo}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`${styles.projectLink} ${styles.projectLinkDemo}`}
-                  >
-                    <RocketLaunchIcon className={styles.iconInline} />
-                    {t('projectDetail.demo')}
-                  </a>
+                {project.description && (
+                  <section className={styles.contentSection}>
+                    <h2 className={styles.sectionHeading}>{t('projectDetail.description')}</h2>
+                    <p className={styles.descriptionText}>{project.description}</p>
+                  </section>
                 )}
               </div>
             </div>
 
             {project.screenshots?.length > 0 && (
-              <div className={styles.contentSection}>
+              <section className={`${styles.contentSection} ${styles.screenshotSection}`}>
                 <h2 className={styles.sectionHeading}>{t('projectDetail.screenshots')}</h2>
                 <div className={styles.screenshotsGrid}>
                   {project.screenshots.map((screenshot, index) => (
@@ -166,9 +191,10 @@ export default function ProjectDetailClient() {
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>

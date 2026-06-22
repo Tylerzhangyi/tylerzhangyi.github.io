@@ -72,6 +72,7 @@ async function preloadCriticalAssets() {
     '/photos/tyler.png',
     '/photos/circuit.svg',
     '/photos/boot/pacman-sheet.png',
+    '/photos/boot/racing-car.png',
     '/photos/welcome-graduation.png'
   ]
   await Promise.allSettled(assets.map((asset) => preloadImage(asset)))
@@ -104,7 +105,7 @@ function scheduleBootFinish(session) {
   finishTimer = window.setTimeout(() => {
     if (session !== bootSession || bootFinished) return
     finishBoot()
-  }, 420)
+  }, 840)
 }
 
 export function startBootLoading() {
@@ -119,7 +120,7 @@ export function startBootLoading() {
   })
   setBodyLoading(true)
 
-  const durationMs = 1200
+  const durationMs = 2400
   const startAt = performance.now()
 
   const tick = (now) => {
@@ -134,8 +135,8 @@ export function startBootLoading() {
   ;(async () => {
     try {
       await Promise.race([
-        Promise.allSettled([wait(800), preloadCriticalAssets()]),
-        wait(2200)
+        Promise.allSettled([wait(1600), preloadCriticalAssets()]),
+        wait(4400)
       ])
     } finally {
       scheduleBootFinish(session)
@@ -167,7 +168,7 @@ export function finishRouteLoading() {
 }
 
 if (typeof window !== 'undefined') {
-  window.setTimeout(() => finishBoot(true), 3500)
+  window.setTimeout(() => finishBoot(true), 7000)
 }
 
 const UiStateContext = createContext(null)
@@ -182,11 +183,16 @@ export function UiStateProvider({ children }) {
   useEffect(() => {
     if (!ui.bootLoading) {
       document.body.classList.add('is-ready')
-      window.requestAnimationFrame(() => {
-        import('gsap/ScrollTrigger')
-          .then(({ ScrollTrigger }) => ScrollTrigger.refresh(true))
-          .catch(() => {})
-      })
+      import('@/lib/scrollLayout')
+        .then(({ markScrollLayoutReady }) => {
+          const ready = () => markScrollLayoutReady()
+          if (document.fonts?.ready) {
+            document.fonts.ready.then(ready).catch(ready)
+          } else {
+            ready()
+          }
+        })
+        .catch(() => {})
     }
   }, [ui.bootLoading])
 

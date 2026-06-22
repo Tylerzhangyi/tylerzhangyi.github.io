@@ -7,6 +7,7 @@ import PageTransition from '@/components/PageTransition'
 import AppLoader from '@/components/AppLoader'
 import DetailTransitionBinder from '@/components/DetailTransitionBinder'
 import { useUiState } from '@/lib/uiState'
+import { clearSavedHomeScroll } from '@/lib/homeScrollRestore'
 import { scrollToSection } from '@/lib/scrollToSection'
 import '@/components/app-shell.css'
 
@@ -25,9 +26,10 @@ export default function AppShell({ children }) {
     if (!hash || !hash.startsWith('#section-')) return
 
     const sectionId = hash.replace('#section-', '')
+    clearSavedHomeScroll()
     const timer = window.setTimeout(() => {
       scrollToSection(sectionId, 'smooth')
-    }, 180)
+    }, 400)
 
     return () => window.clearTimeout(timer)
   }, [pathname])

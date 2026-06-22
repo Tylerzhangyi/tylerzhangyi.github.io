@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useI18n } from '@/lib/i18n'
 import { computeRevealScale } from '@/lib/revealScale'
+import { clearSavedHomeScroll } from '@/lib/homeScrollRestore'
 import { scrollToSection } from '@/lib/scrollToSection'
 
 const MENU_ANIM_MS = 520
@@ -75,6 +76,7 @@ export default function SiteHeader() {
   const goSection = useCallback(
     (id) => {
       closeMenu()
+      clearSavedHomeScroll()
 
       const runScroll = () => {
         scrollToSection(id, 'smooth')
@@ -82,11 +84,14 @@ export default function SiteHeader() {
 
       if (pathname !== '/') {
         router.push(`/#section-${id}`)
-        window.setTimeout(runScroll, 220)
+        window.setTimeout(runScroll, 280)
         return
       }
 
-      window.setTimeout(runScroll, MENU_ANIM_MS)
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `/#section-${id}`)
+      }
+      window.setTimeout(runScroll, MENU_ANIM_MS + 120)
     },
     [closeMenu, pathname, router]
   )

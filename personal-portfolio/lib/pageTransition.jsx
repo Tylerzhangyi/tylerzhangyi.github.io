@@ -23,6 +23,7 @@ const SERVER_SNAPSHOT = {
 let state = { ...SERVER_SNAPSHOT }
 
 export const lastPointer = { x: state.originX, y: state.originY }
+const DETAIL_RETURN_KEY = 'portfolio:detail-return'
 
 const listeners = new Set()
 
@@ -118,6 +119,45 @@ export function scrollDetailToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   document.documentElement.scrollTop = 0
   document.body.scrollTop = 0
+}
+
+export function rememberDetailReturn(href) {
+  if (typeof window === 'undefined' || !href) return
+
+  const targetPath = href.split('?')[0].split('#')[0]
+  const kind = targetPath.includes('/blog/') ? 'blog' : targetPath.includes('/projects/') ? 'projects' : null
+  if (!kind) return
+
+  try {
+    window.sessionStorage.setItem(
+      DETAIL_RETURN_KEY,
+      JSON.stringify({
+        kind,
+        href: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+        scrollY: window.scrollY,
+        at: Date.now()
+      })
+    )
+  } catch {}
+}
+
+export function getDetailReturnHref(kind) {
+  if (typeof window === 'undefined') return '/'
+
+  try {
+    const raw = window.sessionStorage.getItem(DETAIL_RETURN_KEY)
+    if (!raw) return kind ? `/#section-${kind}` : '/'
+
+    const saved = JSON.parse(raw)
+    const fresh = Date.now() - Number(saved.at || 0) < 1000 * 60 * 30
+    if (!fresh || (kind && saved.kind !== kind)) return kind ? `/#section-${kind}` : '/'
+
+    if (saved.href && isHomePath(saved.href.split('?')[0].split('#')[0])) {
+      return saved.href
+    }
+  } catch {}
+
+  return kind ? `/#section-${kind}` : '/'
 }
 
 const PageTransitionContext = createContext(null)

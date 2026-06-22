@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CheckIcon } from '@heroicons/react/24/solid'
 import {
   UserCircleIcon,
@@ -13,6 +13,7 @@ import {
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from '@/lib/i18n'
+import { onScrollLayoutReady, scheduleScrollLayoutRefresh } from '@/lib/scrollLayout'
 import styles from './about.module.css'
 
 const PANEL_COUNT = 2
@@ -25,6 +26,7 @@ export default function AboutSection() {
   const trackRef = useRef(null)
 
   const scrollTweenRef = useRef(null)
+  const gsapCtxRef = useRef(null)
   const resizeTimerRef = useRef(null)
   const layoutRetryTimerRef = useRef(null)
   const revealObserverRef = useRef(null)
@@ -40,19 +42,13 @@ export default function AboutSection() {
   }, [])
 
   const destroyHorizontalScroll = useCallback(() => {
-    if (scrollTweenRef.current) {
-      scrollTweenRef.current.scrollTrigger?.kill(true)
-      scrollTweenRef.current.kill()
-      scrollTweenRef.current = null
+    if (layoutRetryTimerRef.current) {
+      window.clearTimeout(layoutRetryTimerRef.current)
+      layoutRetryTimerRef.current = null
     }
-    ScrollTrigger.getAll()
-      .filter((st) => st.vars?.id === 'about-horizontal-st')
-      .forEach((st) => st.kill(true))
-
-    const pin = pinRef.current
-    const track = trackRef.current
-    if (pin) gsap.set(pin, { clearProps: 'all' })
-    if (track) gsap.set(track, { clearProps: 'all' })
+    gsapCtxRef.current?.revert()
+    gsapCtxRef.current = null
+    scrollTweenRef.current = null
   }, [])
 
   const setupHorizontalScroll = useCallback(() => {
@@ -61,44 +57,45 @@ export default function AboutSection() {
       return
     }
 
+    const root = aboutRootRef.current
     const wrap = wrapRef.current
     const pin = pinRef.current
     const track = trackRef.current
-    if (!wrap || !pin || !track) return
+    if (!root || !wrap || !pin || !track) return
 
     destroyHorizontalScroll()
 
     const distance = () => Math.max(0, Math.round(track.scrollWidth - pin.clientWidth))
 
     if (distance() < 1) {
-      if (layoutRetryTimerRef.current) window.clearTimeout(layoutRetryTimerRef.current)
       layoutRetryTimerRef.current = window.setTimeout(() => setupHorizontalScroll(), 120)
       return
     }
 
-    scrollTweenRef.current = gsap.to(track, {
-      x: () => -distance(),
-      ease: 'none',
-      scrollTrigger: {
-        id: 'about-horizontal-st',
-        trigger: wrap,
-        start: 'top top+=48',
-        end: () => `+=${Math.max(distance(), 1)}`,
-        scrub: 1,
-        pin,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const idx = Math.max(
-            1,
-            Math.min(PANEL_COUNT, Math.floor(self.progress * (PANEL_COUNT - 1) + 0.5) + 1)
-          )
-          setDisplayIndex(idx)
+    gsapCtxRef.current = gsap.context(() => {
+      scrollTweenRef.current = gsap.to(track, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          id: 'about-horizontal-st',
+          trigger: wrap,
+          start: 'top top+=48',
+          end: () => `+=${Math.max(distance(), 1)}`,
+          scrub: 1,
+          pin,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const idx = Math.max(
+              1,
+              Math.min(PANEL_COUNT, Math.floor(self.progress * (PANEL_COUNT - 1) + 0.5) + 1)
+            )
+            setDisplayIndex(idx)
+          }
         }
-      }
-    })
-    ScrollTrigger.refresh(true)
+      })
+    }, root)
   }, [destroyHorizontalScroll, isDesktop])
 
   const watchAboutSectionReveal = useCallback(() => {
@@ -107,7 +104,7 @@ export default function AboutSection() {
 
     revealObserverRef.current = new MutationObserver(() => {
       if (!section.classList.contains('is-revealed')) return
-      ScrollTrigger.refresh(true)
+      scheduleScrollLayoutRefresh()
       revealObserverRef.current?.disconnect()
       revealObserverRef.current = null
     })
@@ -129,15 +126,16 @@ export default function AboutSection() {
     }, 160)
   }, [destroyHorizontalScroll, queueHorizontalSetup])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
-    queueHorizontalSetup()
     window.addEventListener('resize', onResize, { passive: true })
 
+    const cancelReady = onScrollLayoutReady(() => queueHorizontalSetup())
+
     return () => {
+      cancelReady()
       window.removeEventListener('resize', onResize)
       if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current)
-      if (layoutRetryTimerRef.current) window.clearTimeout(layoutRetryTimerRef.current)
       revealObserverRef.current?.disconnect()
       destroyHorizontalScroll()
     }

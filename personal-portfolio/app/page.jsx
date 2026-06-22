@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { observeReveals } from '@/lib/motion'
+import { initHomeScrollLayout } from '@/lib/scrollLayout'
 import FormStudioHero from '@/components/sections/FormStudioHero'
 import IntroWelcomeSection from '@/components/sections/IntroWelcomeSection'
 import AboutMeShowcase from '@/components/sections/AboutMeShowcase'
@@ -22,7 +23,11 @@ export default function HomePage() {
 
   useEffect(() => {
     const teardown = observeReveals(rootRef.current)
-    return () => teardown?.()
+    const teardownLayout = initHomeScrollLayout()
+    return () => {
+      teardown?.()
+      teardownLayout?.()
+    }
   }, [])
 
   return (

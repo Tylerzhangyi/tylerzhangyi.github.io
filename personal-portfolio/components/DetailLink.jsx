@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
-import { usePageTransition } from '@/lib/pageTransition'
+import { rememberDetailReturn, usePageTransition } from '@/lib/pageTransition'
 import { forceUnlockBodyScroll } from '@/lib/scrollLock'
 
 function normalizeHref(href) {
@@ -16,7 +16,8 @@ function normalizeHref(href) {
 
 export default function DetailLink({ href, className, children, ...props }) {
   const router = useRouter()
-  const { navigateWithTransition, phase } = usePageTransition()
+  const { navigateWithTransition, phase, setTransitionOrigin, setTransitionOriginFromElement } =
+    usePageTransition()
   const target = normalizeHref(href)
 
   const prefetch = useCallback(() => {
@@ -25,6 +26,13 @@ export default function DetailLink({ href, className, children, ...props }) {
 
   const onClick = async (e) => {
     e.preventDefault()
+    rememberDetailReturn(target)
+
+    if (e.clientX || e.clientY) {
+      setTransitionOrigin(e.clientX, e.clientY)
+    } else {
+      setTransitionOriginFromElement(e.currentTarget)
+    }
 
     if (phase !== 'idle') {
       router.push(target, { scroll: false })

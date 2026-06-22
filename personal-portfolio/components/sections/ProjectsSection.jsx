@@ -1,11 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from '@/lib/i18n'
 import { resolveAssetUrl } from '@/lib/assets'
 import { bindCtaFollow } from '@/lib/cardCta'
+import { onScrollLayoutReady } from '@/lib/scrollLayout'
 import DetailLink from '@/components/DetailLink'
 import CardCta from '@/components/CardCta'
 import mobileStyles from './projects-section.module.css'
@@ -20,10 +21,12 @@ function dataUrl(path) {
 
 export default function ProjectsSection() {
   const { t, lang } = useI18n()
+  const sectionRef = useRef(null)
   const pinRef = useRef(null)
   const trackRef = useRef(null)
 
   const scrollTweenRef = useRef(null)
+  const gsapCtxRef = useRef(null)
   const resizeTimerRef = useRef(null)
   const layoutRetryTimerRef = useRef(null)
   const ctaCleanupsRef = useRef([])
@@ -57,19 +60,13 @@ export default function ProjectsSection() {
   }, [])
 
   const destroyHorizontalScroll = useCallback(() => {
-    if (scrollTweenRef.current) {
-      scrollTweenRef.current.scrollTrigger?.kill(true)
-      scrollTweenRef.current.kill()
-      scrollTweenRef.current = null
+    if (layoutRetryTimerRef.current) {
+      window.clearTimeout(layoutRetryTimerRef.current)
+      layoutRetryTimerRef.current = null
     }
-    ScrollTrigger.getAll()
-      .filter((st) => st.vars?.id === 'projects-horizontal-st')
-      .forEach((st) => st.kill(true))
-
-    const pin = pinRef.current
-    const track = trackRef.current
-    if (pin) gsap.set(pin, { clearProps: 'all' })
-    if (track) gsap.set(track, { clearProps: 'all' })
+    gsapCtxRef.current?.revert()
+    gsapCtxRef.current = null
+    scrollTweenRef.current = null
   }, [])
 
   const setupHorizontalScroll = useCallback(() => {
@@ -79,45 +76,43 @@ export default function ProjectsSection() {
       return
     }
 
+    const section = sectionRef.current
     const pin = pinRef.current
     const track = trackRef.current
-    if (!pin || !track) return
+    if (!section || !pin || !track) return
 
     destroyHorizontalScroll()
 
-    const section = document.getElementById('section-projects')
     const distance = () => Math.max(0, Math.round(track.scrollWidth - pin.clientWidth))
 
     if (distance() < 1) {
-      if (layoutRetryTimerRef.current) window.clearTimeout(layoutRetryTimerRef.current)
       layoutRetryTimerRef.current = window.setTimeout(() => setupHorizontalScroll(), 120)
       return
     }
 
     gsap.set(track, { x: 0 })
 
-    scrollTweenRef.current = gsap.to(track, {
-      x: () => -distance(),
-      ease: 'none',
-      scrollTrigger: {
-        id: 'projects-horizontal-st',
-        trigger: section || pin,
-        start: 'top top',
-        end: () => `+=${Math.max(distance(), 1)}`,
-        scrub: 1,
-        pin,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        pinType: 'fixed',
-        onEnter: () => setProjectsZone(true),
-        onEnterBack: () => setProjectsZone(true),
-        onLeave: () => setProjectsZone(false),
-        onLeaveBack: () => setProjectsZone(false)
-      }
-    })
-
-    ScrollTrigger.refresh(true)
+    gsapCtxRef.current = gsap.context(() => {
+      scrollTweenRef.current = gsap.to(track, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          id: 'projects-horizontal-st',
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${Math.max(distance(), 1)}`,
+          scrub: 1,
+          pin,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onEnter: () => setProjectsZone(true),
+          onEnterBack: () => setProjectsZone(true),
+          onLeave: () => setProjectsZone(false),
+          onLeaveBack: () => setProjectsZone(false)
+        }
+      })
+    }, section)
   }, [destroyHorizontalScroll, isDesktop, projects.length, setProjectsZone])
 
   const queueHorizontalSetup = useCallback(() => {
@@ -187,15 +182,22 @@ export default function ProjectsSection() {
     return () => {
       window.removeEventListener('resize', onResize)
       if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current)
-      if (layoutRetryTimerRef.current) window.clearTimeout(layoutRetryTimerRef.current)
       clearCtaCleanups()
       setProjectsZone(false)
       destroyHorizontalScroll()
     }
   }, [fetchProjects, onResize, clearCtaCleanups, setProjectsZone, destroyHorizontalScroll])
 
+  useLayoutEffect(() => {
+    if (!projects.length) return undefined
+    const cancelReady = onScrollLayoutReady(() => queueHorizontalSetup())
+    queueHorizontalSetup()
+    return () => cancelReady()
+  }, [projects.length, queueHorizontalSetup])
+
   return (
     <section
+      ref={sectionRef}
       id="section-projects"
       data-scroll-section="projects"
       className="projects-scroll"

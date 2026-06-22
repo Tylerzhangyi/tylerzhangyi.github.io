@@ -33,8 +33,18 @@ export function getSavedHomeScroll() {
   }
 }
 
+export function shouldSkipHomeScrollRestore() {
+  if (typeof window === 'undefined') return false
+  const hash = window.location.hash
+  return Boolean(hash && hash.startsWith('#section-'))
+}
+
 export function restoreHomeScroll() {
   if (typeof window === 'undefined') return
+  if (shouldSkipHomeScrollRestore()) {
+    clearSavedHomeScroll()
+    return
+  }
 
   const y = getSavedHomeScroll()
   if (y <= 0) return

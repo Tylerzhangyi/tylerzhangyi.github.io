@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { CalendarIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { marked } from 'marked'
 import { useI18n } from '@/lib/i18n'
-import { usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { resolveAssetUrl } from '@/lib/assets'
 import { fetchBlogPostById } from '@/lib/data'
 import styles from '@/components/pages/blog-detail.module.css'
 
@@ -45,6 +46,13 @@ function formatMarkdownContent(content) {
     console.error('Markdown parsing error:', error)
     return content.replace(/\\n/g, '\n')
   }
+}
+
+function readingTime(post) {
+  if (!post) return 1
+  const text = `${post.title} ${post.excerpt || ''} ${post.content || ''}`
+  const words = text.split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.ceil(words / 180))
 }
 
 export default function BlogDetailClient() {
@@ -87,7 +95,7 @@ export default function BlogDetailClient() {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
     else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
 
-    await navigateWithTransition('/', (path) => router.push(path, { scroll: false }))
+    await navigateWithTransition(getDetailReturnHref('blog'), (path) => router.push(path, { scroll: false }))
   }
 
   return (
@@ -116,25 +124,38 @@ export default function BlogDetailClient() {
         )}
 
         {!loading && !error && post && (
-          <div className={`${styles.blogDetailContent} ${styles.detailEnter}`}>
+          <>
             <button
               type="button"
               className={styles.closeFab}
               onClick={goBack}
               aria-label="关闭详情"
             >
-              CLOSE
+              <ArrowLeftIcon className={styles.closeIcon} />
+              <span>{t('blogDetail.back')}</span>
             </button>
 
+            <div className={`${styles.blogDetailContent} ${styles.detailEnter}`}>
             <article className={styles.blogArticle}>
               <header className={styles.articleHeader}>
-                <h1 className={styles.articleTitle}>{post.title}</h1>
-                <div className={styles.articleMeta}>
-                  <span className={styles.articleDate}>
-                    <CalendarIcon className={styles.articleDateIcon} />
-                    {formatDate(post.date, lang)}
-                  </span>
-                  <span className={styles.articleCategory}>{post.category}</span>
+                <div className={styles.headerCopy}>
+                  <p className={styles.eyebrow}>Blog / {post.category}</p>
+                  <h1 className={styles.articleTitle}>{post.title}</h1>
+                  {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+                  <div className={styles.articleMeta}>
+                    <span className={styles.articleDate}>
+                      <CalendarIcon className={styles.articleDateIcon} />
+                      {formatDate(post.date, lang)}
+                    </span>
+                    <span className={styles.articleDate}>
+                      <ClockIcon className={styles.articleDateIcon} />
+                      {readingTime(post)} {t('blog.minRead')}
+                    </span>
+                    <span className={styles.articleCategory}>{post.category}</span>
+                  </div>
+                </div>
+                <div className={styles.coverFrame} aria-hidden="true">
+                  <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} />
                 </div>
               </header>
 
@@ -157,11 +178,13 @@ export default function BlogDetailClient() {
 
               <div className={styles.articleBackWrap}>
                 <button type="button" className={styles.backFooter} onClick={goBack}>
-                  ← {t('blogDetail.back')}
+                  <ArrowLeftIcon className={styles.footerIcon} />
+                  {t('blogDetail.back')}
                 </button>
               </div>
             </article>
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>
