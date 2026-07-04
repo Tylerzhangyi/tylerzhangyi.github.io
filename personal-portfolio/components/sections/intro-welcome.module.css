@@ -111,10 +111,7 @@
 }
 
 .introHeadlineRole {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.04em;
+  display: block;
   max-width: 100%;
 }
 
@@ -123,9 +120,8 @@
   white-space: nowrap;
 }
 
-.introHeadlineCursor {
-  display: inline-block;
-  flex-shrink: 0;
+.introHeadlineDynamic[data-typing='true']::after {
+  content: '|';
   margin-left: 0.04em;
   color: rgba(33, 33, 33, 0.55);
   animation: introCursorBlink 1s step-end infinite;
@@ -230,6 +226,10 @@
     white-space: normal;
   }
 
+  .introHeadlineDynamic[data-typing='true']::after {
+    white-space: nowrap;
+  }
+
   .introWelcomeText {
     max-width: none;
   }
@@ -250,6 +250,10 @@
   }
 
   .introHeadlineCursor {
+    display: none;
+  }
+
+  .introHeadlineDynamic[data-typing='true']::after {
     display: none;
   }
 

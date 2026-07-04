@@ -19,6 +19,7 @@ function TypewriterText({ roles, enabled, className, fallback }) {
 
     if (!enabled || !roles.length) {
       el.textContent = fallback || roles[0] || ''
+      el.dataset.typing = 'false'
       return undefined
     }
 
@@ -31,6 +32,7 @@ function TypewriterText({ roles, enabled, className, fallback }) {
     const write = (next) => {
       current = next
       el.textContent = next
+      el.dataset.typing = next.length > 0 ? 'true' : 'false'
     }
 
     const schedule = (delay) => {
@@ -160,11 +162,6 @@ export default function IntroWelcomeSection() {
                 />
               ) : (
                 <span className={styles.introHeadlineDynamic}>{staticRole}</span>
-              )}
-              {typewriterActive && (
-                <span className={styles.introHeadlineCursor} aria-hidden="true">
-                  |
-                </span>
               )}
             </span>
           </h2>

@@ -15,8 +15,8 @@
     flex: none;
     width: 100%;
     height: auto;
-    padding: 32px var(--pad-x, 20px);
-    align-items: center !important;
-    justify-content: center !important;
+    padding: 24px var(--pad-x, 20px);
+    align-items: stretch !important;
+    justify-content: flex-start !important;
   }
 }
