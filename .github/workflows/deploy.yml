@@ -9,10 +9,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -24,7 +25,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: personal-portfolio/package-lock.json
 
@@ -34,7 +35,16 @@ jobs:
 
       - name: Build
         working-directory: personal-portfolio
-        run: npm run build
+        env:
+          CI: true
+        run: npx next build
+
+      - name: Verify build output
+        run: |
+          test -f personal-portfolio/out/index.html
+          test -f personal-portfolio/out/.nojekyll || touch personal-portfolio/out/.nojekyll
+          echo "Pages artifact size:"
+          du -sh personal-portfolio/out
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -51,3 +61,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        timeout-minutes: 10

@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import { execSync } from 'node:child_process'
 
+if (process.env.CI) {
+  process.exit(0)
+}
+
 const ports = process.argv.slice(2).map((value) => Number(value)).filter(Boolean)
 
 if (!ports.length) {
