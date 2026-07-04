@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from '@/lib/i18n'
-import { resolveAssetUrl } from '@/lib/assets'
+import { resolveAssetUrl, handleImageError } from '@/lib/assets'
 import { bindCtaFollow } from '@/lib/cardCta'
 import { onScrollLayoutReady } from '@/lib/scrollLayout'
 import DetailLink from '@/components/DetailLink'
@@ -12,7 +12,6 @@ import CardCta from '@/components/CardCta'
 import mobileStyles from './projects-section.module.css'
 
 const COLUMN_ALIGN = ['start', 'end', 'center', 'end']
-const HOVER_IMAGE = 'photos/article.jpg'
 
 function dataUrl(path) {
   const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -31,12 +30,9 @@ export default function ProjectsSection() {
   const layoutRetryTimerRef = useRef(null)
   const ctaCleanupsRef = useRef([])
   const boundWrapsRef = useRef(new Set())
-  const videoRefsRef = useRef(new Map())
 
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
-
-  const hoverImageSrc = resolveAssetUrl(HOVER_IMAGE)
 
   const columnAlign = (index) => COLUMN_ALIGN[index % COLUMN_ALIGN.length]
 
@@ -50,7 +46,7 @@ export default function ProjectsSection() {
   }, [])
 
   const isDesktop = useCallback(() => {
-    return window.matchMedia('(min-width: 900px)').matches
+    return window.matchMedia('(min-width: 993px)').matches
   }, [])
 
   const clearCtaCleanups = useCallback(() => {
@@ -154,24 +150,13 @@ export default function ProjectsSection() {
     })
   }, [])
 
-  const setVideoRef = useCallback((id, el) => {
-    if (el) videoRefsRef.current.set(id, el)
-    else videoRefsRef.current.delete(id)
-  }, [])
-
-  const onCardEnter = useCallback((event, project) => {
+  const onCardEnter = useCallback((event) => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
     event.currentTarget?.classList.add('is-hover')
-    const video = videoRefsRef.current.get(project.id)
-    video?.play().catch(() => {})
   }, [])
 
-  const onCardLeave = useCallback((event, project) => {
+  const onCardLeave = useCallback((event) => {
     event.currentTarget?.classList.remove('is-hover')
-    const video = videoRefsRef.current.get(project.id)
-    if (video) {
-      video.pause()
-      video.currentTime = 0
-    }
   }, [])
 
   useEffect(() => {
@@ -223,8 +208,8 @@ export default function ProjectsSection() {
                   >
                     <article
                       className="project-card"
-                      onMouseEnter={(e) => onCardEnter(e, project)}
-                      onMouseLeave={(e) => onCardLeave(e, project)}
+                      onMouseEnter={onCardEnter}
+                      onMouseLeave={onCardLeave}
                     >
                       <DetailLink
                         href={`/projects/${project.id}`}
@@ -242,26 +227,9 @@ export default function ProjectsSection() {
                               loading="lazy"
                               draggable={false}
                               onLoad={queueHorizontalSetup}
+                              onError={handleImageError}
                             />
-                            <img
-                              className="project-card__hover-img"
-                              src={hoverImageSrc}
-                              alt=""
-                              aria-hidden="true"
-                              loading="lazy"
-                              draggable={false}
-                            />
-                            {project.video && (
-                              <video
-                                className="project-card__video"
-                                src={resolveAssetUrl(project.video)}
-                                muted
-                                loop
-                                playsInline
-                                preload="none"
-                                ref={(el) => setVideoRef(project.id, el)}
-                              />
-                            )}
+                            <div className="project-card__tint" aria-hidden="true" />
                           </div>
                           <CardCta label={t('projects.view')} />
                         </div>

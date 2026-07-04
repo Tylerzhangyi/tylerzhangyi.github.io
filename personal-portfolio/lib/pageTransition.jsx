@@ -5,8 +5,11 @@ import { computeRevealScale } from './revealScale'
 import {
   saveHomeScroll,
   restoreHomeScroll,
-  isHomePath
+  isHomePath,
+  clearSavedHomeScroll,
+  setPendingSection
 } from './homeScrollRestore'
+import { detailReturnHref, sectionIdFromHref } from './scrollToSection'
 import { lockBodyScroll, forceUnlockBodyScroll, getLockedScrollY, isBodyScrollLocked } from './scrollLock'
 
 export const EXPAND_MS = 520
@@ -141,23 +144,20 @@ export function rememberDetailReturn(href) {
   } catch {}
 }
 
-export function getDetailReturnHref(kind) {
-  if (typeof window === 'undefined') return '/'
-
+export function peekDetailReturnKind() {
+  if (typeof window === 'undefined') return null
   try {
     const raw = window.sessionStorage.getItem(DETAIL_RETURN_KEY)
-    if (!raw) return kind ? `/#section-${kind}` : '/'
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    return parsed?.kind === 'blog' || parsed?.kind === 'projects' ? parsed.kind : null
+  } catch {
+    return null
+  }
+}
 
-    const saved = JSON.parse(raw)
-    const fresh = Date.now() - Number(saved.at || 0) < 1000 * 60 * 30
-    if (!fresh || (kind && saved.kind !== kind)) return kind ? `/#section-${kind}` : '/'
-
-    if (saved.href && isHomePath(saved.href.split('?')[0].split('#')[0])) {
-      return saved.href
-    }
-  } catch {}
-
-  return kind ? `/#section-${kind}` : '/'
+export function getDetailReturnHref(kind) {
+  return detailReturnHref(peekDetailReturnKind() || kind)
 }
 
 const PageTransitionContext = createContext(null)
@@ -176,20 +176,36 @@ export function PageTransitionProvider({ children }) {
       saveHomeScroll(scrollY)
     }
 
+    const homeSectionId = goingHome
+      ? peekDetailReturnKind() || sectionIdFromHref(href)
+      : null
+
+    if (goingHome && homeSectionId && homeSectionId !== 'home') {
+      clearSavedHomeScroll()
+      setPendingSection(homeSectionId)
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', detailReturnHref(homeSectionId))
+      }
+    }
+
     try {
       const pushPromise = routerPush(href)
-      await playPageExitForNavigate()
-      await pushPromise
+      await Promise.all([playPageExitForNavigate(), pushPromise])
 
       if (goingHome) {
         forceUnlockBodyScroll(getLockedScrollY())
-        restoreHomeScroll()
+        if (!homeSectionId || homeSectionId === 'home') {
+          restoreHomeScroll()
+        }
       } else {
         forceUnlockBodyScroll(0)
         scrollDetailToTop()
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve))
+        })
       }
 
-      void playPageEnter()
+      await playPageEnter()
     } catch (error) {
       forceUnlockBodyScroll(scrollY)
       state = { ...state, phase: 'idle' }

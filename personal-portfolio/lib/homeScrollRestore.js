@@ -1,6 +1,34 @@
+import { menuIdFromHash } from '@/lib/scrollToSection'
+
 const STORAGE_KEY = 'portfolio:home-scroll'
+const PENDING_SECTION_KEY = 'portfolio:pending-section'
 
 let savedY = 0
+
+export function setPendingSection(id) {
+  if (typeof window === 'undefined' || !id) return
+  try {
+    sessionStorage.setItem(PENDING_SECTION_KEY, id)
+  } catch {
+    /* ignore */
+  }
+}
+
+export function consumePendingSection() {
+  if (typeof window === 'undefined') return null
+  try {
+    const id = sessionStorage.getItem(PENDING_SECTION_KEY)
+    sessionStorage.removeItem(PENDING_SECTION_KEY)
+    return id || null
+  } catch {
+    return null
+  }
+}
+
+export function getHashSection() {
+  if (typeof window === 'undefined') return null
+  return menuIdFromHash(window.location.hash)
+}
 
 export function isHomePath(pathname) {
   if (typeof pathname === 'undefined') {

@@ -397,6 +397,7 @@ export default function LinksSection() {
       <div className={`links-scroll__scatter links-scroll__content ${styles.linksPage} page`}>
         <div
           ref={canvasRef}
+          data-nav-anchor="links-canvas"
           className={`${styles.scatterCanvas} ${dragState?.moved ? styles.isDragActive : ''}`}
           aria-label="链接卡片"
         >

@@ -1,0 +1,452 @@
+/* Neo-brutalism global styling layer */
+
+.neo-brutalism-theme {
+  --neo-bg: #e5e5e5;
+  --neo-surface: #ffffff;
+  --neo-red: #e91e4c;
+  --neo-black: #212121;
+  --neo-border-color: #000000;
+  --neo-border: 3px solid var(--neo-border-color);
+  --neo-shadow-offset: 4px;
+  --neo-shadow: 0 var(--neo-shadow-offset) 0 var(--neo-border-color);
+  --neo-shadow-sm: 0 3px 0 var(--neo-border-color);
+  --neo-radius: 2px;
+
+  --bg-0: var(--neo-bg);
+  --bg-1: var(--neo-surface);
+  --bg-2: var(--neo-bg);
+  --surface-0: var(--neo-surface);
+  --surface-1: var(--neo-surface);
+  --surface-2: var(--neo-surface);
+
+  --text-0: var(--neo-black);
+  --text-1: rgba(33, 33, 33, 0.78);
+  --text-2: rgba(33, 33, 33, 0.58);
+
+  --accent-pink: var(--neo-red);
+  --accent-pink-2: #ff3d6e;
+  --accent-cyan: var(--neo-red);
+  --accent-cyan-2: #ff3d6e;
+  --accent: var(--neo-red);
+  --accent-600: #c91844;
+
+  --border: var(--neo-border-color);
+  --border-soft: var(--neo-border-color);
+  --shadow-sm: var(--neo-shadow-sm);
+  --shadow-md: var(--neo-shadow);
+
+  --color-bg: var(--neo-bg);
+  --color-surface: var(--neo-surface);
+  --color-text: var(--neo-black);
+  --color-muted: rgba(33, 33, 33, 0.62);
+  --brand: var(--neo-black);
+  --brand-600: #000000;
+
+  --fs-bg: var(--neo-bg);
+  --fs-fg: var(--neo-black);
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-jakarta), system-ui, sans-serif;
+
+  --contour-light-bg: var(--neo-bg);
+}
+
+.neo-brutalism-theme body,
+.neo-brutalism-theme .app-shell,
+.neo-brutalism-theme .main-content,
+.neo-brutalism-theme html {
+  background: var(--neo-bg);
+  background-image: none;
+}
+
+.neo-brutalism-theme body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--neo-black);
+}
+
+/* ── Typography ── */
+.neo-brutalism-theme .fs-hero__title,
+.neo-brutalism-theme .formStudioShowcaseLabel,
+.neo-brutalism-theme .projects-section__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .projects-section__kicker,
+.neo-brutalism-theme .nav-lang,
+.neo-brutalism-theme .nav-menu,
+.neo-brutalism-theme .menu-overlay__lang,
+.neo-brutalism-theme .project-card__title,
+.neo-brutalism-theme .project-card__tag,
+.neo-brutalism-theme .blog-card__title,
+.neo-brutalism-theme .blog-card__time,
+.neo-brutalism-theme .card-cta__pill,
+.neo-brutalism-theme .scatterKicker,
+.neo-brutalism-theme .contactCard,
+.neo-brutalism-theme .contactFooter {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+/* ── Navigation ── */
+.neo-brutalism-theme .nav-lang,
+.neo-brutalism-theme .nav-menu {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-surface);
+  padding: 8px 14px;
+  font-weight: 700;
+  text-transform: lowercase;
+  opacity: 1;
+}
+
+.neo-brutalism-theme .nav-lang:hover,
+.neo-brutalism-theme .nav-menu:hover,
+.neo-brutalism-theme .nav-lang:focus-visible,
+.neo-brutalism-theme .nav-menu:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 5px 0 var(--neo-border-color);
+  opacity: 1;
+}
+
+.neo-brutalism-theme .nav-menu:active,
+.neo-brutalism-theme .nav-lang:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.neo-brutalism-theme .menu-overlay__link {
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.neo-brutalism-theme .menu-overlay__link:hover {
+  color: var(--neo-red);
+  opacity: 1;
+}
+
+/* ── Buttons ── */
+.neo-brutalism-theme .btn,
+.neo-brutalism-theme .btn-primary,
+.neo-brutalism-theme .btn-secondary {
+  border-radius: var(--neo-radius);
+  border: var(--neo-border);
+  box-shadow: var(--neo-shadow);
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+
+.neo-brutalism-theme .btn-primary {
+  background: var(--neo-red);
+  color: #fff;
+}
+
+.neo-brutalism-theme .btn-secondary {
+  background: var(--neo-black);
+  color: #fff;
+}
+
+.neo-brutalism-theme .btn-primary:hover,
+.neo-brutalism-theme .btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 var(--neo-border-color);
+}
+
+.neo-brutalism-theme .btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ── Cards: Projects & Blog ── */
+.neo-brutalism-theme .project-card__media-wrap,
+.neo-brutalism-theme .blog-card__media-wrap {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+  background: var(--neo-surface);
+}
+
+.neo-brutalism-theme .project-card__media,
+.neo-brutalism-theme .blog-card__media {
+  border-radius: 0;
+}
+
+.neo-brutalism-theme .card-cta__pill {
+  border-radius: var(--neo-radius);
+  border: 2px solid var(--neo-border-color);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: var(--neo-black);
+}
+
+.neo-brutalism-theme .card-cta__arrow {
+  border-radius: var(--neo-radius);
+  border: 2px solid var(--neo-border-color);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-red);
+  color: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.neo-brutalism-theme .card-cta__arrow svg {
+  stroke: #fff;
+}
+
+/* ── Section backgrounds ── */
+.neo-brutalism-theme .onepage,
+.neo-brutalism-theme .onepage .stack-section,
+.neo-brutalism-theme .onepage .stack-section--about,
+.neo-brutalism-theme .onepage .stack-section--education,
+.neo-brutalism-theme .onepage .stack-section--links,
+.neo-brutalism-theme .onepage .stack-section--solid,
+.neo-brutalism-theme .projects-section,
+.neo-brutalism-theme .projects-scroll,
+.neo-brutalism-theme .projects-scroll__pin,
+.neo-brutalism-theme .horizontal-wrapper,
+.neo-brutalism-theme .blog-scroll,
+.neo-brutalism-theme .links-scroll,
+.neo-brutalism-theme .introWelcome,
+.neo-brutalism-theme .splitTitleSection,
+.neo-brutalism-theme .formStudioHome,
+.neo-brutalism-theme .heroSection {
+  background: var(--neo-bg);
+}
+.neo-brutalism-theme .aboutMeShowcaseRoot,
+.neo-brutalism-theme .fs-hero,
+.neo-brutalism-theme .edu,
+.neo-brutalism-theme .contactScroll,
+.neo-brutalism-theme .contactPin,
+.neo-brutalism-theme .linksPage {
+  background: var(--neo-bg);
+  background-image: none;
+}
+
+.neo-brutalism-theme .onepage .stack-section::before,
+.neo-brutalism-theme .onepage .stack-section::after {
+  display: none;
+}
+
+/* ── About cards ── */
+.neo-brutalism-theme .aboutSection,
+.neo-brutalism-theme .aboutCard {
+  background: var(--neo-surface);
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .aboutCard:hover,
+.neo-brutalism-theme .aboutSection:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 var(--neo-border-color);
+}
+
+.neo-brutalism-theme .courseTag,
+.neo-brutalism-theme .hobbyItem {
+  background: var(--neo-surface);
+  border: 2px solid var(--neo-border-color);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-brutalism-theme .courseTag:hover {
+  background: var(--neo-red);
+  color: #fff;
+  border-color: var(--neo-border-color);
+  transform: translate(-2px, -2px);
+  box-shadow: 0 5px 0 var(--neo-border-color);
+}
+
+.neo-brutalism-theme .awardsList li {
+  background: var(--neo-surface);
+  border: 2px solid var(--neo-border-color);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-brutalism-theme .awardsList li:hover {
+  border-color: var(--neo-border-color);
+  background: var(--neo-red);
+  color: #fff;
+  transform: translate(-2px, -2px);
+  box-shadow: 0 5px 0 var(--neo-border-color);
+}
+
+.neo-brutalism-theme .awardsList li:hover .awardIcon {
+  color: #fff;
+}
+
+/* ── Education nodes ── */
+.neo-brutalism-theme .edu .title,
+.neo-brutalism-theme .edu .degree {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.neo-brutalism-theme .edu .kicker,
+.neo-brutalism-theme .edu .period,
+.neo-brutalism-theme .edu .institution,
+.neo-brutalism-theme .edu .desc {
+  font-family: var(--font-body);
+}
+
+.neo-brutalism-theme .nodeCard {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .nodeCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 var(--neo-border-color);
+}
+
+.neo-brutalism-theme .introHeadline {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.neo-brutalism-theme .introWelcomeText {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+/* ── Links scatter cards ── */
+.neo-brutalism-theme .scatterCardBody {
+  background: var(--neo-surface);
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .scatterCard:hover:not(.isDragging) .scatterCardBody {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 var(--neo-border-color);
+  border-color: var(--neo-border-color);
+}
+
+.neo-brutalism-theme .scatterCardGrip {
+  border: 2px solid var(--neo-border-color);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-surface);
+}
+
+.neo-brutalism-theme .scatterCardAccent {
+  background: var(--neo-red);
+  border-radius: 0;
+  height: 4px;
+}
+
+.neo-brutalism-theme .scatterCardCta {
+  color: var(--neo-red);
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+/* ── Contact ── */
+.neo-brutalism-theme .contactCard,
+.neo-brutalism-theme .contactPanel {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .contactCardPrimary {
+  background: var(--neo-red);
+  color: #fff;
+}
+
+.neo-brutalism-theme .contactCardDark {
+  background: var(--neo-black);
+  color: #fff;
+}
+
+.neo-brutalism-theme .contactCardLight {
+  background: var(--neo-surface);
+  color: var(--neo-black);
+}
+
+.neo-brutalism-theme a.contactCard:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 var(--neo-border-color);
+}
+
+/* ── Intro welcome ── */
+.neo-brutalism-theme .introWelcomeMedia {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow);
+}
+
+.neo-brutalism-theme .waveStripe {
+  background: var(--neo-black);
+  height: 4px;
+}
+
+.neo-brutalism-theme .introHeadlineDynamic {
+  color: var(--neo-red);
+}
+
+/* ── Page transitions: no blur ── */
+@media (prefers-reduced-motion: no-preference) {
+  .neo-brutalism-theme .page-enter-from,
+  .neo-brutalism-theme .page-leave-to,
+  .neo-brutalism-theme .slide-left-enter {
+    filter: none !important;
+  }
+
+  .neo-brutalism-theme .reveal-on-scroll {
+    transition:
+      opacity 0.45s var(--ease-out),
+      transform 0.45s var(--ease-out);
+  }
+}
+
+/* ── Detail pages ── */
+.neo-brutalism-theme .detailBack,
+.neo-brutalism-theme .detailTag,
+.neo-brutalism-theme .detailPill {
+  border: var(--neo-border);
+  border-radius: var(--neo-radius);
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.neo-brutalism-theme .detailBack:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--neo-shadow);
+}
+
+/* ── Loader ── */
+.neo-brutalism-theme .app-loader {
+  background: var(--neo-bg);
+}
+
+@media (max-width: 900px) {
+  .neo-brutalism-theme body {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neo-brutalism-theme .reveal-on-scroll,
+  .neo-brutalism-theme .slide-left-enter {
+    transition: none;
+    animation: none;
+  }
+}

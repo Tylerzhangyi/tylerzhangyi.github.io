@@ -3,13 +3,17 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8806",
-    "dev:clean": "rm -rf .next node_modules/.cache && next dev -p 8806",
-    "dev:turbo": "rm -rf .next && next dev --turbo -p 8806",
+    "predev": "node scripts/ensure-port-free.mjs 8806",
+    "dev": "node scripts/ensure-port-free.mjs 8806 && rm -rf .next node_modules/.cache && next dev -p 8806",
+    "dev:clean": "node scripts/ensure-port-free.mjs 8806 && rm -rf .next node_modules/.cache && next dev -p 8806",
+    "prebuild": "node scripts/ensure-port-free.mjs 8806",
+    "prebuild:clean": "node scripts/ensure-port-free.mjs 8806",
+    "dev:turbo": "node scripts/ensure-port-free.mjs 8806 && rm -rf .next && next dev --turbo -p 8806",
     "build": "next build",
-    "build:clean": "rm -rf .next out node_modules/.cache && next build",
+    "build:clean": "node scripts/ensure-port-free.mjs 8806 && rm -rf .next out node_modules/.cache && next build",
+    "repair": "node scripts/ensure-port-free.mjs 8806 8807 && rm -rf .next out node_modules/.cache && next dev -p 8806",
     "start": "next start -p 8806",
-    "preview": "npx serve out -p 8806"
+    "preview": "node scripts/ensure-port-free.mjs 8806 && npx serve out -p 8806"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

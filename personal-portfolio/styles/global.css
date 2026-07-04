@@ -5,27 +5,27 @@
 }
 
 :root {
-  --bg-0: #ffffff;
+  --bg-0: #e5e5e5;
   --bg-1: #ffffff;
-  --bg-2: #f7f7f8;
-  --surface-0: rgba(0, 0, 0, 0.03);
-  --surface-1: rgba(0, 0, 0, 0.05);
-  --surface-2: rgba(0, 0, 0, 0.07);
+  --bg-2: #e5e5e5;
+  --surface-0: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
 
-  --text-0: rgba(0, 0, 0, 0.92);
-  --text-1: rgba(0, 0, 0, 0.72);
-  --text-2: rgba(0, 0, 0, 0.56);
+  --text-0: #212121;
+  --text-1: rgba(33, 33, 33, 0.78);
+  --text-2: rgba(33, 33, 33, 0.58);
 
-  --accent-pink: #ff2a7d;
-  --accent-pink-2: #ff4aa5;
-  --accent-cyan: #47e3ff;
-  --accent-cyan-2: #7cf3ff;
+  --accent-pink: #e91e4c;
+  --accent-pink-2: #ff3d6e;
+  --accent-cyan: #e91e4c;
+  --accent-cyan-2: #ff3d6e;
 
-  --border: rgba(0, 0, 0, 0.12);
-  --border-soft: rgba(0, 0, 0, 0.08);
+  --border: #000000;
+  --border-soft: #000000;
 
-  --shadow-sm: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 22px 70px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 3px 0 #000000;
+  --shadow-md: 0 4px 0 #000000;
 
   --ease-out: cubic-bezier(.16,1,.3,1);
   --ease-in: cubic-bezier(.7,0,.84,0);
@@ -41,32 +41,29 @@
   --cursor-grabbing: grabbing;
 
   /* 兼容旧变量（尽量少改现有组件） */
-  --color-bg: #fff;
-  --color-surface: rgba(0, 0, 0, 0.04);
-  --color-text: #252a33;
-  --color-muted: #5d6674;
-  --brand: #16181d;
-  --brand-600: #0f1116;
+  --color-bg: #e5e5e5;
+  --color-surface: #ffffff;
+  --color-text: #212121;
+  --color-muted: rgba(33, 33, 33, 0.62);
+  --brand: #212121;
+  --brand-600: #000000;
   --accent: var(--accent-pink);
-  --accent-600: #e61f6f;
-  --contour-light-bg:
-    linear-gradient(76deg, rgba(0,0,0,0.055) 1px, transparent 1px),
-    linear-gradient(166deg, rgba(0,0,0,0.055) 1px, transparent 1px),
-    linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+  --accent-600: #c91844;
+  --contour-light-bg: #e5e5e5;
 }
 
 body {
   font-family: var(--font-body, var(--font-jakarta), system-ui, sans-serif);
   line-height: 1.6;
   color: var(--color-text);
-  background: #fff;
+  background: var(--color-bg);
   background-image: none;
 }
 
 html,
 .app-shell,
 .main-content {
-  background: #fff;
+  background: var(--color-bg);
 }
 
 @media (pointer: fine) {
@@ -102,6 +99,17 @@ html.is-boot-loading body {
 html.is-boot-loading .site-header {
   visibility: hidden;
   pointer-events: none;
+}
+
+html.is-boot-handoff .site-header {
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.7s ease 0.35s;
+}
+
+html.is-ready:not(.is-boot-handoff) .site-header {
+  opacity: 1;
 }
 
 .app-shell {
@@ -208,55 +216,62 @@ a {
   width: 100%;
 }
 
-/* 通用按钮样式（新配色） */
+/* 通用按钮样式（neo-brutalism） */
 .btn {
   display: inline-block;
   padding: 0.75rem 1.2rem;
-  border-radius: 10px;
-  font-weight: 600;
+  border-radius: 2px;
+  font-weight: 700;
+  text-transform: lowercase;
   transition:
-    transform var(--dur-fast) var(--ease-spring),
-    box-shadow var(--dur-mid) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
     background var(--dur-fast) var(--ease-io),
-    border-color var(--dur-fast) var(--ease-io),
     color var(--dur-fast) var(--ease-io);
   will-change: transform;
 }
 .btn:active {
-  transform: translateY(0) scale(0.97);
+  transform: translate(2px, 2px);
+  box-shadow: none;
   transition-duration: 80ms;
 }
 
 .btn-primary {
-  background: #16181d;
+  background: #e91e4c;
   color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  border: 3px solid #000;
+  box-shadow: 0 4px 0 #000;
 }
 .btn-primary:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #000;
 }
 
 .btn-secondary {
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--brand);
-  border: 1px solid var(--border-soft);
+  background: #212121;
+  color: #fff;
+  border: 3px solid #000;
+  box-shadow: 0 4px 0 #000;
 }
 .btn-secondary:hover {
-  background: rgba(0, 0, 0, 0.07);
-  transform: translateY(-3px) scale(1.01);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #000;
 }
 
 /* 响应式设计 */
+@media (max-width: 809px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .page {
+    padding: calc(var(--header-h, 60px) + 16px) 16px 24px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 15px;
-  }
-  
-  .page {
-    padding: 90px 15px 30px;
   }
 }
 

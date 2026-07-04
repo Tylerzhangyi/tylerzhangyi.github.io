@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { resolveAssetUrl } from '@/lib/assets'
 import styles from './intro-welcome.module.css'
@@ -80,7 +80,6 @@ function TypewriterText({ roles, enabled, className, fallback }) {
 export default function IntroWelcomeSection() {
   const { t, getDict, lang } = useI18n()
   const sectionRef = useRef(null)
-  const headlineRef = useRef(null)
   const portraitImage = resolveAssetUrl('photos/welcome-graduation.png')
   const [motionEnabled, setMotionEnabled] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -126,47 +125,6 @@ export default function IntroWelcomeSection() {
 
   const staticRole = typewriterRoles[0] || ''
   const typewriterActive = motionEnabled && revealed
-  const longestRole = useMemo(
-    () => typewriterRoles.reduce((a, b) => (a.length >= b.length ? a : b), staticRole),
-    [typewriterRoles, staticRole]
-  )
-
-  useLayoutEffect(() => {
-    const headline = headlineRef.current
-    if (!headline) return undefined
-
-    const fitHeadline = () => {
-      headline.style.fontSize = ''
-      let size = parseFloat(window.getComputedStyle(headline).fontSize)
-      const minSize = 18
-      const available = headline.parentElement?.clientWidth ?? headline.clientWidth
-
-      while (headline.scrollWidth > available && size > minSize) {
-        size -= 1
-        headline.style.fontSize = `${size}px`
-      }
-    }
-
-    fitHeadline()
-
-    const resizeObserver = new ResizeObserver(fitHeadline)
-    if (headline.parentElement) resizeObserver.observe(headline.parentElement)
-
-    const mutationObserver = new MutationObserver(fitHeadline)
-    mutationObserver.observe(headline, {
-      childList: true,
-      characterData: true,
-      subtree: true
-    })
-
-    window.addEventListener('resize', fitHeadline, { passive: true })
-
-    return () => {
-      resizeObserver.disconnect()
-      mutationObserver.disconnect()
-      window.removeEventListener('resize', fitHeadline)
-    }
-  }, [lang, typewriterActive, longestRole, staticRole])
 
   return (
     <section
@@ -191,22 +149,24 @@ export default function IntroWelcomeSection() {
 
       <div className={styles.introWelcomeInner}>
         <div className={styles.introWelcomeCopy}>
-          <h2 ref={headlineRef} className={styles.introHeadline}>
+          <h2 className={styles.introHeadline}>
             <span className={styles.introHeadlinePrefix}>{t('home.introHeadlinePrefix')}</span>
-            {typewriterActive ? (
-              <TypewriterText
-                roles={typewriterRoles}
-                enabled={typewriterActive}
-                className={styles.introHeadlineDynamic}
-              />
-            ) : (
-              <span className={styles.introHeadlineDynamic}>{staticRole}</span>
-            )}
-            {typewriterActive && (
-              <span className={styles.introHeadlineCursor} aria-hidden="true">
-                |
-              </span>
-            )}
+            <span className={styles.introHeadlineRole}>
+              {typewriterActive ? (
+                <TypewriterText
+                  roles={typewriterRoles}
+                  enabled={typewriterActive}
+                  className={styles.introHeadlineDynamic}
+                />
+              ) : (
+                <span className={styles.introHeadlineDynamic}>{staticRole}</span>
+              )}
+              {typewriterActive && (
+                <span className={styles.introHeadlineCursor} aria-hidden="true">
+                  |
+                </span>
+              )}
+            </span>
           </h2>
           <p className={styles.introWelcomeText}>{t('home.introParagraph')}</p>
         </div>

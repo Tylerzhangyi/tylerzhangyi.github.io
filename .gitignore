@@ -7,23 +7,48 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.next
-out
-*.local
+# Dependencies
+node_modules/
+**/node_modules/
 
-# Editor directories and files
+# Build / export output
+dist/
+dist-ssr/
+.next/
+**/.next/
+out/
+**/out/
+personal-portfolio/dist/
+
+# Caches
+.cache/
+**/.cache/
+*.tsbuildinfo
+.turbo/
+.vercel/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Local overrides
+*.local
+
+# Cursor / agent (local IDE state)
+.cursor/
 
 # Legacy root app (主站在 personal-portfolio/)
 /src/

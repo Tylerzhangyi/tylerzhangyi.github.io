@@ -2,162 +2,138 @@
   position: fixed;
   inset: 0;
   z-index: 4000;
-  display: grid;
-  place-items: center;
   overflow: hidden;
-  color: #111;
-  background: #fff;
+  color: #212121;
+  background: #e5e5e5;
 }
 
 .app-loader.is-boot {
   z-index: 20000;
 }
 
-.car-loader {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-}
-
-.car-world {
-  --scene-scale: 1.35;
-  position: relative;
-  width: min(920px, calc(100vw - 28px));
-  height: 320px;
-  overflow: hidden;
-  transform: scale(var(--scene-scale));
-  transform-origin: center center;
-}
-
-.car-ground {
+.boot-scene {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 54px;
-  height: 2px;
-  background: #111;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.car-ground::after {
-  content: '';
+.boot-grid {
   position: absolute;
-  left: 0;
-  right: -240px;
-  top: 9px;
-  height: 8px;
+  inset: 0;
+  background-color: #e5e5e5;
   background-image:
-    linear-gradient(90deg, #111 0 22px, transparent 22px 68px),
-    linear-gradient(90deg, transparent 0 104px, #111 104px 118px, transparent 118px 170px),
-    linear-gradient(90deg, transparent 0 210px, #111 210px 232px, transparent 232px 280px);
-  background-size: 280px 8px;
-  animation: groundRun 2.4s linear infinite;
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-.car-road-shine {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 46px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(17, 17, 17, 0.45), transparent);
+.boot-content {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 82vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.pixel-car {
-  position: absolute;
-  left: calc(4% + var(--run) * 84%);
-  bottom: 58px;
-  width: 128px;
-  height: 128px;
-  transform: translateX(-50%);
-  animation: carFloat 0.84s steps(2, end) infinite;
+.boot-content.is-revealed {
+  opacity: 1;
+  transform: none;
 }
 
-.pixel-car img {
-  display: block;
+.boot-mark {
   width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.boot-mark-line {
+  display: block;
+  width: 0;
+  height: 5px;
+  background: #e91e4c;
+  border: 2px solid #000000;
+  box-shadow: 0 3px 0 #000000;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.boot-content.is-revealed .boot-mark-line {
+  width: min(120px, 32vw);
+}
+
+.boot-title {
+  margin: 0;
+  font-family: var(--font-display, system-ui, sans-serif);
+  font-size: clamp(2.2rem, 8vw, 3.6rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  color: #212121;
+  text-align: center;
+}
+
+.boot-bar {
+  width: 100%;
+  height: 14px;
+  padding: 3px;
+  border: 3px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 4px 0 #000000;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.boot-bar-fill {
   height: 100%;
-  filter: grayscale(1);
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  background: #e91e4c;
+  border-radius: 1px;
+  transition: width 0.25s ease;
 }
 
-.car-obstacle {
-  position: absolute;
-  bottom: 56px;
-  width: 16px;
-  height: 48px;
-  background: #111;
-  animation: obstacleRun 6.8s linear infinite;
+.app-loader.is-boot.is-handoff {
+  pointer-events: none;
+  animation: bootHandoffFade 1000ms ease forwards;
 }
 
-.car-obstacle::before,
-.car-obstacle::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  background: #111;
+.app-loader.is-handoff .boot-content {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
 }
 
-.car-obstacle::before { left: -12px; top: 16px; height: 18px; }
-.car-obstacle::after { right: -12px; top: 10px; height: 24px; }
-.car-obstacle-a { right: -60px; }
-.car-obstacle-b { right: -360px; height: 36px; animation-delay: -1.8s; }
-.car-obstacle-c { right: -680px; width: 22px; height: 58px; animation-delay: -3.4s; }
-
-.car-cloud {
-  position: absolute;
-  width: 66px;
-  height: 18px;
-  border: 2px solid #111;
-  border-left: 0;
-  border-right: 0;
-  opacity: 0.55;
-  animation: cloudRun 24s linear infinite;
+.app-loader.is-handoff .boot-grid {
+  opacity: 0;
+  transition: opacity 0.8s ease;
 }
 
-.car-cloud::before,
-.car-cloud::after {
-  content: '';
-  position: absolute;
-  border: 2px solid #111;
-  border-bottom: 0;
-  background: #fff;
-}
-
-.car-cloud::before { left: 8px; top: -14px; width: 20px; height: 20px; }
-.car-cloud::after { right: 10px; top: -20px; width: 28px; height: 28px; }
-.car-cloud-a { top: 34px; right: -90px; }
-.car-cloud-b { top: 72px; right: -420px; transform: scale(0.72); animation-delay: -5.2s; }
-
-.app-loader.is-boot.is-finishing {
-  animation: carOpenScreen 1440ms cubic-bezier(.22,1,.36,1) both;
-}
-
-@keyframes carFloat {
-  0%, 100% { margin-bottom: 0; }
-  50% { margin-bottom: 2px; }
-}
-
-@keyframes obstacleRun { from { transform: translateX(0); } to { transform: translateX(calc(-100vw - 760px)); } }
-@keyframes cloudRun { from { transform: translateX(0); } to { transform: translateX(calc(-100vw - 820px)); } }
-@keyframes groundRun { from { background-position: 0 0, 0 0, 0 0; } to { background-position: -280px 0, -280px 0, -280px 0; } }
-@keyframes carOpenScreen { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; visibility: hidden; transform: translateY(-12px); } }
-
-@media (max-width: 640px) {
-  .car-world {
-    --scene-scale: 1.1;
-    width: calc(100vw - 20px);
-    height: 260px;
-  }
+@keyframes bootHandoffFade {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pixel-car,
-  .car-ground::after,
-  .car-obstacle,
-  .car-cloud,
-  .app-loader.is-boot.is-finishing {
+  .boot-content {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .boot-mark-line {
+    width: min(120px, 32vw);
+  }
+
+  .app-loader.is-boot.is-handoff {
     animation: none;
+    opacity: 0;
+    visibility: hidden;
   }
 }

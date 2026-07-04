@@ -40,8 +40,9 @@
       "github": "https://evaluation.yungu.org/evaluation#/literacyEditor/847/100000129696/student",
       "image": "/photos/PCB.png",
       "screenshots": [
-        "https://evaluation.yungu.org/api/preview_file?id=7773574",
-        "https://evaluation.yungu.org/api/preview_file?id=8886584"
+        "/photos/SHM1.png",
+        "/photos/SHM2.png",
+        "/photos/SHM4.png"
       ]
     },
     {
@@ -51,8 +52,8 @@
       "technologies": ["Python", "Html", "JavaScript"],
       "description": "Project Background:\nTraditional digit recognition services often face performance bottlenecks when handling large concurrent requests, with low resource utilization. There was a need to build a distributed system capable of automatic scaling to handle traffic fluctuations.\n\nRequirements:\n1. Implement high-precision digit recognition functionality\n2. Build a distributed architecture supporting horizontal scaling\n3. Implement dynamic load balancing to automatically distribute requests\n4. Design a queue system to handle traffic bursts\n5. Optimize resource utilization to reduce costs\n\nDevelopment Process:\n1. Developed digit recognition algorithms and server programs using Python\n2. Deployed AWS EC2 instances, configuring multiple server nodes\n3. Implemented load balancer to distribute requests across different nodes\n4. Designed queue system (such as SQS) to handle request queuing\n5. Developed auto-scaling strategy to adjust instance count based on load\n6. Used AWS RDS to store recognition results and logs\n7. Developed web frontend interface supporting image upload and result display\n8. Conducted stress testing and performance optimization\n\nKey Technologies:\n- AWS cloud services (EC2, RDS, SQS, ELB) configuration and usage\n- Python backend development and RESTful API design\n- Machine learning model deployment and inference optimization\n- Distributed system design and message queues\n- Frontend development (HTML, JavaScript) and user interface design\n- Database design and query optimization\n\nDevelopment Challenges:\n- State synchronization and consistency guarantees in distributed systems\n- Load balancing algorithm design and tuning\n- Auto-scaling strategy threshold setting and response speed\n- Prevention and handling of queue backlog issues\n- Balance between cost control and performance\n- Cross-service error handling and fault tolerance mechanisms\n\nProject Results:\nThe system was successfully deployed and running, capable of handling large concurrent requests and automatically adjusting resources based on load. Digit recognition accuracy is high, response speed is fast, and user experience is good. System stability is high, and resource utilization has been significantly improved.\n\nProject Status:\nThe project is open source, with code hosted on GitHub, including complete technical documentation and deployment instructions.",
       "github": "https://github.com/Tylerzhangyi/digital-recognition",
-      "image": "https://evaluation.yungu.org/api/preview_file?id=8777744",
-      "screenshots": ["https://evaluation.yungu.org/api/preview_file?id=8888102"]
+      "image": "/photos/aws-cover.jpg",
+      "screenshots": ["/photos/aws-cover.jpg", "/photos/article.jpg"]
     },
     {
       "id": 6,

@@ -2,13 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
-import { resolveAssetUrl } from '@/lib/assets'
 import { bindCtaFollow } from '@/lib/cardCta'
 import { createBlogScroll } from '@/lib/blogScroll'
 import DetailLink from '@/components/DetailLink'
-import CardCta from '@/components/CardCta'
-
-const BLOG_CARD_IMAGE = 'photos/blog.jpg'
+import styles from './blog.module.css'
 
 function dataUrl(path) {
   const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -30,8 +27,6 @@ export default function BlogSection({ embedded = true }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
-  const postImage = useCallback(() => resolveAssetUrl(BLOG_CARD_IMAGE), [])
 
   const readingTime = useCallback((post) => {
     if (!post) return 1
@@ -144,66 +139,68 @@ export default function BlogSection({ embedded = true }) {
       ref={sectionRef}
       id={embedded ? 'section-blog' : undefined}
       data-scroll-section="blog"
-      className="blog-scroll"
+      className={`blog-scroll ${styles.blogSection}`}
       style={{
         '--blog-count': String(posts.length),
         ...(!embedded ? { minHeight: '100vh' } : {})
       }}
     >
-      <div className="blog-grid" aria-hidden="true">
-        <div className="blog-grid__lines" />
+      <div className={styles.blogGrid} aria-hidden="true">
+        <div className={styles.blogGridLines} />
       </div>
 
       {(loading || error) && (
-        <div className="blog-scroll__state">
+        <div className={styles.blogState}>
           {loading ? t('blog.loading') : error}
         </div>
       )}
 
       {!loading && !error && posts.length > 0 && (
         <>
-          <div className="blog-scroll__title-row" aria-hidden="true" />
+          <div className={styles.blogTitleRow} aria-hidden="true" />
 
-          <div className="blog-scroll__pin">
-            <div className="blog-scroll__stage">
-              <h2 ref={titleRef} className="blog-scroll__title">
-                BLOG
-              </h2>
-              <div className="blog-scroll__layers">
+          <div className={styles.blogPin} data-nav-anchor="blog-pin">
+            <div className={styles.blogStage}>
+              <header ref={titleRef} className={styles.blogHeader}>
+                <h2 className={styles.blogTitle}>{t('nav.blog')}</h2>
+              </header>
+
+              <div className={styles.blogDeck}>
                 {posts.map((post, index) => (
                   <article
                     key={post.id}
-                    className="blog-card"
+                    className={styles.blogCard}
                     ref={(el) => setCardRef(el, index)}
                   >
                     <div
-                      className="blog-card__inner"
+                      className={styles.blogCardInner}
                       ref={(el) => setInnerRef(el, index)}
                     >
                       <DetailLink
                         href={`/blog/${post.id}`}
-                        className="blog-card__link"
+                        className={`blog-card__link ${styles.blogCardLink}`}
                         data-cursor="read"
                       >
-                        <div
-                          className="blog-card__media-wrap"
-                          ref={bindWrapRef}
-                        >
-                          <div className="blog-card__media">
-                            <img
-                              src={postImage()}
-                              alt={post.title}
-                              loading="lazy"
-                              draggable={false}
-                            />
+                        <div className={styles.blogPoster} ref={bindWrapRef}>
+                          <div className={styles.blogPosterMedia} aria-hidden="true" />
+                          <div className={styles.blogPosterShade} aria-hidden="true" />
+                          <div className={styles.blogPosterBody}>
+                            <span className={styles.blogPosterIndex}>
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <h3 className={styles.blogPosterTitle}>{post.title}</h3>
+                            {post.excerpt ? (
+                              <p className={styles.blogPosterExcerpt}>{post.excerpt}</p>
+                            ) : null}
+                            <div className={styles.blogPosterMeta}>
+                              <span className={styles.blogPosterTime}>
+                                {readingTime(post)} {t('blog.minRead')}
+                              </span>
+                              {post.category ? (
+                                <span className={styles.blogPosterTag}>{post.category}</span>
+                              ) : null}
+                            </div>
                           </div>
-                          <CardCta label={t('blog.readMore')} />
-                        </div>
-                        <div className="blog-card__meta">
-                          <h3 className="blog-card__title">{post.title}</h3>
-                          <p className="blog-card__time">
-                            {readingTime(post)} {t('blog.minRead')}
-                          </p>
                         </div>
                       </DetailLink>
                     </div>
@@ -213,7 +210,7 @@ export default function BlogSection({ embedded = true }) {
             </div>
           </div>
 
-          <div ref={runwayRef} className="blog-scroll__runway" aria-hidden="true" />
+          <div ref={runwayRef} className={styles.blogRunway} aria-hidden="true" />
         </>
       )}
     </section>

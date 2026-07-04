@@ -1,235 +1,176 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { CheckIcon } from '@heroicons/react/24/solid'
-import {
-  UserCircleIcon,
-  AcademicCapIcon,
-  PaintBrushIcon,
-  RocketLaunchIcon,
-  SparklesIcon,
-  TrophyIcon
-} from '@heroicons/react/24/outline'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
-import { onScrollLayoutReady, scheduleScrollLayoutRefresh } from '@/lib/scrollLayout'
 import styles from './about.module.css'
 
-const PANEL_COUNT = 2
+function useSceneReveal(threshold = 0.18) {
+  const ref = useRef(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return undefined
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true)
+      },
+      { threshold, rootMargin: '0px 0px -6% 0px' }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, visible }
+}
 
 export default function AboutSection() {
   const { t, getDict, lang } = useI18n()
-  const aboutRootRef = useRef(null)
-  const wrapRef = useRef(null)
-  const pinRef = useRef(null)
-  const trackRef = useRef(null)
-
-  const scrollTweenRef = useRef(null)
-  const gsapCtxRef = useRef(null)
-  const resizeTimerRef = useRef(null)
-  const layoutRetryTimerRef = useRef(null)
-  const revealObserverRef = useRef(null)
-
-  const [displayIndex, setDisplayIndex] = useState(1)
+  const intro = useSceneReveal()
+  const interests = useSceneReveal()
+  const life = useSceneReveal()
+  const awards = useSceneReveal()
 
   const interestsList = useMemo(() => getDict('about.interestsList') || [], [getDict, lang])
   const hobbiesList = useMemo(() => getDict('about.hobbiesList') || [], [getDict, lang])
   const awardsList = useMemo(() => getDict('skills.awardsList') || [], [getDict, lang])
 
-  const isDesktop = useCallback(() => {
-    return window.matchMedia('(min-width: 900px)').matches
-  }, [])
-
-  const destroyHorizontalScroll = useCallback(() => {
-    if (layoutRetryTimerRef.current) {
-      window.clearTimeout(layoutRetryTimerRef.current)
-      layoutRetryTimerRef.current = null
-    }
-    gsapCtxRef.current?.revert()
-    gsapCtxRef.current = null
-    scrollTweenRef.current = null
-  }, [])
-
-  const setupHorizontalScroll = useCallback(() => {
-    if (!isDesktop()) {
-      destroyHorizontalScroll()
-      return
-    }
-
-    const root = aboutRootRef.current
-    const wrap = wrapRef.current
-    const pin = pinRef.current
-    const track = trackRef.current
-    if (!root || !wrap || !pin || !track) return
-
-    destroyHorizontalScroll()
-
-    const distance = () => Math.max(0, Math.round(track.scrollWidth - pin.clientWidth))
-
-    if (distance() < 1) {
-      layoutRetryTimerRef.current = window.setTimeout(() => setupHorizontalScroll(), 120)
-      return
-    }
-
-    gsapCtxRef.current = gsap.context(() => {
-      scrollTweenRef.current = gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          id: 'about-horizontal-st',
-          trigger: wrap,
-          start: 'top top+=48',
-          end: () => `+=${Math.max(distance(), 1)}`,
-          scrub: 1,
-          pin,
-          pinSpacing: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const idx = Math.max(
-              1,
-              Math.min(PANEL_COUNT, Math.floor(self.progress * (PANEL_COUNT - 1) + 0.5) + 1)
-            )
-            setDisplayIndex(idx)
-          }
-        }
-      })
-    }, root)
-  }, [destroyHorizontalScroll, isDesktop])
-
-  const watchAboutSectionReveal = useCallback(() => {
-    const section = document.getElementById('section-about')
-    if (!section || section.classList.contains('is-revealed')) return
-
-    revealObserverRef.current = new MutationObserver(() => {
-      if (!section.classList.contains('is-revealed')) return
-      scheduleScrollLayoutRefresh()
-      revealObserverRef.current?.disconnect()
-      revealObserverRef.current = null
-    })
-    revealObserverRef.current.observe(section, { attributes: true, attributeFilter: ['class'] })
-  }, [])
-
-  const queueHorizontalSetup = useCallback(() => {
-    requestAnimationFrame(() => {
-      setupHorizontalScroll()
-      watchAboutSectionReveal()
-    })
-  }, [setupHorizontalScroll, watchAboutSectionReveal])
-
-  const onResize = useCallback(() => {
-    if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current)
-    resizeTimerRef.current = window.setTimeout(() => {
-      destroyHorizontalScroll()
-      queueHorizontalSetup()
-    }, 160)
-  }, [destroyHorizontalScroll, queueHorizontalSetup])
-
-  useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
-    window.addEventListener('resize', onResize, { passive: true })
-
-    const cancelReady = onScrollLayoutReady(() => queueHorizontalSetup())
-
-    return () => {
-      cancelReady()
-      window.removeEventListener('resize', onResize)
-      if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current)
-      revealObserverRef.current?.disconnect()
-      destroyHorizontalScroll()
-    }
-  }, [queueHorizontalSetup, onResize, destroyHorizontalScroll])
+  const titleWords = t('about.title').toLowerCase().split(/\s+/).filter(Boolean)
 
   return (
-    <div ref={aboutRootRef} className={`${styles.aboutPage} page`}>
-      <div ref={wrapRef} className={styles.horizontalWrapper}>
-        <div ref={pinRef} className={`${styles.horizontalPin} ${styles.aboutStage}`}>
-          <div ref={trackRef} className={`${styles.aboutTrack} horizontal`}>
-            <section className={styles.aboutPanel}>
-              <div className={`container ${styles.panelInner}`}>
-                <h1 className={styles.pageTitle}>{t('about.title')}</h1>
-                <div className={styles.aboutGrid}>
-                  <div className={styles.aboutSection}>
-                    <div className={styles.sectionHeader}>
-                      <UserCircleIcon className={styles.sectionIcon} />
-                      <h2>{t('about.intro')}</h2>
-                    </div>
-                    <p>{t('about.introText')}</p>
-                  </div>
-                  <div className={styles.aboutSection}>
-                    <div className={styles.sectionHeader}>
-                      <AcademicCapIcon className={styles.sectionIcon} />
-                      <h2>{t('about.interests')}</h2>
-                    </div>
-                    <ul className={styles.interestList}>
-                      {interestsList.map((interest, index) => (
-                        <li
-                          key={`i-${index}`}
-                          className={styles.interestItem}
-                          style={{ animationDelay: `${index * 0.08}s` }}
-                        >
-                          <CheckIcon className={styles.checkIcon} />
-                          <span>{interest}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+    <div className={styles.aboutStack}>
+      {/* Page 1 — typographic opener + offset copy */}
+      <section
+        ref={intro.ref}
+        className={`${styles.scene} ${styles.sceneIntro} ${intro.visible ? styles.sceneVisible : ''}`}
+        data-scene="intro"
+        aria-label={t('about.title')}
+      >
+        <div className={styles.sceneGrid} aria-hidden="true" />
+        <div className={styles.introDecor} aria-hidden="true">
+          <span className={styles.introDecorBlock} />
+          <span className={styles.introDecorBar} />
+        </div>
 
-                <div className={`${styles.aboutGrid} ${styles.aboutGridCompact}`}>
-                  <div className={styles.aboutCard}>
-                    <div className={styles.cardHeader}>
-                      <PaintBrushIcon className={styles.cardIcon} />
-                      <h3>{t('about.hobbies')}</h3>
-                    </div>
-                    <div className={styles.hobbiesContent}>
-                      {hobbiesList.map((hobby, index) => (
-                        <div key={`h-${index}`} className={styles.hobbyItem}>
-                          <SparklesIcon className={styles.hobbyIcon} />
-                          <span>{hobby}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={styles.aboutCard}>
-                    <div className={styles.cardHeader}>
-                      <RocketLaunchIcon className={styles.cardIcon} />
-                      <h3>{t('about.goals')}</h3>
-                    </div>
-                    <p className={styles.goalsText}>{t('about.goalsText')}</p>
-                  </div>
-                </div>
-              </div>
-            </section>
+        <div className={styles.introLayout}>
+          <div className={styles.introTitleCol}>
+            <p className={styles.introKicker}>{t('nav.about')}</p>
+            <h1 className={styles.introMegaTitle}>
+              {titleWords.map((word, i) => (
+                <span key={word} className={i === titleWords.length - 1 ? styles.introMegaAccent : undefined}>
+                  {word}
+                </span>
+              ))}
+            </h1>
+          </div>
+          <blockquote className={styles.introQuote}>
+            <span className={styles.introQuoteLabel}>{t('about.intro')}</span>
+            <p>{t('about.introText')}</p>
+          </blockquote>
+        </div>
+      </section>
 
-            <section className={`${styles.aboutPanel} secondary`}>
-              <div className={`container ${styles.panelInner} ${styles.panelInnerSecondary}`}>
-                <div className={`${styles.aboutCard} ${styles.singleCard}`}>
-                  <div className={styles.cardHeader}>
-                    <TrophyIcon className={styles.cardIcon} />
-                    <h3>{t('about.awards')}</h3>
-                  </div>
-                  <ul className={styles.awardsList}>
-                    {awardsList.map((award) => (
-                      <li key={award}>
-                        <TrophyIcon className={styles.awardIcon} />
-                        <span>{award}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </section>
+      {/* Page 2 — vertical rail + staggered interest strips */}
+      <section
+        ref={interests.ref}
+        className={`${styles.scene} ${styles.sceneInterests} ${interests.visible ? styles.sceneVisible : ''}`}
+        data-scene="interests"
+      >
+        <div className={`${styles.sceneGrid} ${styles.sceneGridDense}`} aria-hidden="true" />
+        <div className={styles.interestsDecor} aria-hidden="true">
+          <span className={styles.interestsDecorRail} />
+          {interestsList.map((_, i) => (
+            <span key={i} className={styles.interestsDecorDot} style={{ '--i': i }} />
+          ))}
+        </div>
+
+        <div className={styles.interestsLayout}>
+          <h2 className={styles.interestsVerticalTitle}>{t('about.interests')}</h2>
+          <ol className={styles.interestStripList}>
+            {interestsList.map((interest, index) => (
+              <li
+                key={interest}
+                className={styles.interestStrip}
+                data-tone={index % 3}
+                style={{ '--delay': `${index * 0.09}s`, '--shift': `${(index % 3) * 6}%` }}
+              >
+                <span className={styles.interestStripText}>{interest}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Page 3 — hobby tiles + full-bleed goals band */}
+      <section
+        ref={life.ref}
+        className={`${styles.scene} ${styles.sceneLife} ${life.visible ? styles.sceneVisible : ''}`}
+        data-scene="life"
+      >
+        <div className={styles.lifeDecor} aria-hidden="true">
+          <span className={styles.lifeDecorBracket} />
+          <span className={styles.lifeDecorRing} />
+        </div>
+        <div className={styles.lifeUpper}>
+          <h2 className={styles.lifeSectionTitle}>{t('about.hobbies')}</h2>
+          <ul className={styles.hobbyTileGrid}>
+            {hobbiesList.map((hobby, index) => (
+              <li
+                key={hobby}
+                className={styles.hobbyTile}
+                data-size={index % 2 === 0 ? 'wide' : 'tall'}
+                style={{ '--delay': `${index * 0.08}s` }}
+              >
+                <span className={styles.hobbyTileMark} aria-hidden="true" />
+                <span>{hobby}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className={styles.goalsBand}>
+          <div className={styles.goalsBandInner}>
+            <p className={styles.goalsBandLabel}>{t('about.goals')}</p>
+            <p className={styles.goalsBandText}>{t('about.goalsText')}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className={styles.panelProgress} aria-hidden="true">
-        <span>{String(displayIndex).padStart(2, '0')}</span>
-        <span className={styles.panelProgressSep}>/</span>
-        <span>{String(PANEL_COUNT).padStart(2, '0')}</span>
-      </div>
+      {/* Page 4 — alternating timeline awards */}
+      <section
+        ref={awards.ref}
+        className={`${styles.scene} ${styles.sceneAwards} ${awards.visible ? styles.sceneVisible : ''}`}
+        data-scene="awards"
+      >
+        <div className={styles.sceneGrid} aria-hidden="true" />
+        <div className={styles.awardsDecor} aria-hidden="true">
+          {awardsList.map((_, i) => (
+            <span key={i} className={styles.awardsDecorStep} style={{ '--i': i }} />
+          ))}
+        </div>
+        <div className={styles.awardsLayout}>
+          <header className={styles.awardsHeader}>
+            <h2 className={styles.awardsTitle}>{t('about.awards')}</h2>
+          </header>
+          <ul className={styles.awardsTimeline}>
+            {awardsList.map((award, index) => (
+              <li
+                key={award}
+                className={styles.awardsNode}
+                data-side={index % 2 === 0 ? 'left' : 'right'}
+                style={{ '--delay': `${index * 0.1}s` }}
+              >
+                <span className={styles.awardsNodeStem} aria-hidden="true" />
+                <div className={styles.awardsNodeBody}>
+                  <p>{award}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   )
 }

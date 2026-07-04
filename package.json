@@ -9,6 +9,7 @@
     "build": "npm run build --prefix personal-portfolio",
     "build:portfolio": "npm run build --prefix personal-portfolio",
     "build:clean": "npm run build:clean --prefix personal-portfolio",
+    "repair": "npm run repair --prefix personal-portfolio",
     "preview": "npm run preview --prefix personal-portfolio",
     "install:all": "npm install --prefix personal-portfolio"
   }

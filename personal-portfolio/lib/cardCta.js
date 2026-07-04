@@ -31,6 +31,17 @@ export function bindCtaFollow(wrap, options = {}) {
 
   setCenter()
 
+  const canFollow =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+  if (!canFollow) {
+    wrap.classList.add('is-cta-hover')
+    return () => {
+      wrap.classList.remove('is-cta-hover')
+    }
+  }
+
   const onMove = (e) => {
     const rect = wrap.getBoundingClientRect()
     const { w, h } = measureCta(scale)

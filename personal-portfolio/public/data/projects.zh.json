@@ -40,8 +40,9 @@
       "github": "https://evaluation.yungu.org/evaluation#/literacyEditor/847/100000129696/student",
       "image": "/photos/PCB.png",
       "screenshots": [
-        "https://evaluation.yungu.org/api/preview_file?id=7773574",
-        "https://evaluation.yungu.org/api/preview_file?id=8886584"
+        "/photos/SHM1.png",
+        "/photos/SHM2.png",
+        "/photos/SHM4.png"
       ]
     },
     {
@@ -51,8 +52,8 @@
       "technologies": ["Python", "Html", "JavaScript"],
       "description": "项目背景：\n传统的数字识别服务在处理大量并发请求时容易出现性能瓶颈，资源利用率低。需要构建一个能够自动扩缩容的分布式系统，应对流量波动。\n\n需求分析：\n1. 实现高精度的数字识别功能\n2. 构建分布式架构，支持水平扩展\n3. 实现动态负载均衡，自动分配请求\n4. 设计队列系统，处理突发流量\n5. 优化资源利用，降低成本\n\n研发过程：\n1. 使用 Python 开发数字识别算法和服务端程序\n2. 部署 AWS EC2 实例，配置多个服务器节点\n3. 实现负载均衡器，分发请求到不同节点\n4. 设计队列系统（如 SQS），处理请求排队\n5. 开发弹性伸缩策略，根据负载自动调整实例数量\n6. 使用 AWS RDS 存储识别结果和日志\n7. 开发 Web 前端界面，支持图片上传和结果展示\n8. 进行压力测试和性能优化\n\n关键技术：\n- AWS 云服务（EC2、RDS、SQS、ELB）的配置和使用\n- Python 后端开发和 RESTful API 设计\n- 机器学习模型部署和推理优化\n- 分布式系统设计和消息队列\n- 前端开发（HTML、JavaScript）和用户界面设计\n- 数据库设计和查询优化\n\n研发难点：\n- 分布式系统的状态同步和一致性保证\n- 负载均衡算法的设计和调优\n- 弹性伸缩策略的阈值设定和响应速度\n- 队列积压问题的预防和处理\n- 成本控制与性能平衡\n- 跨服务的错误处理和容错机制\n\n作品效果：\n系统成功部署并运行，能够处理大量并发请求，自动根据负载调整资源。数字识别准确率高，响应速度快，用户体验良好。系统稳定性高，资源利用率得到显著提升。\n\n项目状态：\n项目已开源，代码托管在 GitHub 上，包含完整的技术文档和部署说明。",
       "github": "https://github.com/Tylerzhangyi/digital-recognition",
-      "image": "https://evaluation.yungu.org/api/preview_file?id=8777744",
-      "screenshots": ["https://evaluation.yungu.org/api/preview_file?id=8888102"]
+      "image": "/photos/aws-cover.jpg",
+      "screenshots": ["/photos/aws-cover.jpg", "/photos/article.jpg"]
     },
     {
       "id": 6,

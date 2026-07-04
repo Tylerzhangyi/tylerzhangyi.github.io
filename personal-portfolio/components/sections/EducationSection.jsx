@@ -82,7 +82,7 @@ export default function EducationSection() {
       if (!count) return
 
       if (isMobileLayout() || prefersReducedMotion()) {
-        gsap.set(nodes, { clearProps: 'opacity,transform,visibility,scale' })
+        gsap.set(nodes, { clearProps: 'opacity,transform,visibility,scale,x' })
         gsap.set([trunk, ...branches], { clearProps: 'strokeDashoffset,strokeDasharray' })
         return
       }
@@ -97,23 +97,32 @@ export default function EducationSection() {
           const len = dashLength(branch) || 200
           gsap.set(branch, { strokeDasharray: len, strokeDashoffset: len })
         })
-        gsap.set(nodes, { opacity: 0, scale: 0.92, visibility: 'hidden' })
+        gsap.set(nodes, { opacity: 0, y: 32, scale: 0.94, visibility: 'hidden' })
 
         const tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } })
-        const trunkSlot = 0.16
+        const trunkSlot = 0.14
         const branchSlot = (1 - trunkSlot) / Math.max(count, 1)
 
-        tl.to(trunk, { strokeDashoffset: 0, duration: trunkSlot }, 0)
+        tl.to(trunk, { strokeDashoffset: 0, duration: trunkSlot, ease: 'steps(6)' }, 0)
 
         branches.forEach((branch, index) => {
           const start = trunkSlot + index * branchSlot
-          tl.to(branch, { strokeDashoffset: 0, duration: branchSlot * 0.5 }, start)
+          tl.to(branch, { strokeDashoffset: 0, duration: branchSlot * 0.45, ease: 'steps(4)' }, start)
           if (nodes[index]) {
-            tl.set(nodes[index], { visibility: 'visible' }, start + branchSlot * 0.42)
+            const slideX = branchLayout[index]?.leftSide ? -28 : 28
+            gsap.set(nodes[index], { x: slideX })
+            tl.set(nodes[index], { visibility: 'visible' }, start + branchSlot * 0.38)
             tl.to(
               nodes[index],
-              { opacity: 1, scale: 1, duration: branchSlot * 0.32, ease: 'power2.out' },
-              start + branchSlot * 0.42
+              {
+                opacity: 1,
+                y: 0,
+                x: 0,
+                scale: 1,
+                duration: branchSlot * 0.3,
+                ease: 'back.out(1.7)'
+              },
+              start + branchSlot * 0.38
             )
           }
         })
@@ -186,7 +195,7 @@ export default function EducationSection() {
                 preserveAspectRatio="xMidYMin meet"
                 aria-hidden="true"
               >
-                <circle className={styles.treeRoot} cx={TREE_WIDTH / 2} cy={18} r={8} />
+                <circle className={styles.treeRoot} cx={TREE_WIDTH / 2} cy={18} r={10} />
                 <line
                   ref={trunkRef}
                   className={styles.treeTrunk}
@@ -222,7 +231,13 @@ export default function EducationSection() {
                         ref={(el) => {
                           nodeRefs.current[index] = el
                         }}
-                        className={styles.nodeCard}
+                        className={`${styles.nodeCard} ${
+                          index % 3 === 1
+                            ? styles.nodeCardAccent
+                            : index % 3 === 2
+                              ? styles.nodeCardDark
+                              : ''
+                        }`}
                       >
                         <div className={styles.row}>
                           <div className={styles.degree}>{edu.degree}</div>

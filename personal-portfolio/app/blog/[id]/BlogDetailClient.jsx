@@ -6,7 +6,7 @@ import { ArrowLeftIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outl
 import { marked } from 'marked'
 import { useI18n } from '@/lib/i18n'
 import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
-import { resolveAssetUrl } from '@/lib/assets'
+import { resolveAssetUrl, handleImageError } from '@/lib/assets'
 import { fetchBlogPostById } from '@/lib/data'
 import styles from '@/components/pages/blog-detail.module.css'
 
@@ -155,7 +155,7 @@ export default function BlogDetailClient() {
                   </div>
                 </div>
                 <div className={styles.coverFrame} aria-hidden="true">
-                  <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} />
+                  <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} onError={handleImageError} />
                 </div>
               </header>
 

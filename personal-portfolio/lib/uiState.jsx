@@ -1,9 +1,11 @@
 'use client'
 
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from 'react'
+import { markScrollLayoutReady } from '@/lib/scrollLayout'
 
 let state = {
   bootLoading: true,
+  bootHandoff: false,
   routeLoading: false,
   loadingText: 'LOADING',
   progress: 0
@@ -11,6 +13,7 @@ let state = {
 
 const SERVER_SNAPSHOT = {
   bootLoading: true,
+  bootHandoff: false,
   routeLoading: false,
   loadingText: 'LOADING',
   progress: 0
@@ -19,6 +22,7 @@ const SERVER_SNAPSHOT = {
 let bootSession = 0
 let bootRaf = 0
 let finishTimer = null
+let handoffTimer = null
 let routeTimer = null
 let bootFinished = false
 
@@ -49,6 +53,15 @@ function setState(patch) {
 function setBodyLoading(on) {
   try {
     document.documentElement.classList.toggle('is-boot-loading', !!on)
+    if (!on) document.documentElement.classList.remove('is-boot-handoff')
+  } catch {
+    // ignore
+  }
+}
+
+function setBootHandoff(on) {
+  try {
+    document.documentElement.classList.toggle('is-boot-handoff', !!on)
   } catch {
     // ignore
   }
@@ -87,25 +100,42 @@ function clearBootTimers() {
     window.clearTimeout(finishTimer)
     finishTimer = null
   }
+  if (handoffTimer) {
+    window.clearTimeout(handoffTimer)
+    handoffTimer = null
+  }
 }
 
 function finishBoot(force = false) {
   if (bootFinished && !force) return
   bootFinished = true
   clearBootTimers()
-  setState({ bootLoading: false, progress: 100, loadingText: 'READY' })
+  setState({ bootLoading: false, bootHandoff: false, progress: 100, loadingText: 'READY' })
   setBodyLoading(false)
+  setBootHandoff(false)
+}
+
+function startBootHandoff(session) {
+  if (session !== bootSession || bootFinished) return
+
+  setState({ progress: 100, bootHandoff: true, loadingText: 'READY' })
+  setBodyLoading(false)
+  setBootHandoff(true)
+
+  handoffTimer = window.setTimeout(() => {
+    if (session !== bootSession || bootFinished) return
+    finishBoot()
+  }, 1100)
 }
 
 function scheduleBootFinish(session) {
   if (session !== bootSession || bootFinished) return
 
-  setState({ loadingText: 'SYNC', progress: 100 })
+  setState({ progress: 100, loadingText: 'READY' })
 
   finishTimer = window.setTimeout(() => {
-    if (session !== bootSession || bootFinished) return
-    finishBoot()
-  }, 840)
+    startBootHandoff(session)
+  }, 480)
 }
 
 export function startBootLoading() {
@@ -120,7 +150,7 @@ export function startBootLoading() {
   })
   setBodyLoading(true)
 
-  const durationMs = 2400
+  const durationMs = 3200
   const startAt = performance.now()
 
   const tick = (now) => {
@@ -181,20 +211,16 @@ export function UiStateProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    if (!ui.bootLoading) {
+    if (!ui.bootLoading && !ui.bootHandoff) {
       document.body.classList.add('is-ready')
-      import('@/lib/scrollLayout')
-        .then(({ markScrollLayoutReady }) => {
-          const ready = () => markScrollLayoutReady()
-          if (document.fonts?.ready) {
-            document.fonts.ready.then(ready).catch(ready)
-          } else {
-            ready()
-          }
-        })
-        .catch(() => {})
+      const ready = () => markScrollLayoutReady()
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(ready).catch(ready)
+      } else {
+        ready()
+      }
     }
-  }, [ui.bootLoading])
+  }, [ui.bootLoading, ui.bootHandoff])
 
   const value = useMemo(() => ui, [ui])
 

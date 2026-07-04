@@ -42,7 +42,7 @@ export default function HomePage() {
       <section
         id="section-about"
         data-scroll-section="about"
-        className="stack-section stack-section--about reveal-fade-only"
+        className="stack-section stack-section--about"
       >
         <AboutSection />
       </section>

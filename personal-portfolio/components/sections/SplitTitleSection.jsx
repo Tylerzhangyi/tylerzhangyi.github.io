@@ -22,6 +22,7 @@ export default function SplitTitleSection({
 }) {
   const sectionRef = useRef(null)
   const stickyRef = useRef(null)
+  const ampRef = useRef(null)
   const leftRef = useRef(null)
   const rightRef = useRef(null)
 
@@ -30,9 +31,21 @@ export default function SplitTitleSection({
   const updateScroll = useCallback(() => {
     const section = sectionRef.current
     const sticky = stickyRef.current
+    const ampEl = ampRef.current
     const leftEl = leftRef.current
     const rightEl = rightRef.current
     if (!section || !sticky || !leftEl || !rightEl) return
+
+    if (window.matchMedia('(max-width: 809px)').matches) {
+      sticky.classList.remove(styles.splitTitleSectionStickyHidden)
+      ;[leftEl, rightEl, ampEl].forEach((el) => {
+        if (!el) return
+        el.style.translate = ''
+        el.style.transform = 'none'
+        el.style.opacity = '1'
+      })
+      return
+    }
 
     const vh = window.innerHeight
     const rect = section.getBoundingClientRect()
@@ -42,7 +55,6 @@ export default function SplitTitleSection({
 
     const scrollable = Math.max(section.offsetHeight - vh, 1)
     const progress = clamp(-rect.top / scrollable, 0, 1)
-    const eased = smoothstep(progress)
 
     const splitPhase = clamp(progress / 0.72, 0, 1)
     const splitEased = smoothstep(splitPhase)
@@ -53,8 +65,17 @@ export default function SplitTitleSection({
 
     sticky.classList.toggle(styles.splitTitleSectionStickyHidden, fadeOut > 0.92)
 
+    ;[leftEl, rightEl, ampEl].forEach((el) => {
+      if (!el) return
+      el.style.translate = ''
+    })
+
     leftEl.style.transform = `translateX(${-split}vw)`
     rightEl.style.transform = `translateX(${split}vw)`
+    if (ampEl) {
+      ampEl.style.transform = `scale(${lerp(1, 0.6, splitEased)})`
+      ampEl.style.opacity = String(lerp(1, 0, splitEased))
+    }
     leftEl.style.opacity = String(opacity)
     rightEl.style.opacity = String(opacity)
   }, [])
@@ -64,7 +85,8 @@ export default function SplitTitleSection({
     if (section) section.style.setProperty('--split-scroll-height', scrollHeight)
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReducedMotion) {
+    const isMobile = window.matchMedia('(max-width: 809px)').matches
+    if (prefersReducedMotion || isMobile) {
       if (leftRef.current) {
         leftRef.current.style.opacity = '1'
         leftRef.current.style.transform = 'none'
@@ -101,17 +123,22 @@ export default function SplitTitleSection({
         <div className={styles.splitTitleSectionGridLines} />
       </div>
 
+      <div className={styles.splitDecor} aria-hidden="true">
+        <span className={styles.splitDecorBlock} />
+        <span className={styles.splitDecorBar} />
+      </div>
+
       <div ref={stickyRef} className={styles.splitTitleSectionSticky}>
         <div className={styles.splitTitleSectionTitles}>
-          <h2
-            ref={leftRef}
-            className={styles.splitTitleSectionTitle}
-          >
+          <h2 ref={leftRef} className={styles.splitTitleSectionTitle}>
             {left}
           </h2>
+          <span ref={ampRef} className={styles.splitAmpersand} aria-hidden="true">
+            &
+          </span>
           <h2
             ref={rightRef}
-            className={styles.splitTitleSectionTitle}
+            className={`${styles.splitTitleSectionTitle} ${styles.splitTitleSectionTitleAccent}`}
           >
             {right}
           </h2>

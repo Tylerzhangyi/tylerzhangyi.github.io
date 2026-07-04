@@ -7,8 +7,6 @@ import PageTransition from '@/components/PageTransition'
 import AppLoader from '@/components/AppLoader'
 import DetailTransitionBinder from '@/components/DetailTransitionBinder'
 import { useUiState } from '@/lib/uiState'
-import { clearSavedHomeScroll } from '@/lib/homeScrollRestore'
-import { scrollToSection } from '@/lib/scrollToSection'
 import '@/components/app-shell.css'
 
 export default function AppShell({ children }) {
@@ -21,19 +19,6 @@ export default function AppShell({ children }) {
     }
   }, [pathname])
 
-  useEffect(() => {
-    const hash = window.location.hash
-    if (!hash || !hash.startsWith('#section-')) return
-
-    const sectionId = hash.replace('#section-', '')
-    clearSavedHomeScroll()
-    const timer = window.setTimeout(() => {
-      scrollToSection(sectionId, 'smooth')
-    }, 400)
-
-    return () => window.clearTimeout(timer)
-  }, [pathname])
-
   return (
     <div className="app-shell">
       <SiteHeader />
@@ -43,19 +28,13 @@ export default function AppShell({ children }) {
       <PageTransition />
       <DetailTransitionBinder />
 
-      {ui.bootLoading && (
-        <AppLoader
-          mode="boot"
-          title="PORTFOLIO"
-          text={ui.loadingText}
-          progress={ui.progress}
-        />
-      )}
+      {ui.bootLoading || ui.bootHandoff ? (
+        <AppLoader mode="boot" progress={ui.progress} handoff={ui.bootHandoff} />
+      ) : null}
 
       {ui.routeLoading && (
         <AppLoader
           mode="route"
-          title="NAVIGATE"
           text={ui.loadingText}
           progress={ui.progress}
         />

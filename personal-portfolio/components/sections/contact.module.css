@@ -1,229 +1,252 @@
 .contactScroll {
   position: relative;
-  min-height: 115vh;
-  background: #fff;
+  min-height: 100vh;
+  background: #e5e5e5;
   scroll-margin-top: var(--header-h, 72px);
 }
 
 .contactPin {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  max-height: 100vh;
+  position: relative;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  color: #16181d;
-  overflow-x: clip;
-  overflow-y: hidden;
+  background: #e5e5e5;
+  color: #212121;
+  overflow: hidden;
   box-sizing: border-box;
-  padding:
-    calc(var(--header-h, 72px) + 24px)
-    var(--pad-x, 24px)
-    clamp(12px, 2vh, 20px);
+}
+
+.contactGridBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: #e5e5e5;
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.14) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
 }
 
 .contactInner {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  z-index: 2;
   width: 100%;
-  max-width: 1280px;
+  max-width: 960px;
+  min-height: 100vh;
   margin: 0 auto;
-}
-
-.contactStack {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-}
-
-.contactHeroButton {
-  appearance: none;
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.contactHeroButton:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.45);
-  outline-offset: 6px;
-}
-
-.contactHeroWrap {
-  width: 100vw;
-  max-width: 100vw;
-  margin-left: calc(50% - 50vw);
-  overflow: visible;
   padding:
-    0
-    clamp(12px, 2vw, 24px);
+    calc(var(--header-h, 72px) + clamp(24px, 4vh, 40px))
+    var(--pad-x, 24px)
+    clamp(32px, 5vh, 56px);
   box-sizing: border-box;
-}
-
-.contactHero {
   display: flex;
-  flex-wrap: nowrap;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
+  gap: clamp(32px, 5vh, 48px);
+}
+
+.contactTitle {
+  display: flex;
+  justify-content: center;
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  font-family: var(--font-display);
-  font-size: clamp(3.5rem, 19vw, 20rem);
-  line-height: 0.82;
-  letter-spacing: 0.06em;
-  font-weight: 400;
-  font-style: normal;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #101010;
-  user-select: none;
-  transform: translateY(0.04em);
-  transition: transform 0.2s steps(3, end), opacity 0.2s steps(3, end);
 }
 
-.contactHeroButton:hover .contactHero,
-.contactHeroActive {
-  transform: translateY(0.04em) scale(0.985);
+.contactContent {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: clamp(24px, 4vh, 36px);
 }
 
-.heroSpace {
-  display: inline-block;
-  width: 0.22em;
-}
-
-.heroChar {
-  display: inline-block;
-  font-style: inherit;
-  color: #0a0a0a;
-  text-shadow:
-    1px 1px 0 #151515,
-    2px 2px 0 #141414,
-    3px 3px 0 #131313,
-    4px 4px 0 #121212,
-    5px 5px 0 #111,
-    6px 6px 0 #101010,
-    7px 7px 0 #0e0e0e,
-    8px 8px 0 rgba(0, 0, 0, 0.55);
-}
-
-.contactOptions {
+.contactGrid {
   display: grid;
-  gap: 0.85rem;
-  width: min(100%, 28rem);
-  margin-top: 0;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition:
-    max-height 0.3s steps(4, end),
-    opacity 0.25s steps(3, end),
-    transform 0.25s steps(3, end),
-    margin-top 0.25s steps(3, end);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 
-.contactOptionsOpen {
-  margin-top: clamp(18px, 3vh, 34px);
-  max-height: 240px;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.contactOption {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: clamp(13px, 1.2vw, 16px);
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.contactCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 168px;
+  padding: 20px 18px;
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.82);
-  border: 2px solid #101010;
-  box-shadow: 3px 3px 0 #101010;
-  padding: 0.55rem 0.85rem;
-  background: #fff;
+  color: inherit;
+  border: 4px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 5px 0 #000000;
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: lowercase;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(18px);
   transition:
-    color 0.2s steps(2, end),
-    opacity 0.25s steps(3, end),
-    transform 0.2s steps(2, end),
-    box-shadow 0.2s steps(2, end);
+    opacity 0.4s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 0.4s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+  transition-delay: var(--card-delay, 0ms);
 }
 
-.contactOptionsOpen .contactOption {
+.contactContentRevealed .contactCard {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
-.contactOptionsOpen .contactOption:nth-child(1) {
-  transition-delay: 0.06s;
+.contactCardPrimary {
+  background: #e91e4c;
+  color: #ffffff;
 }
 
-.contactOptionsOpen .contactOption:nth-child(2) {
-  transition-delay: 0.12s;
+.contactCardDark {
+  background: #212121;
+  color: #ffffff;
 }
 
-.contactOptionsOpen .contactOption:nth-child(3) {
-  transition-delay: 0.18s;
+.contactCardLight {
+  background: #ffffff;
+  color: #212121;
 }
 
-.contactOption:first-child {
+.contactCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+  box-shadow: 0 3px 0 currentColor;
+}
+
+.contactCardIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.contactCardLabel {
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.contactCard:first-child .contactCardLabel {
   text-transform: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
-a.contactOption:hover {
-  color: rgba(0, 0, 0, 0.92);
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 #101010;
+.contactCardArrow {
+  align-self: flex-end;
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+}
+
+.contactCardArrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+a.contactCard:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 0 8px 0 #000000;
+}
+
+a.contactCard:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.contactPanel {
+  padding: 22px 24px;
+  background: #ffffff;
+  border: 4px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 5px 0 #000000;
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.45s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 0.45s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.contactContentRevealed .contactPanel {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.35s;
+}
+
+.contactPanelText {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.7vw, 1.12rem);
+  line-height: 1.7;
+  color: rgba(33, 33, 33, 0.78);
+}
+
+.contactFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: rgba(33, 33, 33, 0.5);
+  opacity: 0;
+  transition: opacity 0.45s ease 0.5s;
+}
+
+.contactContentRevealed .contactFooter {
+  opacity: 1;
 }
 
 @media (max-width: 900px) {
-  .contactScroll {
-    min-height: 110vh;
+  .contactInner {
+    justify-content: flex-start;
+    gap: 28px;
   }
 
-  .contactPin {
-    height: auto;
-    max-height: none;
-    min-height: 100vh;
+  .contactGrid {
+    grid-template-columns: 1fr;
   }
 
-  .contactHeroWrap {
-    padding-inline: 16px;
+  .contactCard {
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
   }
 
-  .contactHero {
-    font-size: clamp(2.6rem, 14vw, 5.5rem);
-    font-weight: 400;
-    font-style: normal;
-    flex-wrap: nowrap;
-    justify-content: center;
-    white-space: nowrap;
+  .contactCardLabel {
+    flex: 1;
+  }
+
+  .contactCardArrow {
+    align-self: center;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .contactHero,
-  .contactOptions,
-  .contactOption {
+  .contactCard,
+  .contactPanel,
+  .contactFooter {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 }

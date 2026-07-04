@@ -293,7 +293,7 @@ export const dict = {
     },
     contact: {
       title: '联系我',
-      hero: 'CONTACT',
+      hero: 'contact',
       openOptions: '展开联系方式',
       colReach: '联系我',
       colCollaborate: '合作',
@@ -308,8 +308,7 @@ export const dict = {
       viewLinks: '常用链接',
       cooperation: '合作意向',
       cooperationText: '欢迎就前端开发、全栈项目与现代工程化实践交流合作。如果你有有趣的想法，也很乐意一起讨论。',
-      footerRights: '© Tyler Zhang',
-      footerTag: 'Portfolio · Hangzhou'
+      footerRights: '© Tyler Zhang'
     }
   },
   en: {
@@ -606,7 +605,7 @@ export const dict = {
     },
     contact: {
       title: 'Contact',
-      hero: 'CONTACT',
+      hero: 'contact',
       openOptions: 'Show contact options',
       colReach: 'Reach Out',
       colCollaborate: 'Collaborate',
@@ -621,8 +620,7 @@ export const dict = {
       viewLinks: 'Links',
       cooperation: 'Open To',
       cooperationText: 'Front-end builds, full-stack experiments, and thoughtful product work. If you have an idea worth building, say hello.',
-      footerRights: '© Tyler Zhang',
-      footerTag: 'Portfolio · Hangzhou'
+      footerRights: '© Tyler Zhang'
     }
   }
 }

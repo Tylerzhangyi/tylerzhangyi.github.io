@@ -3,8 +3,8 @@
   min-height: 100vh;
   display: flex;
   align-items: stretch;
-  background: var(--fs-bg, #fff);
-  color: var(--fs-fg, #000);
+  background: #e5e5e5;
+  color: #212121;
   z-index: 1;
   overflow: hidden;
 }
@@ -14,28 +14,28 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: clamp(48px, 6vw, 76px);
+  width: clamp(56px, 7vw, 88px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  padding: calc(var(--header-h, 72px) + 20px) 0 28px;
+  padding: calc(var(--header-h, 72px) + 24px) 0 32px;
   box-sizing: border-box;
   pointer-events: none;
   z-index: 0;
-  contain: layout style paint;
 }
 
 .waveStripe {
   display: block;
-  height: 3px;
+  height: 5px;
   width: var(--w, 80%);
   max-width: 100%;
-  background: #16181d;
-  border-radius: 0;
+  background: #212121;
+  border: 2px solid #000000;
+  box-shadow: 0 2px 0 #000000;
   transform-origin: left center;
-  opacity: 0.72;
-  animation: introWaveShift 3.6s ease-in-out infinite;
+  opacity: 0.9;
+  animation: introWaveShift 3.6s steps(4, end) infinite;
   animation-delay: calc(var(--i, 0) * 0.12s);
 }
 
@@ -43,7 +43,7 @@
   0%,
   100% {
     transform: translateX(0) scaleX(0.68);
-    opacity: 0.3;
+    opacity: 0.35;
   }
 
   50% {
@@ -55,57 +55,79 @@
 .introWelcomeInner {
   position: relative;
   z-index: 1;
-  width: min(960px, calc(100% - clamp(48px, 6vw, 76px) - var(--pad-x, 24px) * 2));
+  width: min(1240px, calc(100% - clamp(56px, 7vw, 88px) - var(--pad-x, 24px) * 2));
   min-height: 100vh;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.75fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.65fr);
   align-items: center;
   justify-content: center;
-  gap: clamp(28px, 4vw, 52px);
+  gap: clamp(32px, 5vw, 64px);
   padding:
-    calc(var(--header-h, 72px) + 32px)
+    calc(var(--header-h, 72px) + 40px)
     var(--pad-x, 24px)
-    32px
-    calc(clamp(48px, 6vw, 76px) + clamp(12px, 2vw, 24px));
+    40px
+    calc(clamp(56px, 7vw, 88px) + clamp(16px, 2vw, 28px));
   box-sizing: border-box;
 }
 
 .introWelcomeCopy {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: center;
   text-align: left;
-  padding-right: 0;
+  min-width: 0;
+  width: 100%;
+  padding: 32px 36px 28px;
+  background: #ffffff;
+  border: 4px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 5px 0 #000000;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .introHeadline {
   width: 100%;
-  margin: 0 0 1.25rem;
+  max-width: 100%;
+  margin: 0 0 1.5rem;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.8vw, 3.4rem);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.92);
+  font-size: clamp(3.2rem, 8vw, 5.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: #212121;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08em;
+}
+
+.introHeadlinePrefix {
+  display: block;
   white-space: nowrap;
 }
 
-.introHeadlinePrefix,
-.introHeadlineDynamic,
-.introHeadlineCursor {
-  white-space: nowrap;
+.introHeadlineRole {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.04em;
+  max-width: 100%;
 }
 
 .introHeadlineDynamic {
-  color: rgba(0, 0, 0, 0.92);
+  color: #e91e4c;
+  white-space: nowrap;
 }
 
 .introHeadlineCursor {
   display: inline-block;
+  flex-shrink: 0;
   margin-left: 0.04em;
-  color: rgba(0, 0, 0, 0.55);
+  color: rgba(33, 33, 33, 0.55);
   animation: introCursorBlink 1s step-end infinite;
 }
 
@@ -123,23 +145,26 @@
 .introWelcomeText {
   margin: 0;
   width: 100%;
-  max-width: 30rem;
+  max-width: none;
   font-family: var(--font-body);
-  font-size: clamp(17px, 1.75vw, 22px);
-  line-height: 1.72;
-  letter-spacing: -0.01em;
-  color: rgba(0, 0, 0, 0.82);
+  font-size: clamp(0.95rem, 1.45vw, 1.08rem);
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: -0.005em;
+  color: rgba(33, 33, 33, 0.68);
 }
 
 .introWelcomeMedia {
   position: relative;
   width: 100%;
-  max-width: min(100%, 300px);
+  max-width: min(100%, 360px);
   margin: 0 auto;
   aspect-ratio: 4 / 5;
-  max-height: min(50vh, 460px);
+  max-height: min(56vh, 520px);
   overflow: hidden;
   border-radius: 2px;
+  border: 4px solid #000000;
+  box-shadow: 0 5px 0 #000000;
 }
 
 .introWelcomeMedia img {
@@ -177,7 +202,7 @@
 
 @media (max-width: 900px) {
   .introWelcomeInner {
-    width: min(640px, calc(100% - clamp(40px, 10vw, 52px) - 32px));
+    width: min(720px, calc(100% - clamp(40px, 10vw, 52px) - 32px));
     grid-template-columns: 1fr;
     gap: 28px;
     padding-left: calc(clamp(40px, 10vw, 52px) + 16px);
@@ -185,7 +210,7 @@
   }
 
   .waveDecor {
-    width: clamp(36px, 9vw, 48px);
+    width: clamp(40px, 9vw, 52px);
     padding-top: calc(var(--header-h, 72px) + 16px);
     padding-bottom: 20px;
   }
@@ -193,10 +218,16 @@
   .introWelcomeCopy {
     order: 2;
     align-items: flex-start;
+    padding: 22px 20px;
   }
 
   .introHeadline {
-    font-size: clamp(1.75rem, 8vw, 2.5rem);
+    font-size: clamp(2.6rem, 11vw, 3.8rem);
+  }
+
+  .introHeadlinePrefix,
+  .introHeadlineDynamic {
+    white-space: normal;
   }
 
   .introWelcomeText {
@@ -205,8 +236,8 @@
 
   .introWelcomeMedia {
     order: 1;
-    max-width: min(100%, 280px);
-    max-height: min(38vh, 320px);
+    max-width: min(100%, 320px);
+    max-height: min(42vh, 360px);
     aspect-ratio: 16 / 10;
   }
 }

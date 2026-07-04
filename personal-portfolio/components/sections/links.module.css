@@ -1,14 +1,28 @@
 .linksPage {
+  position: relative;
   width: 100%;
   min-height: max(100vh, 1120px);
   padding: 48px 24px 120px;
-  color: #14161a;
-  background: #fff;
+  color: #212121;
+  background: #e5e5e5;
   overflow: visible;
+}
+
+.linksPage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 20% 20%;
+  z-index: 0;
 }
 
 .scatterCanvas {
   position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 1180px;
   min-height: max(100vh, 1120px);
@@ -83,10 +97,7 @@
 }
 
 .scatterCard.isDragging .scatterCardBody {
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.06),
-    0 20px 48px rgba(0, 0, 0, 0.14),
-    0 48px 96px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 0 #000000;
 }
 
 .scatterCardGrip {
@@ -132,15 +143,12 @@
   padding: 22px 24px 20px;
   color: inherit;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  border-radius: 16px;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.06),
-    0 24px 48px rgba(0, 0, 0, 0.04);
+  border: 3px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 4px 0 #000000;
   transition:
-    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 380ms ease;
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
   -webkit-user-drag: none;
   user-select: text;
 }
@@ -148,12 +156,12 @@
 .scatterCardAccent {
   display: block;
   width: 28px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--card-accent, #3b82f6);
+  height: 4px;
+  border-radius: 0;
+  background: #e91e4c;
   margin-bottom: 16px;
-  opacity: 0.85;
-  transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 1;
+  transition: width 0.2s ease;
 }
 
 .scatterCardIcon {
@@ -223,11 +231,9 @@
 }
 
 .scatterCard:hover:not(.isDragging) .scatterCardBody {
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 16px 40px rgba(0, 0, 0, 0.1),
-    0 40px 80px rgba(0, 0, 0, 0.08);
+  border-color: #000000;
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #000000;
 }
 
 .scatterCard:hover:not(.isDragging) .scatterCardAccent {
@@ -243,6 +249,7 @@
 @media (max-width: 820px) {
   .linksPage {
     padding: 48px 20px 72px;
+    min-height: auto;
   }
 
   .scatterCanvas {

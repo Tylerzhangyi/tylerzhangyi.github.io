@@ -5,16 +5,13 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, CubeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 import { useI18n } from '@/lib/i18n'
 import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
-import { resolveAssetUrl } from '@/lib/assets'
+import { resolveAssetUrl, handleImageError as onImageError } from '@/lib/assets'
 import { fetchProjectById } from '@/lib/data'
 import styles from '@/components/pages/project-detail.module.css'
 
-const PLACEHOLDER_SVG =
-  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="400"%3E%3Crect fill="%23e0e0e0" width="800" height="400"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="24" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E暂无图片%3C/text%3E%3C/svg%3E'
+gsap.registerPlugin(ScrollTrigger)
 
 export default function ProjectDetailClient() {
   const params = useParams()
@@ -56,10 +53,6 @@ export default function ProjectDetailClient() {
     window.setTimeout(() => {
       ScrollTrigger.refresh()
     }, 200)
-  }
-
-  function handleImageError(event) {
-    event.currentTarget.src = PLACEHOLDER_SVG
   }
 
   return (
@@ -128,7 +121,7 @@ export default function ProjectDetailClient() {
                 <img
                   src={resolveAssetUrl(project.image) || '/photos/placeholder.jpg'}
                   alt={project.name}
-                  onError={handleImageError}
+                  onError={onImageError}
                 />
               </div>
             </header>
@@ -188,6 +181,7 @@ export default function ProjectDetailClient() {
                       key={screenshot}
                       src={resolveAssetUrl(screenshot)}
                       alt={`${t('projectDetail.screenshot')} ${index + 1}`}
+                      onError={onImageError}
                     />
                   ))}
                 </div>

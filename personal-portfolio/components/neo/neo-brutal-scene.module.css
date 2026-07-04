@@ -1,0 +1,602 @@
+.neoScene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: #212121;
+}
+
+.neoSceneFill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.neoSceneViewport {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.neoSceneViewport .neoGrid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.neoSceneMinimal {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.neoSceneMinimal .neoContent {
+  height: auto;
+  padding: 0;
+  justify-content: flex-start;
+}
+
+.neoSceneViewport .neoContent {
+  padding-top: calc(var(--header-h, 72px) + 12px);
+  box-sizing: border-box;
+}
+
+.neoGrid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: #e5e5e5;
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.14) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.neoSceneActive .neoGrid {
+  animation: neoGridIn 0.6s ease forwards;
+}
+
+.neoMorph {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.neoMorphShape {
+  position: absolute;
+  border: 4px solid #000000;
+  box-shadow: 0 6px 0 #000000;
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.neoMorphRed {
+  left: 8%;
+  top: 18%;
+  width: clamp(72px, 14vw, 128px);
+  height: clamp(72px, 14vw, 128px);
+  background: #e91e4c;
+  border-radius: 2px;
+}
+
+.neoMorphWhite {
+  right: 10%;
+  top: 20%;
+  width: clamp(120px, 22vw, 200px);
+  height: clamp(36px, 6vw, 56px);
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.neoMorphBlack {
+  left: 10%;
+  bottom: 20%;
+  width: clamp(56px, 10vw, 96px);
+  height: clamp(56px, 10vw, 96px);
+  background: #212121;
+  border-radius: 2px;
+}
+
+.neoMorphRing {
+  right: 12%;
+  bottom: 18%;
+  width: clamp(64px, 11vw, 104px);
+  height: clamp(64px, 11vw, 104px);
+  background: transparent;
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+.neoMorphActive .neoMorphRed {
+  animation: neoMorphIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards,
+    neoMorphDriftA 5.6s ease-in-out 0.8s infinite;
+}
+
+.neoMorphActive .neoMorphWhite {
+  animation: neoMorphIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.16s forwards,
+    neoMorphDriftB 6.2s ease-in-out 1s infinite;
+}
+
+.neoMorphActive .neoMorphBlack {
+  animation: neoMorphIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.24s forwards,
+    neoMorphDriftC 5.4s ease-in-out 1.1s infinite;
+}
+
+.neoMorphActive .neoMorphRing {
+  animation: neoMorphIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.32s forwards,
+    neoMorphDriftD 6.8s ease-in-out 1.2s infinite;
+}
+
+.neoDecorLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.neoDecor {
+  position: absolute;
+  border: 3px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 4px 0 #000000;
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.neoDecorA {
+  left: 5%;
+  top: 16%;
+  width: 72px;
+  height: 72px;
+  background: #e91e4c;
+  rotate: -7deg;
+}
+
+.neoDecorB {
+  right: 6%;
+  top: 14%;
+  width: 56px;
+  height: 56px;
+  background: #ffffff;
+  rotate: 9deg;
+}
+
+.neoDecorC {
+  left: 7%;
+  bottom: 18%;
+  width: 92px;
+  height: 40px;
+  background: #212121;
+  rotate: -4deg;
+}
+
+.neoDecorD {
+  right: 8%;
+  bottom: 16%;
+  width: 64px;
+  height: 64px;
+  background: #e91e4c;
+  rotate: 11deg;
+}
+
+.neoSceneActive .neoDecorA,
+.neoDecorLayerActive .neoDecorA { animation: neoDrop 0.55s ease 0.05s forwards, neoFloat 4s ease-in-out 0.7s infinite; }
+.neoSceneActive .neoDecorB,
+.neoDecorLayerActive .neoDecorB { animation: neoDrop 0.55s ease 0.12s forwards, neoFloat 4.4s ease-in-out 0.85s infinite; }
+.neoSceneActive .neoDecorC,
+.neoDecorLayerActive .neoDecorC { animation: neoDrop 0.55s ease 0.18s forwards, neoFloat 4.8s ease-in-out 1s infinite; }
+.neoSceneActive .neoDecorD,
+.neoDecorLayerActive .neoDecorD { animation: neoDrop 0.55s ease 0.24s forwards, neoFloat 5.2s ease-in-out 1.15s infinite; }
+
+.neoContent {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.5vh, 24px);
+  padding: clamp(16px, 3vh, 32px) 24px;
+  box-sizing: border-box;
+}
+
+.neoKicker {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(33, 33, 33, 0.55);
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.neoSceneActive .neoKicker {
+  animation: neoFadeUp 0.45s ease 0.2s forwards;
+}
+
+.neoTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.neoHeroTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.neoHeroWord {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.04em;
+}
+
+.neoHeroLetter {
+  display: inline-block;
+  padding: clamp(8px, 1.4vw, 12px) clamp(10px, 1.8vw, 16px);
+  border: 4px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 5px 0 #000000;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 7.5vw, 4.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.neoHeroLetterWhite {
+  background: #ffffff;
+  color: #212121;
+}
+
+.neoHeroLetterRed {
+  background: #e91e4c;
+  color: #ffffff;
+}
+
+.neoSceneActive .neoHeroLetter {
+  animation:
+    neoStamp 0.5s cubic-bezier(0.22, 1, 0.36, 1) calc(0.22s + var(--i, 0) * 0.06s) forwards,
+    neoHeroFloat 4.6s ease-in-out calc(0.78s + var(--i, 0) * 0.06s) infinite;
+}
+
+.neoSceneActive .neoDot {
+  animation: neoFadeUp 0.4s ease 0.42s forwards, neoHeroFloat 4.8s ease-in-out 0.9s infinite;
+}
+
+.neoPlate {
+  display: inline-block;
+  padding: clamp(12px, 2vw, 18px) clamp(18px, 3vw, 28px);
+  border: 4px solid #000000;
+  border-radius: 2px;
+  box-shadow: 0 5px 0 #000000;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 8vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.neoPlateWhite {
+  background: #ffffff;
+  color: #212121;
+}
+
+.neoPlateRed {
+  background: #e91e4c;
+  color: #ffffff;
+}
+
+.neoSceneActive .neoPlate:nth-child(1) {
+  animation: neoStamp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
+}
+
+.neoDot {
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  font-weight: 900;
+  color: #e91e4c;
+  line-height: 1;
+  opacity: 0;
+}
+
+.neoSceneActive .neoPlate:nth-child(3) {
+  animation: neoStamp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+}
+
+.neoBar {
+  width: 0;
+  height: 8px;
+  background: #e91e4c;
+  border: 2px solid #000000;
+  box-shadow: 0 3px 0 #000000;
+}
+
+.neoSceneActive .neoBar {
+  animation: neoBarGrow 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.62s forwards;
+}
+
+.neoSceneHandoff .neoGrid,
+.neoSceneSettled .neoGrid,
+.neoSceneHandoff .neoMorphShape,
+.neoSceneSettled .neoMorphShape,
+.neoSceneHandoff .neoDecor,
+.neoSceneSettled .neoDecor,
+.neoSceneHandoff .neoKicker,
+.neoSceneSettled .neoKicker,
+.neoSceneHandoff .neoHeroLetter,
+.neoSceneSettled .neoHeroLetter,
+.neoSceneHandoff .neoDot,
+.neoSceneSettled .neoDot,
+.neoSceneHandoff .neoBar,
+.neoSceneSettled .neoBar {
+  opacity: 1;
+  transform: none;
+  animation: none !important;
+}
+
+.neoSceneHandoff .neoBar,
+.neoSceneSettled .neoBar {
+  width: min(220px, 42vw);
+}
+
+.neoSceneHandoff .neoScrollCue {
+  opacity: 0;
+}
+
+.neoSceneSettled:not(.neoSceneHandoff) .neoScrollCue {
+  animation: neoScrollCueIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.6s forwards;
+}
+
+.neoScrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(24px, 4.5vh, 44px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.neoScrollStem {
+  display: block;
+  width: 2px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(33, 33, 33, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.neoScrollStem::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -100%;
+  width: 100%;
+  height: 55%;
+  background: #e91e4c;
+  border-radius: 999px;
+  animation: neoScrollPulse 2.4s ease-in-out infinite;
+}
+
+.neoScrollChevron {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid rgba(33, 33, 33, 0.38);
+  border-bottom: 2px solid rgba(33, 33, 33, 0.38);
+  transform: rotate(45deg);
+  animation: neoScrollBob 2.4s ease-in-out infinite;
+}
+
+.neoSceneActive:not(.neoSceneSettled) .neoScrollCue {
+  animation: neoScrollCueIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 2.4s forwards;
+}
+
+.neoLetters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.02em;
+}
+
+.neoLetter {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.8rem, 10vw, 5.5rem);
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: #212121;
+  text-shadow: 0 5px 0 #000000;
+  opacity: 0;
+  transform: translateY(36px);
+}
+
+.neoSceneActive .neoLetter {
+  animation: neoStamp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(0.18s + var(--i, 0) * 0.06s);
+}
+
+@keyframes neoGridIn {
+  to { opacity: 1; }
+}
+
+@keyframes neoDrop {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes neoFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neoStamp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes neoBarGrow {
+  to { width: min(220px, 42vw); }
+}
+
+@keyframes neoScrollCueIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes neoScrollPulse {
+  0% {
+    top: -100%;
+  }
+
+  45%,
+  100% {
+    top: 120%;
+  }
+}
+
+@keyframes neoScrollBob {
+  0%,
+  100% {
+    transform: rotate(45deg) translateY(0);
+    opacity: 0.35;
+  }
+
+  50% {
+    transform: rotate(45deg) translateY(4px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes neoMorphIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes neoMorphDriftA {
+  0%, 100% { transform: translate(0, 0) rotate(-8deg); }
+  50% { transform: translate(10px, -14px) rotate(6deg); }
+}
+
+@keyframes neoMorphDriftB {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50% { transform: translate(-12px, 10px) rotate(-6deg); }
+}
+
+@keyframes neoMorphDriftC {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50% { transform: translate(8px, 12px) rotate(8deg); }
+}
+
+@keyframes neoMorphDriftD {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-8px, -10px) scale(1.08); }
+}
+
+@keyframes neoHeroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (max-width: 809px) {
+  .neoContent {
+    padding: calc(var(--header-h, 60px) + 8px) 16px 24px;
+    gap: 12px;
+  }
+
+  .neoHeroLetter {
+    font-size: clamp(1.5rem, 8.5vw, 2.4rem);
+    padding: 6px 10px;
+    border-width: 3px;
+    box-shadow: 0 4px 0 #000000;
+  }
+
+  .neoPlate {
+    font-size: clamp(1.8rem, 9vw, 3rem);
+    padding: 10px 14px;
+    border-width: 3px;
+  }
+
+  .neoDecorA,
+  .neoDecorB,
+  .neoDecorC,
+  .neoDecorD,
+  .neoMorphShape {
+    display: none;
+  }
+
+  .neoScrollCue {
+    bottom: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neoGrid,
+  .neoDecor,
+  .neoKicker,
+  .neoPlate,
+  .neoDot,
+  .neoBar,
+  .neoLetter,
+  .neoHeroLetter,
+  .neoMorphShape,
+  .neoScrollCue {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+    width: min(220px, 42vw);
+  }
+}
