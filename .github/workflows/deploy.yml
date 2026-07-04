@@ -2,21 +2,18 @@ name: Deploy portfolio to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-  actions: read
+  contents: write
 
 concurrency:
   group: pages-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,26 +36,19 @@ jobs:
           CI: true
         run: npx next build
 
-      - name: Verify build output
+      - name: Prepare static output
         run: |
           test -f personal-portfolio/out/index.html
-          test -f personal-portfolio/out/.nojekyll || touch personal-portfolio/out/.nojekyll
-          echo "Pages artifact size:"
+          touch personal-portfolio/out/.nojekyll
+          find personal-portfolio/out -name '.DS_Store' -delete
+          echo "Deploy artifact size:"
           du -sh personal-portfolio/out
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: personal-portfolio/out
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        timeout-minutes: 10
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./personal-portfolio/out
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: 'deploy: ${{ github.event.head_commit.message }}'

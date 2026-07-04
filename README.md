@@ -33,9 +33,15 @@ npm run preview
 
 推送 `main` 分支后，`.github/workflows/deploy.yml` 会自动：
 
-1. 在 `personal-portfolio/` 执行 `npm ci` 并 `npm run build`
-2. 将 `personal-portfolio/out` 上传并发布到 GitHub Pages
+1. 在 `personal-portfolio/` 执行 `npm ci` 并 `next build`
+2. 将 `personal-portfolio/out` 推送到 **`gh-pages`** 分支
+3. GitHub Pages 从该分支发布站点
 
-请确保仓库 Settings → Pages 使用 **GitHub Actions** 作为来源。
+**仓库 Settings → Pages 请设置为：**
+
+- **Source**: Deploy from a branch
+- **Branch**: `gh-pages` / `/ (root)`
+
+若之前选的是 **GitHub Actions** 作为来源，请改成上面的 **Deploy from a branch**，否则页面不会更新。
 
 站点使用自定义域名（如 `tyler.yunguhs.com`）时，无需配置 `basePath`。若改为 `username.github.io/仓库名` 子路径部署，需在 `next.config.mjs` 中设置 `basePath` 与 `assetPrefix`。
