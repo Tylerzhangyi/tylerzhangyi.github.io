@@ -39,6 +39,8 @@ Already in use:
 
 Missing today: shared primitives for split text, magnetic hover, tilt, and a coordinated custom cursor.
 
+Relationship to `lib/motion.js`: keep existing `observeReveals` working during rollout; new storytelling reveals are owned by `motionSystem`. Do not dual-animate the same node—if a section opts into `split`/`parallax`, skip legacy reveal on that target.
+
 ## Architecture
 
 ### Capability modes
@@ -116,7 +118,8 @@ Omitting a flag disables that primitive for the node even in `desktopFull`.
 ### Motion language
 
 - Easing bias: spring / expo-out (avoid linear for hero moments)
-- Bold amplitudes allowed, but tilt capped to a max rotation to reduce nausea
+- Bold amplitudes allowed; tilt hard-capped at **±10deg** rotateX/Y and **≤12px** translate toward pointer
+- Magnetic pull hard-capped at **≤18px** from rest
 - Cursor and magnetic share the same interactive selector set where possible
 
 ## Performance Guardrails
