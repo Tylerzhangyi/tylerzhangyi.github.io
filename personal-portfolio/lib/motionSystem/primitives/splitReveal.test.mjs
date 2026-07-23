@@ -4,7 +4,10 @@ import {
   tokenizeWords,
   tokenizeChars,
   shouldSkipLegacyReveal,
-  resolveCascadeIndex
+  resolveCascadeIndex,
+  computeMountCascadeDelay,
+  MOUNT_CASCADE_DURATION,
+  MOUNT_CASCADE_MAX_TOTAL_MS
 } from './splitReveal.js'
 
 test('tokenizeWords splits on whitespace', () => {
@@ -84,6 +87,20 @@ test('resolveCascadeIndex reads --motion-cascade-i from style', () => {
 test('resolveCascadeIndex defaults to 0', () => {
   const el = { style: { getPropertyValue: () => '' } }
   assert.equal(resolveCascadeIndex(el), 0)
+})
+
+test('computeMountCascadeDelay keeps total within budget', () => {
+  for (let index = 0; index < 12; index += 1) {
+    const delay = computeMountCascadeDelay(index)
+    const totalMs = (delay + MOUNT_CASCADE_DURATION) * 1000
+    assert.ok(totalMs <= MOUNT_CASCADE_MAX_TOTAL_MS + 1)
+  }
+})
+
+test('computeMountCascadeDelay increases with index then caps', () => {
+  assert.equal(computeMountCascadeDelay(0), 0)
+  assert.ok(computeMountCascadeDelay(3) > computeMountCascadeDelay(1))
+  assert.equal(computeMountCascadeDelay(20), computeMountCascadeDelay(8))
 })
 
 test('shouldSkipLegacyReveal is false for unrelated nodes', () => {

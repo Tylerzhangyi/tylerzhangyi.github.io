@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, CubeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
 import gsap from 'gsap'
@@ -9,6 +9,9 @@ import { useI18n } from '@/lib/i18n'
 import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
 import { resolveAssetUrl, handleImageError as onImageError } from '@/lib/assets'
 import { fetchProjectById } from '@/lib/data'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
+import { bindDetailPageMotion } from '@/lib/motionSystem/primitives/splitReveal'
 import styles from '@/components/pages/project-detail.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -18,8 +21,12 @@ export default function ProjectDetailClient() {
   const id = params.id
   const router = useRouter()
   const { t, lang } = useI18n()
+  const motionMode = useMotionMode()
   const { navigateWithTransition, setTransitionOrigin, setTransitionOriginFromElement } =
     usePageTransition()
+
+  const closeFabRef = useRef(null)
+  const contentRef = useRef(null)
 
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -44,6 +51,20 @@ export default function ProjectDetailClient() {
     loadProject()
   }, [loadProject])
 
+  useEffect(() => {
+    if (loading || error || !project || !contentRef.current) return undefined
+
+    const cleanups = [bindDetailPageMotion(contentRef.current, motionMode)]
+
+    if (motionMode === 'desktopFull') {
+      if (closeFabRef.current) cleanups.push(bindMagnetic(closeFabRef.current))
+    }
+
+    return () => {
+      cleanups.forEach((fn) => fn?.())
+    }
+  }, [loading, error, project, motionMode])
+
   async function goBack(event) {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
     else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
@@ -54,6 +75,11 @@ export default function ProjectDetailClient() {
       ScrollTrigger.refresh()
     }, 200)
   }
+
+  const contentClassName =
+    motionMode === 'reduced'
+      ? `${styles.projectDetailContent} detail-enter`
+      : styles.projectDetailContent
 
   return (
     <div className={`page ${styles.projectDetail}`}>
@@ -76,8 +102,11 @@ export default function ProjectDetailClient() {
         {!loading && !error && project && (
           <>
             <button
+              ref={closeFabRef}
               type="button"
               className={styles.closeFab}
+              data-motion="magnetic,cursor-target"
+              data-cursor="back"
               onClick={goBack}
               aria-label="关闭详情"
             >
@@ -85,11 +114,13 @@ export default function ProjectDetailClient() {
               <span>{t('projectDetail.back')}</span>
             </button>
 
-            <div className={`${styles.projectDetailContent} detail-enter`}>
+            <div ref={contentRef} className={contentClassName}>
             <header className={styles.projectHero}>
               <div className={styles.heroCopy}>
                 <p className={styles.eyebrow}>Project / {String(project.id).padStart(2, '0')}</p>
-                <h1 className={styles.projectTitle}>{project.name}</h1>
+                <h1 className={styles.projectTitle} data-split="words">
+                  {project.name}
+                </h1>
                 <p className={styles.heroIntro}>{project.intro}</p>
                 <div className={styles.heroActions}>
                   {project.demo && (
@@ -157,7 +188,7 @@ export default function ProjectDetailClient() {
                 </div>
               </aside>
 
-              <div className={styles.mainColumn}>
+              <div className={styles.mainColumn} data-motion="split">
                 <section className={styles.contentSection}>
                   <h2 className={styles.sectionHeading}>{t('projectDetail.intro')}</h2>
                   <p className={styles.introText}>{project.intro}</p>

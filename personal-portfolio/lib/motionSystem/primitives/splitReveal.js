@@ -1,6 +1,9 @@
 import gsapDefault from 'gsap'
 import { ScrollTrigger as ScrollTriggerDefault } from 'gsap/ScrollTrigger'
-import { elementHasMotionFlag } from '../registerSection.js'
+import { elementHasMotionFlag, parseMotionFlags } from '../registerSection.js'
+
+export const MOUNT_CASCADE_DURATION = 0.28
+export const MOUNT_CASCADE_MAX_TOTAL_MS = 400
 
 const HEADING_SELECTOR = 'h1, h2, h3'
 
@@ -191,6 +194,116 @@ export function bindCascadeReveal(
   }, el)
 
   return () => ctx.revert()
+}
+
+/**
+ * Delay for mount cascade children; total timeline stays within {@link MOUNT_CASCADE_MAX_TOTAL_MS}.
+ * @param {number} index
+ * @param {number} [duration]
+ * @returns {number}
+ */
+export function computeMountCascadeDelay(index, duration = MOUNT_CASCADE_DURATION) {
+  const idx = Number.isFinite(index) ? Math.max(0, index) : 0
+  const maxDelaySec = (MOUNT_CASCADE_MAX_TOTAL_MS - duration * 1000) / 1000
+  return Math.min(idx * 0.025, Math.max(0, maxDelaySec))
+}
+
+/**
+ * Short split entrance on mount (detail pages).
+ * @param {HTMLElement} el
+ * @param {{ mode?: string, gsap?: typeof gsapDefault }} [options]
+ * @returns {() => void}
+ */
+export function bindMountSplitReveal(el, { mode = 'mobileLite', gsap = gsapDefault } = {}) {
+  if (!el || mode === 'reduced') return () => {}
+
+  const splitType = el.getAttribute('data-split') === 'chars' ? 'chars' : 'words'
+  const { chars, words, revert } = splitTextElement(el, { type: splitType })
+  const targets = chars.length ? chars : words
+  if (!targets.length) {
+    revert()
+    return () => {}
+  }
+
+  const ctx = gsap.context(() => {
+    gsap.set(targets, { y: '110%', opacity: 0, rotateX: -28, transformOrigin: '50% 100%' })
+    gsap.to(targets, {
+      y: 0,
+      opacity: 1,
+      rotateX: 0,
+      duration: mode === 'desktopFull' ? 0.55 : 0.45,
+      stagger: mode === 'desktopFull' ? 0.025 : 0.035,
+      ease: 'expo.out',
+      delay: 0.04
+    })
+  }, el)
+
+  return () => {
+    ctx?.revert()
+    revert()
+  }
+}
+
+/**
+ * Short one-shot cascade on mount (detail paragraphs).
+ * @param {HTMLElement} el
+ * @param {{ mode?: string, index?: number, gsap?: typeof gsapDefault }} [options]
+ * @returns {() => void}
+ */
+export function bindMountCascadeReveal(
+  el,
+  { mode = 'mobileLite', index: indexOption, gsap = gsapDefault } = {}
+) {
+  if (!el || mode === 'reduced') return () => {}
+
+  const index = resolveCascadeIndex(el, { index: indexOption })
+  const delay = computeMountCascadeDelay(index)
+
+  const ctx = gsap.context(() => {
+    gsap.set(el, { y: 20, opacity: 0 })
+    gsap.to(el, {
+      y: 0,
+      opacity: 1,
+      duration: MOUNT_CASCADE_DURATION,
+      delay,
+      ease: 'expo.out'
+    })
+  }, el)
+
+  return () => ctx.revert()
+}
+
+/**
+ * Bind mount split + optional paragraph cascade for detail page content roots.
+ * @param {HTMLElement|null} rootEl
+ * @param {'desktopFull'|'mobileLite'|'reduced'} mode
+ * @returns {() => void}
+ */
+export function bindDetailPageMotion(rootEl, mode) {
+  if (!rootEl || typeof window === 'undefined' || mode === 'reduced') return () => {}
+
+  /** @type {Array<() => void>} */
+  const cleanups = []
+
+  findSplitTargets(rootEl).forEach((target) => {
+    cleanups.push(bindMountSplitReveal(target, { mode }))
+  })
+
+  rootEl.querySelectorAll('[data-motion]').forEach((sectionEl) => {
+    const flags = parseMotionFlags(sectionEl.getAttribute('data-motion'))
+    if (!flags.has('split')) return
+
+    let cascadeTargets = Array.from(sectionEl.querySelectorAll('[data-motion-cascade]'))
+    if (!cascadeTargets.length) {
+      cascadeTargets = Array.from(sectionEl.querySelectorAll('p'))
+    }
+
+    cascadeTargets.forEach((child, index) => {
+      cleanups.push(bindMountCascadeReveal(child, { mode, index }))
+    })
+  })
+
+  return () => cleanups.forEach((fn) => fn())
 }
 
 /**
