@@ -28,7 +28,7 @@ export function bindSectionMotion(sectionEl, mode) {
 
     sectionEl.querySelectorAll('[data-motion-cascade]').forEach((child, index) => {
       child.style.setProperty('--motion-cascade-i', String(index))
-      cleanups.push(bindCascadeReveal(child, { mode, trigger: sectionEl }))
+      cleanups.push(bindCascadeReveal(child, { mode, trigger: sectionEl, index }))
     })
   }
 

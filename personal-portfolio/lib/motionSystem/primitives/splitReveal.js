@@ -126,15 +126,36 @@ export function bindSplitReveal(
 }
 
 /**
+ * Resolve stagger index for cascade children from options or CSS variable.
+ * @param {HTMLElement} el
+ * @param {{ index?: number }} [options]
+ * @returns {number}
+ */
+export function resolveCascadeIndex(el, { index } = {}) {
+  if (Number.isFinite(index)) return index
+  const fromStyle = el?.style?.getPropertyValue?.('--motion-cascade-i')?.trim()
+  const parsed = Number.parseInt(fromStyle ?? '', 10)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+/**
  * Staggered one-shot / scrub cascade for `[data-motion-cascade]` children.
  * @param {HTMLElement} el
- * @param {{ mode?: string, trigger?: Element, gsap?: typeof gsapDefault, ScrollTrigger?: typeof ScrollTriggerDefault }} [options]
+ * @param {{ mode?: string, trigger?: Element, index?: number, gsap?: typeof gsapDefault, ScrollTrigger?: typeof ScrollTriggerDefault }} [options]
  */
 export function bindCascadeReveal(
   el,
-  { mode = 'mobileLite', trigger, gsap = gsapDefault, ScrollTrigger = ScrollTriggerDefault } = {}
+  {
+    mode = 'mobileLite',
+    trigger,
+    index: indexOption,
+    gsap = gsapDefault,
+    ScrollTrigger = ScrollTriggerDefault
+  } = {}
 ) {
   if (!el || mode === 'reduced') return () => {}
+
+  const index = resolveCascadeIndex(el, { index: indexOption })
 
   gsap.registerPlugin(ScrollTrigger)
   const ctx = gsap.context(() => {
@@ -147,8 +168,8 @@ export function bindCascadeReveal(
         ease: 'none',
         scrollTrigger: {
           trigger: trigger || el,
-          start: 'top 85%',
-          end: 'top 55%',
+          start: `top ${Math.max(70, 88 - index * 3)}%`,
+          end: `top ${Math.max(40, 55 - index * 2)}%`,
           scrub: true
         }
       })
@@ -159,6 +180,7 @@ export function bindCascadeReveal(
       y: 0,
       opacity: 1,
       duration: 0.5,
+      delay: index * 0.06,
       ease: 'expo.out',
       scrollTrigger: {
         trigger: trigger || el,

@@ -3,7 +3,8 @@ import test from 'node:test'
 import {
   tokenizeWords,
   tokenizeChars,
-  shouldSkipLegacyReveal
+  shouldSkipLegacyReveal,
+  resolveCascadeIndex
 } from './splitReveal.js'
 
 test('tokenizeWords splits on whitespace', () => {
@@ -68,6 +69,21 @@ test('shouldSkipLegacyReveal is true for heading inside split section', () => {
     classList: { contains: () => false }
   }
   assert.equal(shouldSkipLegacyReveal(el), true)
+})
+
+test('resolveCascadeIndex prefers options.index', () => {
+  const el = { style: { getPropertyValue: () => '2' } }
+  assert.equal(resolveCascadeIndex(el, { index: 1 }), 1)
+})
+
+test('resolveCascadeIndex reads --motion-cascade-i from style', () => {
+  const el = { style: { getPropertyValue: (name) => (name === '--motion-cascade-i' ? ' 3 ' : '') } }
+  assert.equal(resolveCascadeIndex(el), 3)
+})
+
+test('resolveCascadeIndex defaults to 0', () => {
+  const el = { style: { getPropertyValue: () => '' } }
+  assert.equal(resolveCascadeIndex(el), 0)
 })
 
 test('shouldSkipLegacyReveal is false for unrelated nodes', () => {
