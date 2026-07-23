@@ -43,7 +43,7 @@ export default function DetailLink({ href, className, children, ...props }) {
       await navigateWithTransition(target, (path) => router.push(path, { scroll: false }))
     } catch {
       forceUnlockBodyScroll()
-      router.push(target, { scroll: false })
+      window.location.assign(target)
     }
   }
 

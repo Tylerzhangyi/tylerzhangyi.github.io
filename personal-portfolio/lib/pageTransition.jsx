@@ -9,6 +9,7 @@ import {
   clearSavedHomeScroll,
   setPendingSection
 } from './homeScrollRestore'
+import { commitClientNavigation } from './navigateCommit'
 import { detailReturnHref, sectionIdFromHref } from './scrollToSection'
 import { lockBodyScroll, forceUnlockBodyScroll, getLockedScrollY, isBodyScrollLocked } from './scrollLock'
 
@@ -189,8 +190,14 @@ export function PageTransitionProvider({ children }) {
     }
 
     try {
-      const pushPromise = routerPush(href)
-      await Promise.all([playPageExitForNavigate(), pushPromise])
+      // Expand first, then commit navigation. router.push is void and can be
+      // cancelled if we unlock/re-render before the App Router finishes.
+      await playPageExitForNavigate()
+      const mode = await commitClientNavigation(href, routerPush, { timeoutMs: 1600 })
+      if (mode === 'hard') {
+        // Full page load in progress — keep the cover up until unload.
+        return
+      }
 
       if (goingHome) {
         forceUnlockBodyScroll(getLockedScrollY())
