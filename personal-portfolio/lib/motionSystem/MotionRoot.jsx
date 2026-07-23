@@ -13,7 +13,9 @@ export function useMotionMode() {
 
 export default function MotionRoot({ children }) {
   const [mode, setMode] = useState(getMotionMode)
-  useEffect(() => subscribeMotionMode(setMode), [])
+  useEffect(() => {
+    return subscribeMotionMode(setMode)
+  }, [])
   useEffect(() => {
     const host = document.createElement('div')
     host.className = 'motion-cursor-host'
