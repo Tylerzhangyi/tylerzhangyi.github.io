@@ -42,9 +42,10 @@ export default function FormStudioHero() {
       className={styles.formStudioHome}
       id="section-home"
       data-scroll-section="home"
+      data-motion="split,parallax"
     >
       <section className={styles.heroSection} aria-label="主视觉">
-        <div className={styles.heroCanvas}>
+        <div className={styles.heroCanvas} data-parallax data-parallax-from="18" data-parallax-to="-36">
           <NeoHomeHero
             left={t('home.heroLeft').toLowerCase()}
             right={t('home.heroRight').toLowerCase()}

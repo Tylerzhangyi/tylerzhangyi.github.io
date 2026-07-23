@@ -1,9 +1,13 @@
+import { shouldSkipLegacyReveal } from '@/lib/motionSystem/primitives/splitReveal'
+
 /** 滚动进入视口时触发 .reveal-on-scroll → .is-revealed */
 export function observeReveals(rootEl, selector = '.reveal-on-scroll, .reveal-fade-only') {
   if (typeof window === 'undefined') return () => {}
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const scope = rootEl || document
-  const nodes = scope.querySelectorAll(selector)
+  const nodes = Array.from(scope.querySelectorAll(selector)).filter(
+    (el) => !shouldSkipLegacyReveal(el)
+  )
   if (!nodes.length) return () => {}
 
   if (prefersReduced) {

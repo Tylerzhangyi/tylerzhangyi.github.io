@@ -134,6 +134,7 @@ export default function IntroWelcomeSection() {
       id="section-intro"
       className={styles.introWelcome}
       data-scroll-section="intro"
+      data-motion="split,parallax"
       aria-label={t('home.introAria')}
     >
       <div className={styles.waveDecor} aria-hidden="true">
@@ -150,9 +151,11 @@ export default function IntroWelcomeSection() {
       </div>
 
       <div className={styles.introWelcomeInner}>
-        <div className={styles.introWelcomeCopy}>
+        <div className={styles.introWelcomeCopy} data-parallax data-parallax-from="24" data-parallax-to="-16">
           <h2 className={styles.introHeadline}>
-            <span className={styles.introHeadlinePrefix}>{t('home.introHeadlinePrefix')}</span>
+            <span className={styles.introHeadlinePrefix} data-split="chars">
+              {t('home.introHeadlinePrefix')}
+            </span>
             <span className={styles.introHeadlineRole}>
               {typewriterActive ? (
                 <TypewriterText
@@ -167,7 +170,7 @@ export default function IntroWelcomeSection() {
           </h2>
           <p className={styles.introWelcomeText}>{t('home.introParagraph')}</p>
         </div>
-        <div className={styles.introWelcomeMedia}>
+        <div className={styles.introWelcomeMedia} data-parallax data-parallax-from="32" data-parallax-to="-24">
           <img
             src={portraitImage}
             alt={t('home.introImageAlt')}

@@ -94,6 +94,7 @@ export default function ContactSection() {
       id="section-contact"
       className={styles.contactScroll}
       data-scroll-section="contact"
+      data-motion="split"
       aria-label={t('contact.title')}
     >
       <div className={styles.contactPin}>
@@ -127,6 +128,7 @@ export default function ContactSection() {
                     key={item.key}
                     className={className}
                     style={{ '--card-delay': `${index * 80}ms` }}
+                    data-motion-cascade
                   >
                     {content}
                   </div>
@@ -139,6 +141,7 @@ export default function ContactSection() {
                   href={item.href}
                   className={className}
                   style={{ '--card-delay': `${index * 80}ms` }}
+                  data-motion-cascade
                   {...(item.external
                     ? { target: '_blank', rel: 'noopener noreferrer' }
                     : {})}
@@ -149,7 +152,7 @@ export default function ContactSection() {
             })}
           </div>
 
-          <div className={styles.contactPanel}>
+          <div className={styles.contactPanel} data-motion-cascade>
             <p className={styles.contactPanelText}>{t('contact.cooperationText')}</p>
           </div>
 

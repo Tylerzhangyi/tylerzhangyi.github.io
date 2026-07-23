@@ -97,7 +97,7 @@ export default function EducationSection() {
           const len = dashLength(branch) || 200
           gsap.set(branch, { strokeDasharray: len, strokeDashoffset: len })
         })
-        gsap.set(nodes, { opacity: 0, y: 32, scale: 0.94, visibility: 'hidden' })
+        gsap.set(nodes, { opacity: 0, y: 40, scale: 0.88, visibility: 'hidden' })
 
         const tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } })
         const trunkSlot = 0.14
@@ -119,10 +119,10 @@ export default function EducationSection() {
                 y: 0,
                 x: 0,
                 scale: 1,
-                duration: branchSlot * 0.3,
-                ease: 'back.out(1.7)'
+                duration: branchSlot * 0.34,
+                ease: 'back.out(2.4)'
               },
-              start + branchSlot * 0.38
+              start + branchSlot * 0.36
             )
           }
         })
@@ -181,7 +181,7 @@ export default function EducationSection() {
       <div className="container">
         <div className={styles.head}>
           <div className={styles.kicker}>{t('nav.education')}</div>
-          <h2 className={styles.title}>{t('about.education')}</h2>
+          <h2 className={styles.title} data-split="words">{t('about.education')}</h2>
         </div>
       </div>
 

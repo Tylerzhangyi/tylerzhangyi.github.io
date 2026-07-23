@@ -89,3 +89,13 @@
 .motion-cursor__label[hidden] {
   display: none;
 }
+
+/* Split reveal — clip overflow on split targets */
+[data-split] {
+  overflow: hidden;
+}
+
+.motion-split-char,
+.motion-split-word {
+  will-change: transform, opacity;
+}
