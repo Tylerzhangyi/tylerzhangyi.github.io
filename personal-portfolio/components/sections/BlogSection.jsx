@@ -4,6 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { bindCtaFollow } from '@/lib/cardCta'
 import { createBlogScroll } from '@/lib/blogScroll'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
+import {
+  bindSectionEnterWake,
+  bindSectionLeaveChrome
+} from '@/lib/motionSystem/primitives/sectionWake'
+import { bindTiltCard } from '@/lib/motionSystem/primitives/tiltCard'
 import DetailLink from '@/components/DetailLink'
 import styles from './blog.module.css'
 
@@ -14,6 +21,7 @@ function dataUrl(path) {
 
 export default function BlogSection({ embedded = true }) {
   const { t, lang } = useI18n()
+  const motionMode = useMotionMode()
   const sectionRef = useRef(null)
   const titleRef = useRef(null)
   const runwayRef = useRef(null)
@@ -22,6 +30,7 @@ export default function BlogSection({ embedded = true }) {
 
   const blogScrollRef = useRef(null)
   const ctaCleanupsRef = useRef([])
+  const motionCleanupsRef = useRef([])
   const boundWrapsRef = useRef(new Set())
 
   const [posts, setPosts] = useState([])
@@ -96,14 +105,29 @@ export default function BlogSection({ embedded = true }) {
     }
   }, [lang, t, destroyBlogScroll])
 
-  const bindWrapRef = useCallback((el) => {
-    if (!el || boundWrapsRef.current.has(el)) return
-    boundWrapsRef.current.add(el)
-    requestAnimationFrame(() => {
-      const cleanup = bindCtaFollow(el, { pad: 28 })
-      if (cleanup) ctaCleanupsRef.current.push(cleanup)
-    })
+  const clearMotionCleanups = useCallback(() => {
+    motionCleanupsRef.current.forEach((fn) => fn?.())
+    motionCleanupsRef.current = []
   }, [])
+
+  const bindWrapRef = useCallback(
+    (el) => {
+      if (!el || boundWrapsRef.current.has(el)) return
+      boundWrapsRef.current.add(el)
+      requestAnimationFrame(() => {
+        const cleanups = []
+        const ctaCleanup = bindCtaFollow(el, { pad: 28 })
+        if (ctaCleanup) cleanups.push(ctaCleanup)
+        if (motionMode === 'desktopFull') {
+          cleanups.push(bindMagnetic(el, { maxPull: 18 }))
+        }
+        if (cleanups.length) {
+          ctaCleanupsRef.current.push(() => cleanups.forEach((fn) => fn?.()))
+        }
+      })
+    },
+    [motionMode]
+  )
 
   const setCardRef = useCallback((el, index) => {
     if (el) cardRefsRef.current[index] = el
@@ -122,9 +146,33 @@ export default function BlogSection({ embedded = true }) {
       window.removeEventListener('resize', onResize)
       destroyBlogScroll()
       clearCtaCleanups()
+      clearMotionCleanups()
       setBlogTheme(false)
     }
-  }, [fetchPosts, destroyBlogScroll, clearCtaCleanups, setBlogTheme])
+  }, [fetchPosts, destroyBlogScroll, clearCtaCleanups, clearMotionCleanups, setBlogTheme])
+
+  useEffect(() => {
+    clearMotionCleanups()
+    if (motionMode !== 'desktopFull' || !posts.length || loading) return undefined
+
+    const section = sectionRef.current
+    if (!section) return undefined
+
+    const cleanups = []
+    section.querySelectorAll(`.${styles.blogCardInner}`).forEach((inner) => {
+      cleanups.push(bindTiltCard(inner))
+    })
+
+    const cards = Array.from(section.querySelectorAll(`.${styles.blogCard}`))
+    const chrome = section.querySelector(`.${styles.blogGrid}`)
+    cleanups.push(bindSectionEnterWake(section, { targets: cards, mode: motionMode, stagger: 0.06 }))
+    if (chrome) {
+      cleanups.push(bindSectionLeaveChrome(section, { chrome, mode: motionMode }))
+    }
+
+    motionCleanupsRef.current = cleanups
+    return () => clearMotionCleanups()
+  }, [motionMode, posts.length, loading, clearMotionCleanups])
 
   useEffect(() => {
     if (!loading && posts.length) {
@@ -139,6 +187,7 @@ export default function BlogSection({ embedded = true }) {
       ref={sectionRef}
       id={embedded ? 'section-blog' : undefined}
       data-scroll-section="blog"
+      data-motion="tilt,magnetic"
       className={`blog-scroll ${styles.blogSection}`}
       style={{
         '--blog-count': String(posts.length),

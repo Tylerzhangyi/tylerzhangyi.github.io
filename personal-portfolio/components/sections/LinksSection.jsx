@@ -11,6 +11,9 @@ import {
   LinkIcon
 } from '@heroicons/react/24/outline'
 import { useI18n } from '@/lib/i18n'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
+import { bindTiltCard } from '@/lib/motionSystem/primitives/tiltCard'
 import '@/styles/links-drag-lock.css'
 import styles from './links.module.css'
 
@@ -54,7 +57,9 @@ const ICON_MAP = {
 
 export default function LinksSection() {
   const { t, getDict, lang } = useI18n()
+  const motionMode = useMotionMode()
   const canvasRef = useRef(null)
+  const motionCleanupsRef = useRef([])
 
   const [cardPositions, setCardPositions] = useState([])
   const [dragState, setDragState] = useState(null)
@@ -386,6 +391,30 @@ export default function LinksSection() {
   }, [dragState, onPointerMove, onPointerUp])
 
   useEffect(() => {
+    motionCleanupsRef.current.forEach((fn) => fn?.())
+    motionCleanupsRef.current = []
+
+    if (motionMode !== 'desktopFull') return undefined
+
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+
+    const cleanups = []
+    canvas.querySelectorAll(`.${styles.scatterCardTilt}`).forEach((el) => {
+      cleanups.push(bindTiltCard(el))
+    })
+    canvas.querySelectorAll(`.${styles.scatterCardCta}`).forEach((el) => {
+      cleanups.push(bindMagnetic(el, { maxPull: 18 }))
+    })
+
+    motionCleanupsRef.current = cleanups
+    return () => {
+      motionCleanupsRef.current.forEach((fn) => fn?.())
+      motionCleanupsRef.current = []
+    }
+  }, [motionMode, linksList.length, cardPositions.length])
+
+  useEffect(() => {
     return () => {
       teardownDragShield()
       unlockPageScroll()
@@ -393,7 +422,7 @@ export default function LinksSection() {
   }, [teardownDragShield, unlockPageScroll])
 
   return (
-    <section id="section-links" data-scroll-section="links" className="links-scroll">
+    <section id="section-links" data-scroll-section="links" data-motion="tilt,magnetic" className="links-scroll">
       <div className={`links-scroll__scatter links-scroll__content ${styles.linksPage} page`}>
         <div
           ref={canvasRef}

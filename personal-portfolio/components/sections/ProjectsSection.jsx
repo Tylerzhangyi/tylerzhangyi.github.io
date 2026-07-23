@@ -7,6 +7,13 @@ import { useI18n } from '@/lib/i18n'
 import { resolveAssetUrl, handleImageError } from '@/lib/assets'
 import { bindCtaFollow } from '@/lib/cardCta'
 import { onScrollLayoutReady } from '@/lib/scrollLayout'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
+import {
+  bindSectionEnterWake,
+  bindSectionLeaveChrome
+} from '@/lib/motionSystem/primitives/sectionWake'
+import { bindTiltCard } from '@/lib/motionSystem/primitives/tiltCard'
 import DetailLink from '@/components/DetailLink'
 import CardCta from '@/components/CardCta'
 import mobileStyles from './projects-section.module.css'
@@ -20,6 +27,7 @@ function dataUrl(path) {
 
 export default function ProjectsSection() {
   const { t, lang } = useI18n()
+  const motionMode = useMotionMode()
   const sectionRef = useRef(null)
   const pinRef = useRef(null)
   const trackRef = useRef(null)
@@ -29,6 +37,7 @@ export default function ProjectsSection() {
   const resizeTimerRef = useRef(null)
   const layoutRetryTimerRef = useRef(null)
   const ctaCleanupsRef = useRef([])
+  const motionCleanupsRef = useRef([])
   const boundWrapsRef = useRef(new Set())
 
   const [projects, setProjects] = useState([])
@@ -141,14 +150,29 @@ export default function ProjectsSection() {
     }, 160)
   }, [destroyHorizontalScroll, queueHorizontalSetup])
 
-  const bindWrapRef = useCallback((el) => {
-    if (!el || boundWrapsRef.current.has(el)) return
-    boundWrapsRef.current.add(el)
-    requestAnimationFrame(() => {
-      const cleanup = bindCtaFollow(el, { pad: 28 })
-      if (cleanup) ctaCleanupsRef.current.push(cleanup)
-    })
+  const clearMotionCleanups = useCallback(() => {
+    motionCleanupsRef.current.forEach((fn) => fn?.())
+    motionCleanupsRef.current = []
   }, [])
+
+  const bindWrapRef = useCallback(
+    (el) => {
+      if (!el || boundWrapsRef.current.has(el)) return
+      boundWrapsRef.current.add(el)
+      requestAnimationFrame(() => {
+        const cleanups = []
+        const ctaCleanup = bindCtaFollow(el, { pad: 28 })
+        if (ctaCleanup) cleanups.push(ctaCleanup)
+        if (motionMode === 'desktopFull') {
+          cleanups.push(bindMagnetic(el, { maxPull: 18 }))
+        }
+        if (cleanups.length) {
+          ctaCleanupsRef.current.push(() => cleanups.forEach((fn) => fn?.()))
+        }
+      })
+    },
+    [motionMode]
+  )
 
   const onCardEnter = useCallback((event) => {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
@@ -168,10 +192,11 @@ export default function ProjectsSection() {
       window.removeEventListener('resize', onResize)
       if (resizeTimerRef.current) window.clearTimeout(resizeTimerRef.current)
       clearCtaCleanups()
+      clearMotionCleanups()
       setProjectsZone(false)
       destroyHorizontalScroll()
     }
-  }, [fetchProjects, onResize, clearCtaCleanups, setProjectsZone, destroyHorizontalScroll])
+  }, [fetchProjects, onResize, clearCtaCleanups, clearMotionCleanups, setProjectsZone, destroyHorizontalScroll])
 
   useLayoutEffect(() => {
     if (!projects.length) return undefined
@@ -180,11 +205,35 @@ export default function ProjectsSection() {
     return () => cancelReady()
   }, [projects.length, queueHorizontalSetup])
 
+  useEffect(() => {
+    clearMotionCleanups()
+    if (motionMode !== 'desktopFull' || !projects.length) return undefined
+
+    const section = sectionRef.current
+    if (!section) return undefined
+
+    const cleanups = []
+    section.querySelectorAll('.project-card').forEach((card) => {
+      cleanups.push(bindTiltCard(card))
+    })
+
+    const columns = Array.from(section.querySelectorAll('.projects-column'))
+    const chrome = section.querySelector('.projects-grid')
+    cleanups.push(bindSectionEnterWake(section, { targets: columns, mode: motionMode }))
+    if (chrome) {
+      cleanups.push(bindSectionLeaveChrome(section, { chrome, mode: motionMode }))
+    }
+
+    motionCleanupsRef.current = cleanups
+    return () => clearMotionCleanups()
+  }, [motionMode, projects.length, clearMotionCleanups])
+
   return (
     <section
       ref={sectionRef}
       id="section-projects"
       data-scroll-section="projects"
+      data-motion="tilt,magnetic"
       className="projects-scroll"
     >
       <div className="projects-grid" aria-hidden="true">
