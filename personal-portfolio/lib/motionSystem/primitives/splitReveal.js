@@ -31,6 +31,30 @@ export function findSplitTargets(root) {
 }
 
 /**
+ * Read visible text for splitting without destroying React-owned nodes.
+ * Element children (except our overlay host) are joined with spaces.
+ * @param {HTMLElement} el
+ */
+export function readSplitSourceText(el) {
+  if (!el) return ''
+  const parts = []
+  el.childNodes.forEach((node) => {
+    if (node.nodeType === 1) {
+      if (node.classList?.contains('motion-split-host')) return
+      const piece = (node.textContent || '').trim()
+      if (piece) parts.push(piece)
+      return
+    }
+    if (node.nodeType === 3) {
+      const piece = (node.textContent || '').trim()
+      if (piece) parts.push(piece)
+    }
+  })
+  if (parts.length) return parts.join(' ')
+  return (el.textContent || '').trim()
+}
+
+/**
  * @param {HTMLElement} el
  * @param {{ type?: 'chars'|'words' }} [options]
  */
@@ -38,28 +62,43 @@ export function splitTextElement(el, { type = 'words' } = {}) {
   const noop = { chars: [], words: [], revert: () => {} }
   if (!el) return noop
 
-  const originalHTML = el.innerHTML
-  const text = el.textContent || ''
+  const doc = el.ownerDocument || (typeof document !== 'undefined' ? document : null)
+  if (!doc) return noop
+
+  // Never clear React-owned children via innerHTML — that causes removeChild NotFoundError.
+  el.querySelectorAll(':scope > .motion-split-host').forEach((node) => node.remove())
+
+  const text = readSplitSourceText(el)
   const tokens = type === 'chars' ? tokenizeChars(text) : tokenizeWords(text)
   if (!tokens.length) return noop
 
-  el.innerHTML = ''
-  el.setAttribute('aria-label', text.trim())
+  if (!el.getAttribute('aria-label')) {
+    el.setAttribute('aria-label', text)
+  }
+  el.classList.add('motion-split-active')
+
+  const host = doc.createElement('span')
+  host.className = 'motion-split-host'
+  host.setAttribute('aria-hidden', 'true')
 
   const nodes = tokens.map((token, index) => {
-    const span = document.createElement('span')
+    const span = doc.createElement('span')
     span.className = type === 'chars' ? 'motion-split-char' : 'motion-split-word'
-    span.setAttribute('aria-hidden', 'true')
     span.textContent =
       type === 'chars' ? token : token + (index < tokens.length - 1 ? '\u00a0' : '')
     span.style.display = 'inline-block'
-    el.appendChild(span)
+    host.appendChild(span)
     return span
   })
 
+  el.appendChild(host)
+
   const revert = () => {
-    el.innerHTML = originalHTML
-    el.removeAttribute('aria-label')
+    host.remove()
+    el.classList.remove('motion-split-active')
+    if (el.getAttribute('aria-label') === text) {
+      el.removeAttribute('aria-label')
+    }
   }
 
   return type === 'chars' ? { chars: nodes, words: [], revert } : { words: nodes, chars: [], revert }

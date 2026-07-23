@@ -95,6 +95,26 @@
   overflow: hidden;
 }
 
+[data-split].motion-split-active {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+/* Keep React-owned nodes for reconciliation; hide them while overlay animates */
+[data-split].motion-split-active > :not(.motion-split-host) {
+  visibility: hidden !important;
+}
+
+[data-split].motion-split-active > .motion-split-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .motion-split-char,
 .motion-split-word {
   will-change: transform, opacity;

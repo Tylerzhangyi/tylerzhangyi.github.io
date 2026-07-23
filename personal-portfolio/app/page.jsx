@@ -20,7 +20,7 @@ import ContactSection from '@/components/sections/ContactSection'
 import '@/components/home.css'
 
 export default function HomePage() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const rootRef = useRef(null)
   const motionMode = useMotionMode()
 
@@ -36,7 +36,7 @@ export default function HomePage() {
       teardownLayout?.()
       teardownMotion.forEach((fn) => fn())
     }
-  }, [motionMode])
+  }, [motionMode, lang, t])
 
   return (
     <div ref={rootRef} className="onepage">
