@@ -3,6 +3,7 @@ import test from 'node:test'
 import {
   MENU_STAGGER_CLOSE_MS,
   MENU_STAGGER_GAP,
+  killMenuStagger,
   staggerMenuClose,
   staggerMenuOpen
 } from './menuStagger.js'
@@ -67,4 +68,22 @@ test('staggerMenuClose animates opacity/y out within ≤220ms', () => {
   assert.equal(calls[0].vars.opacity, 0)
   assert.ok('y' in calls[0].vars)
   cleanup()
+})
+
+test('killMenuStagger kills tweens and clears opacity/transform inline styles', () => {
+  const killed = []
+  const cleared = []
+  const gsap = {
+    killTweensOf(targets) {
+      killed.push(targets)
+    },
+    set(targets, vars) {
+      cleared.push({ targets, vars })
+    }
+  }
+  const els = [{ id: 1 }]
+  killMenuStagger(els, { gsap })
+  assert.equal(killed.length, 1)
+  assert.equal(cleared.length, 1)
+  assert.equal(cleared[0].vars.clearProps, 'opacity,transform')
 })

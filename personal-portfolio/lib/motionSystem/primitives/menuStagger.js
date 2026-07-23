@@ -62,3 +62,17 @@ export function staggerMenuClose(links, { gsap = gsapDefault } = {}) {
     gsap.killTweensOf?.(targets)
   }
 }
+
+/**
+ * Kill active menu link tweens and clear GSAP inline opacity/transform
+ * so CSS fallback styles apply cleanly after leaving desktopFull.
+ * @param {Iterable<HTMLElement>|HTMLElement[]} links
+ * @param {{ gsap?: typeof gsapDefault }} [options]
+ */
+export function killMenuStagger(links, { gsap = gsapDefault } = {}) {
+  const targets = Array.from(links || []).filter(Boolean)
+  if (!targets.length) return
+
+  gsap.killTweensOf?.(targets)
+  gsap.set?.(targets, { clearProps: 'opacity,transform' })
+}

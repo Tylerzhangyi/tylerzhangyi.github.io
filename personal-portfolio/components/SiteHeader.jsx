@@ -9,6 +9,7 @@ import { refreshScrollLayoutNow } from '@/lib/scrollLayout'
 import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
 import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
 import {
+  killMenuStagger as clearMenuLinkStagger,
   staggerMenuClose,
   staggerMenuOpen
 } from '@/lib/motionSystem/primitives/menuStagger'
@@ -45,18 +46,19 @@ export default function SiteHeader() {
     [lang, t]
   )
 
-  const killMenuStagger = useCallback(() => {
-    if (menuStaggerCleanupRef.current) {
-      menuStaggerCleanupRef.current()
-      menuStaggerCleanupRef.current = null
-    }
-  }, [])
-
   const collectMenuLinks = useCallback(() => {
     const nav = menuNavRef.current
     if (!nav) return []
     return Array.from(nav.querySelectorAll('.menu-overlay__link'))
   }, [])
+
+  const killMenuStagger = useCallback(() => {
+    if (menuStaggerCleanupRef.current) {
+      menuStaggerCleanupRef.current()
+      menuStaggerCleanupRef.current = null
+    }
+    clearMenuLinkStagger(collectMenuLinks())
+  }, [collectMenuLinks])
 
   const closeMenu = useCallback(() => {
     if (!menuOpen && !menuVisible) return
@@ -186,8 +188,16 @@ export default function SiteHeader() {
     return () => {
       cancelAnimationFrame(frame)
       linkMagnetCleanups.forEach((fn) => fn())
+      killMenuStagger()
     }
   }, [useGsapMenu, menuOpen, menuVisible, menuClosing, killMenuStagger, collectMenuLinks])
+
+  // Leaving desktopFull while menu is open: tear down GSAP stagger + inline styles
+  useEffect(() => {
+    if (useGsapMenu) return undefined
+    killMenuStagger()
+    return undefined
+  }, [useGsapMenu, killMenuStagger])
 
   return (
     <>
