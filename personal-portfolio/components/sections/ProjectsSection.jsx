@@ -155,24 +155,16 @@ export default function ProjectsSection() {
     motionCleanupsRef.current = []
   }, [])
 
-  const bindWrapRef = useCallback(
-    (el) => {
-      if (!el || boundWrapsRef.current.has(el)) return
-      boundWrapsRef.current.add(el)
-      requestAnimationFrame(() => {
-        const cleanups = []
-        const ctaCleanup = bindCtaFollow(el, { pad: 28 })
-        if (ctaCleanup) cleanups.push(ctaCleanup)
-        if (motionMode === 'desktopFull') {
-          cleanups.push(bindMagnetic(el, { maxPull: 18 }))
-        }
-        if (cleanups.length) {
-          ctaCleanupsRef.current.push(() => cleanups.forEach((fn) => fn?.()))
-        }
-      })
-    },
-    [motionMode]
-  )
+  const bindWrapRef = useCallback((el) => {
+    if (!el || boundWrapsRef.current.has(el)) return
+    boundWrapsRef.current.add(el)
+    requestAnimationFrame(() => {
+      const ctaCleanup = bindCtaFollow(el, { pad: 28 })
+      if (ctaCleanup) {
+        ctaCleanupsRef.current.push(ctaCleanup)
+      }
+    })
+  }, [])
 
   const onCardEnter = useCallback((event) => {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
@@ -215,6 +207,9 @@ export default function ProjectsSection() {
     const cleanups = []
     section.querySelectorAll('.project-card').forEach((card) => {
       cleanups.push(bindTiltCard(card))
+    })
+    section.querySelectorAll('.project-card__media-wrap').forEach((wrap) => {
+      cleanups.push(bindMagnetic(wrap, { maxPull: 18 }))
     })
 
     const columns = Array.from(section.querySelectorAll('.projects-column'))

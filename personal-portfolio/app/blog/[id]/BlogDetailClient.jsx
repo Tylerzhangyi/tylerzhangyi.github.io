@@ -167,7 +167,7 @@ export default function BlogDetailClient() {
             </button>
 
             <div ref={contentRef} className={contentClassName}>
-            <article className={styles.blogArticle} data-motion="split">
+            <article className={styles.blogArticle}>
               <header className={styles.articleHeader}>
                 <div className={styles.headerCopy}>
                   <p className={styles.eyebrow}>Blog / {post.category}</p>
@@ -194,6 +194,7 @@ export default function BlogDetailClient() {
 
               <div
                 className={styles.articleContent}
+                data-motion="split"
                 dangerouslySetInnerHTML={{ __html: formattedContent }}
               />
 

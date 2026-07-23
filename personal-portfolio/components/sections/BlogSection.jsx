@@ -110,24 +110,16 @@ export default function BlogSection({ embedded = true }) {
     motionCleanupsRef.current = []
   }, [])
 
-  const bindWrapRef = useCallback(
-    (el) => {
-      if (!el || boundWrapsRef.current.has(el)) return
-      boundWrapsRef.current.add(el)
-      requestAnimationFrame(() => {
-        const cleanups = []
-        const ctaCleanup = bindCtaFollow(el, { pad: 28 })
-        if (ctaCleanup) cleanups.push(ctaCleanup)
-        if (motionMode === 'desktopFull') {
-          cleanups.push(bindMagnetic(el, { maxPull: 18 }))
-        }
-        if (cleanups.length) {
-          ctaCleanupsRef.current.push(() => cleanups.forEach((fn) => fn?.()))
-        }
-      })
-    },
-    [motionMode]
-  )
+  const bindWrapRef = useCallback((el) => {
+    if (!el || boundWrapsRef.current.has(el)) return
+    boundWrapsRef.current.add(el)
+    requestAnimationFrame(() => {
+      const ctaCleanup = bindCtaFollow(el, { pad: 28 })
+      if (ctaCleanup) {
+        ctaCleanupsRef.current.push(ctaCleanup)
+      }
+    })
+  }, [])
 
   const setCardRef = useCallback((el, index) => {
     if (el) cardRefsRef.current[index] = el
@@ -161,6 +153,9 @@ export default function BlogSection({ embedded = true }) {
     const cleanups = []
     section.querySelectorAll(`.${styles.blogCardInner}`).forEach((inner) => {
       cleanups.push(bindTiltCard(inner))
+    })
+    section.querySelectorAll(`.${styles.blogPoster}`).forEach((poster) => {
+      cleanups.push(bindMagnetic(poster, { maxPull: 18 }))
     })
 
     const cards = Array.from(section.querySelectorAll(`.${styles.blogCard}`))
