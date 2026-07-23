@@ -233,12 +233,38 @@
   transform: none;
 }
 
+/* desktopFull: GSAP owns link opacity/y; keep CSS hover color only */
+.menu-overlay--gsap .menu-overlay__link {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+  transition-delay: 0s;
+}
+
+.menu-overlay--gsap.is-open .menu-overlay__link {
+  /* GSAP sets inline opacity/transform; do not snap via CSS */
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.menu-overlay--gsap.is-closing .menu-overlay__link {
+  transition: none;
+}
+
 .menu-overlay__link:hover {
   background: #e91e4c;
   color: #ffffff;
   transform: translate(-2px, -2px);
   box-shadow: 0 6px 0 #000000;
   opacity: 1;
+}
+
+.menu-overlay--gsap .menu-overlay__link:hover {
+  /* avoid CSS transform fighting magnetic / GSAP */
+  transform: none;
 }
 
 .menu-overlay__linkIndex {

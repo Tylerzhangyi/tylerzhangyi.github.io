@@ -6,18 +6,31 @@ import { useI18n } from '@/lib/i18n'
 import { clearSavedHomeScroll, isHomePath, setPendingSection } from '@/lib/homeScrollRestore'
 import { scrollToSection, sectionHash } from '@/lib/scrollToSection'
 import { refreshScrollLayoutNow } from '@/lib/scrollLayout'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
+import {
+  staggerMenuClose,
+  staggerMenuOpen
+} from '@/lib/motionSystem/primitives/menuStagger'
 
 const MENU_ANIM_MS = 220
 
 export default function SiteHeader() {
   const { lang, t, toggleLanguage } = useI18n()
+  const motionMode = useMotionMode()
   const router = useRouter()
   const pathname = usePathname()
+  const brandRef = useRef(null)
+  const langRef = useRef(null)
   const menuBtnRef = useRef(null)
+  const menuNavRef = useRef(null)
+  const menuStaggerCleanupRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
   const [menuClosing, setMenuClosing] = useState(false)
   const menuTimerRef = useRef(null)
+
+  const useGsapMenu = motionMode === 'desktopFull'
 
   const menuItems = useMemo(
     () => [
@@ -32,6 +45,19 @@ export default function SiteHeader() {
     [lang, t]
   )
 
+  const killMenuStagger = useCallback(() => {
+    if (menuStaggerCleanupRef.current) {
+      menuStaggerCleanupRef.current()
+      menuStaggerCleanupRef.current = null
+    }
+  }, [])
+
+  const collectMenuLinks = useCallback(() => {
+    const nav = menuNavRef.current
+    if (!nav) return []
+    return Array.from(nav.querySelectorAll('.menu-overlay__link'))
+  }, [])
+
   const closeMenu = useCallback(() => {
     if (!menuOpen && !menuVisible) return
     setMenuClosing(true)
@@ -39,14 +65,20 @@ export default function SiteHeader() {
     document.body.style.overflow = ''
     document.body.classList.remove('is-menu-open')
 
+    if (useGsapMenu) {
+      killMenuStagger()
+      menuStaggerCleanupRef.current = staggerMenuClose(collectMenuLinks())
+    }
+
     if (menuTimerRef.current) window.clearTimeout(menuTimerRef.current)
     menuTimerRef.current = window.setTimeout(() => {
+      killMenuStagger()
       setMenuVisible(false)
       setMenuClosing(false)
       refreshScrollLayoutNow()
       window.dispatchEvent(new Event('scroll'))
     }, MENU_ANIM_MS)
-  }, [menuOpen, menuVisible])
+  }, [menuOpen, menuVisible, useGsapMenu, killMenuStagger, collectMenuLinks])
 
   const toggleMenu = useCallback(() => {
     if (menuOpen) {
@@ -117,23 +149,66 @@ export default function SiteHeader() {
     return () => {
       document.removeEventListener('keydown', onKeydown)
       if (menuTimerRef.current) window.clearTimeout(menuTimerRef.current)
+      killMenuStagger()
       document.body.style.overflow = ''
       document.body.classList.remove('is-menu-open')
     }
-  }, [closeMenu])
+  }, [closeMenu, killMenuStagger])
+
+  // Desktop-full: magnetic on brand / lang / menu button
+  useEffect(() => {
+    if (motionMode !== 'desktopFull') return undefined
+
+    const cleanups = [brandRef.current, langRef.current, menuBtnRef.current]
+      .filter(Boolean)
+      .map((el) => bindMagnetic(el))
+
+    return () => {
+      cleanups.forEach((fn) => fn())
+    }
+  }, [motionMode])
+
+  // Desktop-full: GSAP menu link stagger on open, then magnetic on links
+  useEffect(() => {
+    if (!useGsapMenu || !menuOpen || !menuVisible || menuClosing) return undefined
+
+    let linkMagnetCleanups = []
+    const frame = requestAnimationFrame(() => {
+      killMenuStagger()
+      const links = collectMenuLinks()
+      menuStaggerCleanupRef.current = staggerMenuOpen(links, {
+        onComplete: () => {
+          linkMagnetCleanups = links.map((el) => bindMagnetic(el))
+        }
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(frame)
+      linkMagnetCleanups.forEach((fn) => fn())
+    }
+  }, [useGsapMenu, menuOpen, menuVisible, menuClosing, killMenuStagger, collectMenuLinks])
 
   return (
     <>
       <header className="site-header site-header--minimal">
-        <button type="button" className="site-header__brand" onClick={goHome}>
+        <button
+          ref={brandRef}
+          type="button"
+          className="site-header__brand"
+          data-motion="magnetic,cursor-target"
+          onClick={goHome}
+        >
           <span className="site-header__brandMark" aria-hidden="true" />
           tyler zhang
         </button>
 
         <div className="site-header__actions">
           <button
+            ref={langRef}
             type="button"
             className="nav-lang"
+            data-motion="magnetic,cursor-target"
             onClick={toggleLanguage}
             aria-label={lang === 'zh' ? 'Switch to English' : '切换到中文'}
           >
@@ -143,6 +218,8 @@ export default function SiteHeader() {
             ref={menuBtnRef}
             type="button"
             className={`nav-menu ${menuOpen ? 'is-open' : ''}`}
+            data-motion="magnetic,cursor-target"
+            data-cursor="menu"
             aria-label="Menu"
             aria-expanded={String(menuOpen)}
             onClick={(e) => {
@@ -157,7 +234,7 @@ export default function SiteHeader() {
 
       {menuVisible && (
         <div
-          className={`menu-overlay ${menuOpen ? 'is-open' : ''} ${menuClosing ? 'is-closing' : ''}`}
+          className={`menu-overlay ${menuOpen ? 'is-open' : ''} ${menuClosing ? 'is-closing' : ''} ${useGsapMenu ? 'menu-overlay--gsap' : ''}`}
           aria-hidden={String(!menuOpen)}
           onClick={(e) => {
             if (e.target === e.currentTarget) closeMenu()
@@ -169,6 +246,7 @@ export default function SiteHeader() {
               <button
                 type="button"
                 className="menu-overlay__close"
+                data-motion="magnetic,cursor-target"
                 aria-label="Close menu"
                 onClick={closeMenu}
               >
@@ -176,12 +254,13 @@ export default function SiteHeader() {
               </button>
             </div>
 
-            <nav className="menu-overlay__nav" aria-label="全站导航">
+            <nav ref={menuNavRef} className="menu-overlay__nav" aria-label="全站导航">
               {menuItems.map((item, i) => (
                 <button
                   key={item.id}
                   type="button"
                   className="menu-overlay__link"
+                  data-motion="magnetic,cursor-target"
                   style={{ '--i': i }}
                   onClick={() => goSection(item.id)}
                 >
