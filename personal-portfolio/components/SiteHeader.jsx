@@ -5,14 +5,26 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useI18n } from '@/lib/i18n'
 import { clearSavedHomeScroll, isHomePath, setPendingSection } from '@/lib/homeScrollRestore'
 import { scrollToSection, sectionHash } from '@/lib/scrollToSection'
-import { refreshScrollLayoutNow } from '@/lib/scrollLayout'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
+import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
 
-const MENU_ANIM_MS = 220
+const MENU_LINK_STAGGER_MS = 55
+const MENU_LINK_MOVE_MS = 260
+const MENU_PANEL_MS = 320
+
+function menuCloseDuration(itemCount) {
+  const n = Math.max(itemCount, 1)
+  // Links leave in sequence, then panel slides away.
+  return (n - 1) * MENU_LINK_STAGGER_MS + MENU_LINK_MOVE_MS + MENU_PANEL_MS
+}
 
 export default function SiteHeader() {
   const { lang, t, toggleLanguage } = useI18n()
+  const motionMode = useMotionMode()
   const router = useRouter()
   const pathname = usePathname()
+  const brandRef = useRef(null)
+  const langRef = useRef(null)
   const menuBtnRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
@@ -43,10 +55,9 @@ export default function SiteHeader() {
     menuTimerRef.current = window.setTimeout(() => {
       setMenuVisible(false)
       setMenuClosing(false)
-      refreshScrollLayoutNow()
       window.dispatchEvent(new Event('scroll'))
-    }, MENU_ANIM_MS)
-  }, [menuOpen, menuVisible])
+    }, menuCloseDuration(menuItems.length))
+  }, [menuOpen, menuVisible, menuItems.length])
 
   const toggleMenu = useCallback(() => {
     if (menuOpen) {
@@ -65,29 +76,19 @@ export default function SiteHeader() {
       closeMenu()
       clearSavedHomeScroll()
 
-      const runScroll = () => {
-        refreshScrollLayoutNow()
-        scrollToSection(id, 'smooth')
-        window.dispatchEvent(new Event('scroll'))
-      }
-
       if (!isHomePath(pathname)) {
         setPendingSection(id)
         router.push('/')
         return
       }
 
-      const hash = sectionHash(id)
-      window.history.replaceState(null, '', hash)
+      window.history.replaceState(null, '', sectionHash(id))
 
-      requestAnimationFrame(() => {
-        runScroll()
-        window.setTimeout(runScroll, MENU_ANIM_MS + 80)
-        window.setTimeout(runScroll, MENU_ANIM_MS + 320)
-        window.setTimeout(runScroll, MENU_ANIM_MS + 720)
-      })
+      window.setTimeout(() => {
+        scrollToSection(id, 'smooth')
+      }, menuCloseDuration(menuItems.length) + 30)
     },
-    [closeMenu, pathname, router]
+    [closeMenu, pathname, router, menuItems.length]
   )
 
   const goHome = useCallback(() => {
@@ -101,9 +102,7 @@ export default function SiteHeader() {
     }
 
     window.history.replaceState(null, '', '/')
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-    refreshScrollLayoutNow()
-    window.dispatchEvent(new Event('scroll'))
+    scrollToSection('home', 'smooth')
   }, [closeMenu, pathname, router])
 
   useEffect(() => {
@@ -122,18 +121,38 @@ export default function SiteHeader() {
     }
   }, [closeMenu])
 
+  useEffect(() => {
+    if (motionMode !== 'desktopFull') return undefined
+
+    const cleanups = [brandRef.current, langRef.current, menuBtnRef.current]
+      .filter(Boolean)
+      .map((el) => bindMagnetic(el))
+
+    return () => {
+      cleanups.forEach((fn) => fn())
+    }
+  }, [motionMode])
+
   return (
     <>
       <header className="site-header site-header--minimal">
-        <button type="button" className="site-header__brand" onClick={goHome}>
+        <button
+          ref={brandRef}
+          type="button"
+          className="site-header__brand"
+          data-motion="magnetic"
+          onClick={goHome}
+        >
           <span className="site-header__brandMark" aria-hidden="true" />
           tyler zhang
         </button>
 
         <div className="site-header__actions">
           <button
+            ref={langRef}
             type="button"
             className="nav-lang"
+            data-motion="magnetic"
             onClick={toggleLanguage}
             aria-label={lang === 'zh' ? 'Switch to English' : '切换到中文'}
           >
@@ -143,6 +162,7 @@ export default function SiteHeader() {
             ref={menuBtnRef}
             type="button"
             className={`nav-menu ${menuOpen ? 'is-open' : ''}`}
+            data-motion="magnetic"
             aria-label="Menu"
             aria-expanded={String(menuOpen)}
             onClick={(e) => {
@@ -158,24 +178,14 @@ export default function SiteHeader() {
       {menuVisible && (
         <div
           className={`menu-overlay ${menuOpen ? 'is-open' : ''} ${menuClosing ? 'is-closing' : ''}`}
+          style={{ '--n': menuItems.length }}
           aria-hidden={String(!menuOpen)}
           onClick={(e) => {
             if (e.target === e.currentTarget) closeMenu()
           }}
         >
           <div className="menu-overlay__panel" onClick={(e) => e.stopPropagation()}>
-            <div className="menu-overlay__head">
-              <h2 className="menu-overlay__title">navigation</h2>
-              <button
-                type="button"
-                className="menu-overlay__close"
-                aria-label="Close menu"
-                onClick={closeMenu}
-              >
-                ×
-              </button>
-            </div>
-
+            <div className="menu-overlay__kicker">menu</div>
             <nav className="menu-overlay__nav" aria-label="全站导航">
               {menuItems.map((item, i) => (
                 <button

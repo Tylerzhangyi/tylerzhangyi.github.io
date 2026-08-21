@@ -1,13 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { marked } from 'marked'
 import { useI18n } from '@/lib/i18n'
-import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
 import { resolveAssetUrl, handleImageError } from '@/lib/assets'
 import { fetchBlogPostById } from '@/lib/data'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
 import styles from '@/components/pages/blog-detail.module.css'
 
 marked.setOptions({
@@ -55,13 +56,21 @@ function readingTime(post) {
   return Math.max(1, Math.ceil(words / 180))
 }
 
+function homeHref() {
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  return base ? `${base}/` : '/'
+}
+
 export default function BlogDetailClient() {
   const params = useParams()
   const id = params.id
   const router = useRouter()
   const { t, lang } = useI18n()
+  const motionMode = useMotionMode()
   const { navigateWithTransition, setTransitionOrigin, setTransitionOriginFromElement } =
     usePageTransition()
+
+  const closeFabRef = useRef(null)
 
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -93,10 +102,28 @@ export default function BlogDetailClient() {
 
   async function goBack(event) {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
-    else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
+    else setTransitionOriginFromElement(closeFabRef.current)
 
-    await navigateWithTransition(getDetailReturnHref('blog'), (path) => router.push(path, { scroll: false }))
+    const target = homeHref()
+    try {
+      await navigateWithTransition(target, (path) => router.push(path, { scroll: false }), {
+        preferSection: 'blog'
+      })
+    } catch {
+      window.location.assign(target)
+      return
+    }
+
+    // Soft nav can leave URL/view out of sync — hard-exit if still on a detail path.
+    if (typeof window !== 'undefined' && /\/blog\/[^/]+/.test(window.location.pathname)) {
+      window.location.assign(target)
+    }
   }
+
+  const contentClassName =
+    motionMode === 'reduced'
+      ? `${styles.blogDetailContent} ${styles.detailEnter}`
+      : styles.blogDetailContent
 
   return (
     <div className={`page ${styles.blogDetail}`}>
@@ -126,6 +153,7 @@ export default function BlogDetailClient() {
         {!loading && !error && post && (
           <>
             <button
+              ref={closeFabRef}
               type="button"
               className={styles.closeFab}
               onClick={goBack}
@@ -135,54 +163,54 @@ export default function BlogDetailClient() {
               <span>{t('blogDetail.back')}</span>
             </button>
 
-            <div className={`${styles.blogDetailContent} ${styles.detailEnter}`}>
-            <article className={styles.blogArticle}>
-              <header className={styles.articleHeader}>
-                <div className={styles.headerCopy}>
-                  <p className={styles.eyebrow}>Blog / {post.category}</p>
-                  <h1 className={styles.articleTitle}>{post.title}</h1>
-                  {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
-                  <div className={styles.articleMeta}>
-                    <span className={styles.articleDate}>
-                      <CalendarIcon className={styles.articleDateIcon} />
-                      {formatDate(post.date, lang)}
-                    </span>
-                    <span className={styles.articleDate}>
-                      <ClockIcon className={styles.articleDateIcon} />
-                      {readingTime(post)} {t('blog.minRead')}
-                    </span>
-                    <span className={styles.articleCategory}>{post.category}</span>
-                  </div>
-                </div>
-                <div className={styles.coverFrame} aria-hidden="true">
-                  <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} onError={handleImageError} />
-                </div>
-              </header>
-
-              <div
-                className={styles.articleContent}
-                dangerouslySetInnerHTML={{ __html: formattedContent }}
-              />
-
-              {post.tags?.length > 0 && (
-                <footer className={styles.articleFooter}>
-                  <div className={styles.articleTags}>
-                    {post.tags.map((tag) => (
-                      <span key={tag} className={styles.tag}>
-                        {tag}
+            <div className={contentClassName}>
+              <article className={styles.blogArticle}>
+                <header className={styles.articleHeader}>
+                  <div className={styles.headerCopy}>
+                    <p className={styles.eyebrow}>Blog / {post.category}</p>
+                    <h1 className={styles.articleTitle}>{post.title}</h1>
+                    {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+                    <div className={styles.articleMeta}>
+                      <span className={styles.articleDate}>
+                        <CalendarIcon className={styles.articleDateIcon} />
+                        {formatDate(post.date, lang)}
                       </span>
-                    ))}
+                      <span className={styles.articleDate}>
+                        <ClockIcon className={styles.articleDateIcon} />
+                        {readingTime(post)} {t('blog.minRead')}
+                      </span>
+                      <span className={styles.articleCategory}>{post.category}</span>
+                    </div>
                   </div>
-                </footer>
-              )}
+                  <div className={styles.coverFrame} aria-hidden="true">
+                    <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} onError={handleImageError} />
+                  </div>
+                </header>
 
-              <div className={styles.articleBackWrap}>
-                <button type="button" className={styles.backFooter} onClick={goBack}>
-                  <ArrowLeftIcon className={styles.footerIcon} />
-                  {t('blogDetail.back')}
-                </button>
-              </div>
-            </article>
+                <div
+                  className={styles.articleContent}
+                  dangerouslySetInnerHTML={{ __html: formattedContent }}
+                />
+
+                {post.tags?.length > 0 && (
+                  <footer className={styles.articleFooter}>
+                    <div className={styles.articleTags}>
+                      {post.tags.map((tag) => (
+                        <span key={tag} className={styles.tag}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </footer>
+                )}
+
+                <div className={styles.articleBackWrap}>
+                  <button type="button" className={styles.backFooter} onClick={goBack}>
+                    <ArrowLeftIcon className={styles.footerIcon} />
+                    {t('blogDetail.back')}
+                  </button>
+                </div>
+              </article>
             </div>
           </>
         )}

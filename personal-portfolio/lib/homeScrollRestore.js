@@ -14,6 +14,15 @@ export function setPendingSection(id) {
   }
 }
 
+export function clearPendingSection() {
+  if (typeof window === 'undefined') return
+  try {
+    sessionStorage.removeItem(PENDING_SECTION_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function consumePendingSection() {
   if (typeof window === 'undefined') return null
   try {
@@ -30,12 +39,20 @@ export function getHashSection() {
   return menuIdFromHash(window.location.hash)
 }
 
+export function clearHomeHash() {
+  if (typeof window === 'undefined') return
+  if (!window.location.hash) return
+  window.history.replaceState(null, '', window.location.pathname + window.location.search)
+}
+
 export function isHomePath(pathname) {
   if (typeof pathname === 'undefined') {
     if (typeof window === 'undefined') return false
     pathname = window.location.pathname
   }
   const normalized = pathname.replace(/\/$/, '') || '/'
+  const base = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/\/$/, '')
+  if (base && (normalized === base || normalized === `${base}/`)) return true
   return normalized === '/'
 }
 
@@ -43,7 +60,7 @@ export function saveHomeScroll(explicitY) {
   if (typeof window === 'undefined') return
   const y = typeof explicitY === 'number' ? explicitY : window.scrollY
   if (!isHomePath() && typeof explicitY !== 'number') return
-  savedY = y
+  savedY = Math.max(0, Math.round(y))
   try {
     sessionStorage.setItem(STORAGE_KEY, String(savedY))
   } catch {
@@ -61,18 +78,11 @@ export function getSavedHomeScroll() {
   }
 }
 
-export function shouldSkipHomeScrollRestore() {
-  if (typeof window === 'undefined') return false
-  const hash = window.location.hash
-  return Boolean(hash && hash.startsWith('#section-'))
-}
-
 export function restoreHomeScroll() {
   if (typeof window === 'undefined') return
-  if (shouldSkipHomeScrollRestore()) {
-    clearSavedHomeScroll()
-    return
-  }
+
+  // Detail returns must win over leftover menu hashes.
+  clearHomeHash()
 
   const y = getSavedHomeScroll()
   if (y <= 0) return
@@ -90,6 +100,8 @@ export function restoreHomeScroll() {
   })
   window.setTimeout(apply, 80)
   window.setTimeout(apply, 240)
+  window.setTimeout(apply, 600)
+  window.setTimeout(apply, 1100)
 
   savedY = 0
   try {

@@ -147,7 +147,7 @@
   text-shadow: 0 5px 0 #000000;
 }
 
-.introMegaTitle span {
+.introMegaTitle:not([data-split]) span {
   display: block;
   opacity: 0;
   transform: translateY(32px);
@@ -156,10 +156,19 @@
     transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.introMegaTitle span:nth-child(1) { transition-delay: 0.08s; }
-.introMegaTitle span:nth-child(2) { transition-delay: 0.16s; }
+.introMegaTitle:not([data-split]) span:nth-child(1) { transition-delay: 0.08s; }
+.introMegaTitle:not([data-split]) span:nth-child(2) { transition-delay: 0.16s; }
 
 .introMegaAccent {
+  color: #e91e4c;
+}
+
+/* GSAP split owns entrance + accent on last word */
+.introMegaTitle[data-split] .motion-split-word {
+  display: block;
+}
+
+.introMegaTitle[data-split] .motion-split-word:last-child {
   color: #e91e4c;
 }
 
@@ -197,7 +206,7 @@
 }
 
 .sceneIntro.sceneVisible .introKicker,
-.sceneIntro.sceneVisible .introMegaTitle span,
+.sceneIntro.sceneVisible .introMegaTitle:not([data-split]) span,
 .sceneIntro.sceneVisible .introQuote {
   opacity: 1;
   transform: none;

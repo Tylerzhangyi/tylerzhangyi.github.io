@@ -97,7 +97,7 @@ export default function EducationSection() {
           const len = dashLength(branch) || 200
           gsap.set(branch, { strokeDasharray: len, strokeDashoffset: len })
         })
-        gsap.set(nodes, { opacity: 0, y: 32, scale: 0.94, visibility: 'hidden' })
+        gsap.set(nodes, { opacity: 0, y: 40, scale: 0.88, visibility: 'hidden' })
 
         const tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } })
         const trunkSlot = 0.14
@@ -119,10 +119,10 @@ export default function EducationSection() {
                 y: 0,
                 x: 0,
                 scale: 1,
-                duration: branchSlot * 0.3,
-                ease: 'back.out(1.7)'
+                duration: branchSlot * 0.34,
+                ease: 'back.out(2.4)'
               },
-              start + branchSlot * 0.38
+              start + branchSlot * 0.36
             )
           }
         })
@@ -130,18 +130,19 @@ export default function EducationSection() {
         ScrollTrigger.create({
           id: 'education-tree-st',
           trigger: scrollEl,
-          start: 'top 12%',
+          start: 'top top',
           end: `+=${runway}`,
           pin: pinEl,
-          scrub: 0.85,
+          scrub: true,
           animation: tl,
           anticipatePin: 0,
           pinSpacing: true,
-          invalidateOnRefresh: true
+          invalidateOnRefresh: true,
+          fastScrollEnd: true,
+          preventOverlaps: true
         })
 
         tl.progress(0)
-        ScrollTrigger.refresh()
       }, root)
     }
 
@@ -150,7 +151,6 @@ export default function EducationSection() {
       requestAnimationFrame(() => {
         if (cancelled) return
         build()
-        ScrollTrigger.refresh()
       })
     }
 

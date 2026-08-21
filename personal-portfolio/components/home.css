@@ -35,6 +35,8 @@
 }
 
 .onepage .stack-section--education {
+  /* Pinning inside display:flex breaks ScrollTrigger pinSpacing / unlock. */
+  display: block;
   min-height: auto;
   background: var(--fs-bg, #e5e5e5);
   background-image: none;
@@ -42,6 +44,12 @@
   padding-top: clamp(32px, 6vh, 72px);
   margin-top: clamp(16px, 3vh, 40px);
   z-index: 4;
+}
+
+.onepage .stack-section--education > * {
+  display: block;
+  width: 100%;
+  flex: none;
 }
 
 .onepage .projects-scroll {

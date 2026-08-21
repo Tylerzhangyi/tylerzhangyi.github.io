@@ -83,11 +83,8 @@ html,
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
+/* Intentionally no html { scroll-behavior: smooth }.
+   Native smooth scroll fights GSAP ScrollTrigger pins and makes menu jumps stutter. */
 
 /* “官网式”加载：锁滚动，避免加载中穿帮 */
 html.is-boot-loading,

@@ -29,16 +29,10 @@ export default function AppShell({ children }) {
       <DetailTransitionBinder />
 
       {ui.bootLoading || ui.bootHandoff ? (
-        <AppLoader mode="boot" progress={ui.progress} handoff={ui.bootHandoff} />
+        <AppLoader mode="boot" handoff={ui.bootHandoff} />
       ) : null}
 
-      {ui.routeLoading && (
-        <AppLoader
-          mode="route"
-          text={ui.loadingText}
-          progress={ui.progress}
-        />
-      )}
+      {ui.routeLoading && <AppLoader mode="route" />}
     </div>
   )
 }

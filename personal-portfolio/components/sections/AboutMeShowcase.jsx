@@ -95,10 +95,11 @@ export default function AboutMeShowcase() {
         id="section-about-showcase"
         ref={showcaseSectionRef}
         className={styles.formStudioShowcase}
+        data-motion="parallax"
         aria-label="About Me"
       >
         <div ref={stickyRef} className={styles.formStudioShowcaseSticky}>
-          <div ref={mediaRef} className={styles.formStudioShowcaseMedia}>
+          <div ref={mediaRef} className={styles.formStudioShowcaseMedia} data-parallax data-parallax-from="20" data-parallax-to="-28">
             <img
               src={showcaseImage}
               alt={t('home.showcaseAlt')}

@@ -127,6 +127,7 @@ export default function ContactSection() {
                     key={item.key}
                     className={className}
                     style={{ '--card-delay': `${index * 80}ms` }}
+                    data-motion-cascade
                   >
                     {content}
                   </div>
@@ -139,6 +140,7 @@ export default function ContactSection() {
                   href={item.href}
                   className={className}
                   style={{ '--card-delay': `${index * 80}ms` }}
+                  data-motion-cascade
                   {...(item.external
                     ? { target: '_blank', rel: 'noopener noreferrer' }
                     : {})}
@@ -147,10 +149,6 @@ export default function ContactSection() {
                 </a>
               )
             })}
-          </div>
-
-          <div className={styles.contactPanel}>
-            <p className={styles.contactPanelText}>{t('contact.cooperationText')}</p>
           </div>
 
           <footer className={styles.contactFooter}>

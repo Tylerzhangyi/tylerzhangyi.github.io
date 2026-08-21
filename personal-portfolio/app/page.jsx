@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import { useI18n } from '@/lib/i18n'
 import { observeReveals } from '@/lib/motion'
+import { bindSectionMotion } from '@/lib/motionSystem/bindSectionMotion'
+import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
 import { initHomeScrollLayout } from '@/lib/scrollLayout'
 import FormStudioHero from '@/components/sections/FormStudioHero'
 import IntroWelcomeSection from '@/components/sections/IntroWelcomeSection'
@@ -18,17 +20,23 @@ import ContactSection from '@/components/sections/ContactSection'
 import '@/components/home.css'
 
 export default function HomePage() {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const rootRef = useRef(null)
+  const motionMode = useMotionMode()
 
   useEffect(() => {
     const teardown = observeReveals(rootRef.current)
     const teardownLayout = initHomeScrollLayout()
+    const sectionNodes = rootRef.current?.querySelectorAll('[data-motion]') ?? []
+    const teardownMotion = Array.from(sectionNodes).map((section) =>
+      bindSectionMotion(section, motionMode)
+    )
     return () => {
       teardown?.()
       teardownLayout?.()
+      teardownMotion.forEach((fn) => fn())
     }
-  }, [])
+  }, [motionMode, lang])
 
   return (
     <div ref={rootRef} className="onepage">
@@ -50,7 +58,7 @@ export default function HomePage() {
       <section
         id="section-education"
         data-scroll-section="education"
-        className="stack-section stack-section--solid stack-section--education reveal-fade-only"
+        className="stack-section stack-section--solid stack-section--education"
       >
         <EducationSection />
       </section>
@@ -61,7 +69,7 @@ export default function HomePage() {
         left={t('projectsIntro.left')}
         right={t('projectsIntro.right')}
         ariaLabel={t('projectsIntro.aria')}
-        scrollHeight="128vh"
+        scrollHeight="200vh"
       />
 
       <ProjectsSection />

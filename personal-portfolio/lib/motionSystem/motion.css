@@ -1,0 +1,121 @@
+/* Custom cursor — only when html.motion-cursor-on and fine pointer */
+
+@media (pointer: fine) {
+  html.motion-cursor-on,
+  html.motion-cursor-on * {
+    cursor: none !important;
+  }
+
+  /* Keep keyboard focus visible even with custom cursor */
+  html.motion-cursor-on :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+}
+
+.motion-cursor-host {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.motion-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+  transition:
+    width 0.22s ease,
+    height 0.22s ease,
+    margin 0.22s ease,
+    background 0.22s ease,
+    opacity 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.motion-cursor--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.motion-cursor::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(20, 20, 20, 0.35);
+  transition: inset 0.22s ease, border-color 0.22s ease;
+}
+
+.motion-cursor--expanded {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  background: rgba(20, 20, 20, 0.08);
+}
+
+.motion-cursor--expanded::after {
+  inset: -2px;
+  border-color: rgba(20, 20, 20, 0.55);
+}
+
+.motion-cursor__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(20, 20, 20, 0.9);
+  pointer-events: none;
+}
+
+.motion-cursor__label[hidden] {
+  display: none;
+}
+
+/* Split reveal — clip overflow on split targets */
+[data-split] {
+  overflow: hidden;
+}
+
+[data-split].motion-split-active {
+  position: relative;
+  /* Preserve existing display (e.g. flex column mega-titles); do not force inline-block */
+  max-width: 100%;
+  vertical-align: top;
+}
+
+/* Keep React-owned nodes for reconciliation; hide them while overlay animates */
+[data-split].motion-split-active > :not(.motion-split-host) {
+  visibility: hidden !important;
+}
+
+[data-split].motion-split-active > .motion-split-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.motion-split-char,
+.motion-split-word {
+  will-change: transform, opacity;
+}

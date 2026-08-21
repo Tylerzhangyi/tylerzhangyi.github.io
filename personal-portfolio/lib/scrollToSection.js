@@ -1,5 +1,6 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { refreshScrollLayoutNow } from '@/lib/scrollLayout'
 
 const HEADER_OFFSET = 72
@@ -7,10 +8,10 @@ const HEADER_OFFSET = 72
 /** menu id → DOM id（与 hash 一致） */
 const SECTION_ELEMENT_IDS = {
   home: 'section-home',
-  about: 'section-about-showcase',
+  about: 'section-about',
   education: 'section-education',
   'projects-intro': 'section-projects-intro',
-  projects: 'section-projects',
+  projects: 'section-projects-intro',
   blog: 'section-blog',
   links: 'section-links',
   contact: 'section-contact'
@@ -18,24 +19,16 @@ const SECTION_ELEMENT_IDS = {
 
 /** 优先使用 ScrollTrigger 起点的区块 */
 const SECTION_TRIGGERS = {
+  education: 'education-tree-st',
   projects: 'projects-horizontal-st'
 }
 
-const LAYOUT_SECTIONS = new Set([
-  'about',
-  'education',
-  'projects-intro',
-  'projects',
-  'blog',
-  'links',
-  'contact'
-])
-
 let scrollTriggerReady = false
+let activeTween = null
 
 function ensureScrollTrigger() {
   if (!scrollTriggerReady) {
-    gsap.registerPlugin(ScrollTrigger)
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
     scrollTriggerReady = true
   }
 }
@@ -58,7 +51,7 @@ function getBlogScrollTop() {
   const pin = section.querySelector('[data-nav-anchor="blog-pin"]')
   if (pin) return elementScrollTop(pin)
 
-  return Math.max(0, Math.round(section.offsetTop + window.innerHeight - HEADER_OFFSET))
+  return elementScrollTop(section)
 }
 
 function getLinksScrollTop() {
@@ -115,10 +108,17 @@ export function getSectionScrollTop(id, { refresh = false } = {}) {
     refreshScrollLayoutNow()
   }
 
+  // Menu "projects" should open on My & Project intro, not mid horizontal track.
+  if (id === 'projects' || id === 'projects-intro') {
+    const intro = resolveElement('projects-intro')
+    if (intro) return elementScrollTop(intro)
+  }
+
   const triggerId = SECTION_TRIGGERS[id]
   if (triggerId) {
+    ensureScrollTrigger()
     const st = ScrollTrigger.getById(triggerId)
-    if (st) return Math.max(0, Math.round(st.start) - HEADER_OFFSET)
+    if (st) return Math.max(0, Math.round(st.start))
   }
 
   if (id === 'blog') return getBlogScrollTop()
@@ -130,36 +130,41 @@ export function getSectionScrollTop(id, { refresh = false } = {}) {
   return elementScrollTop(target)
 }
 
+/**
+ * Smooth-scroll with GSAP ScrollTo (pin-aware). Avoid native behavior:'smooth'
+ * — it fights ScrollTrigger and feels stuttery.
+ */
 export function scrollToSection(id, behavior = 'smooth') {
   if (typeof window === 'undefined') return false
 
-  const apply = (refresh) => {
-    if (id !== 'contact' && id !== 'home' && !resolveElement(id)) {
-      return false
-    }
+  if (id !== 'contact' && id !== 'home' && !resolveElement(id) && id !== 'projects') {
+    return false
+  }
 
-    const top = getSectionScrollTop(id, { refresh })
-    window.scrollTo({ top, left: 0, behavior })
+  ensureScrollTrigger()
+  const top = getSectionScrollTop(id, { refresh: false })
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  activeTween?.kill()
+  activeTween = null
+
+  if (behavior === 'auto' || reduce) {
+    window.scrollTo({ top, left: 0, behavior: 'auto' })
     return true
   }
 
-  const maxAttempts = LAYOUT_SECTIONS.has(id) ? 16 : 4
-  let attempts = 0
+  const distance = Math.abs(top - window.scrollY)
+  const duration = Math.min(1.05, Math.max(0.42, distance / 2800))
 
-  const tryScroll = () => {
-    const refresh = attempts % 3 === 0
-    if (apply(refresh)) return
-    attempts += 1
-    if (attempts < maxAttempts) {
-      window.setTimeout(tryScroll, attempts < 6 ? 120 : 200)
+  activeTween = gsap.to(window, {
+    duration,
+    scrollTo: { y: top, autoKill: true },
+    ease: 'power3.inOut',
+    overwrite: true,
+    onComplete: () => {
+      activeTween = null
     }
-  }
-
-  if (apply(true)) return true
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => tryScroll())
   })
 
-  return false
+  return true
 }

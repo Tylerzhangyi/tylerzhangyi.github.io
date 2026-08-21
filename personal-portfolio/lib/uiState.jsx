@@ -122,10 +122,11 @@ function startBootHandoff(session) {
   setBodyLoading(false)
   setBootHandoff(true)
 
+  // Match CSS bootFadeOut (~650ms) + small buffer
   handoffTimer = window.setTimeout(() => {
     if (session !== bootSession || bootFinished) return
     finishBoot()
-  }, 1100)
+  }, 750)
 }
 
 function scheduleBootFinish(session) {
@@ -133,9 +134,10 @@ function scheduleBootFinish(session) {
 
   setState({ progress: 100, loadingText: 'READY' })
 
+  // Blade sequence ≈ 0.08 + 0.9 + 0.72 ≈ 1.7s from mount; small hold then fade.
   finishTimer = window.setTimeout(() => {
     startBootHandoff(session)
-  }, 480)
+  }, 400)
 }
 
 export function startBootLoading() {
@@ -145,28 +147,18 @@ export function startBootLoading() {
 
   setState({
     bootLoading: true,
+    bootHandoff: false,
     loadingText: 'LOADING',
     progress: 0
   })
   setBodyLoading(true)
 
-  const durationMs = 3200
-  const startAt = performance.now()
-
-  const tick = (now) => {
-    if (session !== bootSession || bootFinished) return
-    const t = Math.min(1, Math.max(0, (now - startAt) / durationMs))
-    setState({ progress: Math.round(t * 100) })
-    if (t < 1) bootRaf = window.requestAnimationFrame(tick)
-  }
-
-  bootRaf = window.requestAnimationFrame(tick)
-
   ;(async () => {
     try {
+      // Don't finish before the blade animation can complete (~1.8s).
       await Promise.race([
-        Promise.allSettled([wait(1600), preloadCriticalAssets()]),
-        wait(4400)
+        Promise.allSettled([wait(1900), preloadCriticalAssets()]),
+        wait(3800)
       ])
     } finally {
       scheduleBootFinish(session)

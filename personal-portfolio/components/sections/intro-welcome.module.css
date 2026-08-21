@@ -113,6 +113,16 @@
 .introHeadlineRole {
   display: block;
   max-width: 100%;
+  min-height: 1.05em;
+  white-space: nowrap;
+}
+
+.introHeadlineArticle {
+  display: inline;
+  color: #212121;
+  white-space: pre;
+  /* Stay visible while the noun span is empty between typewriter cycles. */
+  flex-shrink: 0;
 }
 
 .introHeadlineDynamic {

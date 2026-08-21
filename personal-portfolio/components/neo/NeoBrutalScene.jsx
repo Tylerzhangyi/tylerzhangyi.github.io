@@ -32,7 +32,7 @@ export function NeoMorphBackdrop({ active = false }) {
   )
 }
 
-export function NeoHomeHero({ left, right, kicker = '', inView = true, fill = false }) {
+export function NeoHomeHero({ left, right, inView = true, fill = false }) {
   const { bootLoading, bootHandoff } = useUiState()
   const ref = useRef(null)
   const [active, setActive] = useState(false)
@@ -84,10 +84,8 @@ export function NeoHomeHero({ left, right, kicker = '', inView = true, fill = fa
     >
       <div className={styles.neoGrid} aria-hidden="true" />
       <NeoMorphBackdrop active={active} />
-      <NeoDecorLayer active={active} />
 
       <div className={styles.neoContent}>
-        {kicker ? <p className={styles.neoKicker}>{kicker}</p> : null}
         <div className={styles.neoHeroTitle} aria-label={`${left} ${right}`}>
           <div className={styles.neoHeroWord}>
             {leftLetters.map((char, index) => (
@@ -116,11 +114,6 @@ export function NeoHomeHero({ left, right, kicker = '', inView = true, fill = fa
               </span>
             ))}
           </div>
-        </div>
-        <div className={styles.neoBar} aria-hidden="true" />
-        <div className={styles.neoScrollCue} aria-hidden="true">
-          <span className={styles.neoScrollStem} />
-          <span className={styles.neoScrollChevron} />
         </div>
       </div>
     </div>

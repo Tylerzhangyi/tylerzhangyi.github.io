@@ -37,7 +37,8 @@ export const dict = {
       introParagraph:
         '欢迎来到这里。这里记录我在计算机道路上的项目、实验与思考——从交互软件到解决真实问题的工具。我相信好的作品应当清晰、可靠，也能被真正使用起来。',
       introHeadlinePrefix: '我是',
-      introTypewriterRoles: ['一名开发者', '一名学生', '一名创造者'],
+      introHeadlineArticle: '一名',
+      introTypewriterRoles: ['开发者', '学生', '创造者'],
       introAria: '个人介绍',
       introImageAlt: '个人照片',
       showCaseLeft: 'About',
@@ -349,7 +350,8 @@ export const dict = {
       introParagraph:
         'Thanks for visiting. This site brings together projects, experiments, and writing from my path in computer science—from interactive software to tools that solve real problems. I care about clarity, solid craft, and work that people can actually use.',
       introHeadlinePrefix: 'I am ',
-      introTypewriterRoles: ['a developer', 'a student', 'a creator'],
+      introHeadlineArticle: 'a ',
+      introTypewriterRoles: ['developer', 'student', 'creator'],
       introAria: 'Introduction',
       introImageAlt: 'Portrait photo',
       showCaseLeft: 'About',
