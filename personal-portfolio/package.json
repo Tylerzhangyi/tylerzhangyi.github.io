@@ -13,7 +13,8 @@
     "build:clean": "node scripts/ensure-port-free.mjs 8806 && rm -rf .next out node_modules/.cache && next build",
     "repair": "node scripts/ensure-port-free.mjs 8806 8807 && rm -rf .next out node_modules/.cache && next dev -p 8806",
     "start": "next start -p 8806",
-    "preview": "node scripts/ensure-port-free.mjs 8806 && npx serve out -p 8806"
+    "preview": "node scripts/ensure-port-free.mjs 8806 && npx serve out -p 8806",
+    "export:wallpaper": "node scripts/export-wallpaper.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "playwright": "^1.61.1"
   }
 }
