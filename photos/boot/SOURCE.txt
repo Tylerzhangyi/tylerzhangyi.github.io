@@ -1,0 +1,2 @@
+Boot loader sprites derived from OpenGameArt "Pac Man inspired" (pac-classic.zip).
+https://opengameart.org/content/pac-man-inspired
