@@ -94,7 +94,6 @@ export default function ContactSection() {
       id="section-contact"
       className={styles.contactScroll}
       data-scroll-section="contact"
-      data-motion="split"
       aria-label={t('contact.title')}
     >
       <div className={styles.contactPin}>
@@ -150,10 +149,6 @@ export default function ContactSection() {
                 </a>
               )
             })}
-          </div>
-
-          <div className={styles.contactPanel} data-motion-cascade>
-            <p className={styles.contactPanelText}>{t('contact.cooperationText')}</p>
           </div>
 
           <footer className={styles.contactFooter}>

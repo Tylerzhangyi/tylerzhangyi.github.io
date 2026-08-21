@@ -5,12 +5,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { marked } from 'marked'
 import { useI18n } from '@/lib/i18n'
-import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
 import { resolveAssetUrl, handleImageError } from '@/lib/assets'
 import { fetchBlogPostById } from '@/lib/data'
 import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
-import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
-import { bindDetailPageMotion } from '@/lib/motionSystem/primitives/splitReveal'
 import styles from '@/components/pages/blog-detail.module.css'
 
 marked.setOptions({
@@ -58,6 +56,11 @@ function readingTime(post) {
   return Math.max(1, Math.ceil(words / 180))
 }
 
+function homeHref() {
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  return base ? `${base}/` : '/'
+}
+
 export default function BlogDetailClient() {
   const params = useParams()
   const id = params.id
@@ -68,8 +71,6 @@ export default function BlogDetailClient() {
     usePageTransition()
 
   const closeFabRef = useRef(null)
-  const backFooterRef = useRef(null)
-  const contentRef = useRef(null)
 
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -99,26 +100,24 @@ export default function BlogDetailClient() {
     [post]
   )
 
-  useEffect(() => {
-    if (loading || error || !post || !contentRef.current) return undefined
-
-    const cleanups = [bindDetailPageMotion(contentRef.current, motionMode)]
-
-    if (motionMode === 'desktopFull') {
-      if (closeFabRef.current) cleanups.push(bindMagnetic(closeFabRef.current))
-      if (backFooterRef.current) cleanups.push(bindMagnetic(backFooterRef.current))
-    }
-
-    return () => {
-      cleanups.forEach((fn) => fn?.())
-    }
-  }, [loading, error, post, motionMode, formattedContent])
-
   async function goBack(event) {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
-    else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
+    else setTransitionOriginFromElement(closeFabRef.current)
 
-    await navigateWithTransition(getDetailReturnHref('blog'), (path) => router.push(path, { scroll: false }))
+    const target = homeHref()
+    try {
+      await navigateWithTransition(target, (path) => router.push(path, { scroll: false }), {
+        preferSection: 'blog'
+      })
+    } catch {
+      window.location.assign(target)
+      return
+    }
+
+    // Soft nav can leave URL/view out of sync — hard-exit if still on a detail path.
+    if (typeof window !== 'undefined' && /\/blog\/[^/]+/.test(window.location.pathname)) {
+      window.location.assign(target)
+    }
   }
 
   const contentClassName =
@@ -157,8 +156,6 @@ export default function BlogDetailClient() {
               ref={closeFabRef}
               type="button"
               className={styles.closeFab}
-              data-motion="magnetic,cursor-target"
-              data-cursor="back"
               onClick={goBack}
               aria-label="关闭详情"
             >
@@ -166,64 +163,54 @@ export default function BlogDetailClient() {
               <span>{t('blogDetail.back')}</span>
             </button>
 
-            <div ref={contentRef} className={contentClassName}>
-            <article className={styles.blogArticle}>
-              <header className={styles.articleHeader}>
-                <div className={styles.headerCopy}>
-                  <p className={styles.eyebrow}>Blog / {post.category}</p>
-                  <h1 className={styles.articleTitle} data-split="words">
-                    {post.title}
-                  </h1>
-                  {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
-                  <div className={styles.articleMeta}>
-                    <span className={styles.articleDate}>
-                      <CalendarIcon className={styles.articleDateIcon} />
-                      {formatDate(post.date, lang)}
-                    </span>
-                    <span className={styles.articleDate}>
-                      <ClockIcon className={styles.articleDateIcon} />
-                      {readingTime(post)} {t('blog.minRead')}
-                    </span>
-                    <span className={styles.articleCategory}>{post.category}</span>
-                  </div>
-                </div>
-                <div className={styles.coverFrame} aria-hidden="true">
-                  <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} onError={handleImageError} />
-                </div>
-              </header>
-
-              <div
-                className={styles.articleContent}
-                data-motion="split"
-                dangerouslySetInnerHTML={{ __html: formattedContent }}
-              />
-
-              {post.tags?.length > 0 && (
-                <footer className={styles.articleFooter}>
-                  <div className={styles.articleTags}>
-                    {post.tags.map((tag) => (
-                      <span key={tag} className={styles.tag}>
-                        {tag}
+            <div className={contentClassName}>
+              <article className={styles.blogArticle}>
+                <header className={styles.articleHeader}>
+                  <div className={styles.headerCopy}>
+                    <p className={styles.eyebrow}>Blog / {post.category}</p>
+                    <h1 className={styles.articleTitle}>{post.title}</h1>
+                    {post.excerpt && <p className={styles.articleExcerpt}>{post.excerpt}</p>}
+                    <div className={styles.articleMeta}>
+                      <span className={styles.articleDate}>
+                        <CalendarIcon className={styles.articleDateIcon} />
+                        {formatDate(post.date, lang)}
                       </span>
-                    ))}
+                      <span className={styles.articleDate}>
+                        <ClockIcon className={styles.articleDateIcon} />
+                        {readingTime(post)} {t('blog.minRead')}
+                      </span>
+                      <span className={styles.articleCategory}>{post.category}</span>
+                    </div>
                   </div>
-                </footer>
-              )}
+                  <div className={styles.coverFrame} aria-hidden="true">
+                    <img src={resolveAssetUrl('photos/blog.jpg')} alt="" draggable={false} onError={handleImageError} />
+                  </div>
+                </header>
 
-              <div className={styles.articleBackWrap}>
-                <button
-                  ref={backFooterRef}
-                  type="button"
-                  className={styles.backFooter}
-                  data-motion="magnetic,cursor-target"
-                  data-cursor="back"
-                  onClick={goBack}
-                >
-                  <ArrowLeftIcon className={styles.footerIcon} />
-                  {t('blogDetail.back')}
-                </button>
-              </div>
-            </article>
+                <div
+                  className={styles.articleContent}
+                  dangerouslySetInnerHTML={{ __html: formattedContent }}
+                />
+
+                {post.tags?.length > 0 && (
+                  <footer className={styles.articleFooter}>
+                    <div className={styles.articleTags}>
+                      {post.tags.map((tag) => (
+                        <span key={tag} className={styles.tag}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </footer>
+                )}
+
+                <div className={styles.articleBackWrap}>
+                  <button type="button" className={styles.backFooter} onClick={goBack}>
+                    <ArrowLeftIcon className={styles.footerIcon} />
+                    {t('blogDetail.back')}
+                  </button>
+                </div>
+              </article>
             </div>
           </>
         )}

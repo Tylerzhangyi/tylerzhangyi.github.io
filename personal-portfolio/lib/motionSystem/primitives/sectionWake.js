@@ -21,22 +21,32 @@ export function bindSectionEnterWake(
   gsap.set(nodes, { opacity: 0, y })
 
   let played = false
+  const play = () => {
+    if (played) return
+    played = true
+    gsap.to(nodes, {
+      opacity: 1,
+      y: 0,
+      duration,
+      stagger,
+      ease: 'expo.out',
+      overwrite: 'auto'
+    })
+  }
+
   const st = ScrollTrigger.create({
     trigger: triggerEl,
-    start: 'top 82%',
+    start: 'top 90%',
     once: true,
-    onEnter: () => {
-      if (played) return
-      played = true
-      gsap.to(nodes, {
-        opacity: 1,
-        y: 0,
-        duration,
-        stagger,
-        ease: 'expo.out',
-        overwrite: 'auto'
-      })
-    }
+    onEnter: play,
+    onEnterBack: play
+  })
+
+  // If already in/past the trigger zone (common after remount), play immediately.
+  requestAnimationFrame(() => {
+    if (played) return
+    const rect = triggerEl.getBoundingClientRect()
+    if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) play()
   })
 
   return () => {

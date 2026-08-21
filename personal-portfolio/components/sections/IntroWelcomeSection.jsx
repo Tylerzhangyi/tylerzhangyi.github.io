@@ -17,8 +17,14 @@ function TypewriterText({ roles, enabled, className, fallback }) {
     const el = textRef.current
     if (!el) return undefined
 
-    if (!enabled || !roles.length) {
-      el.textContent = fallback || roles[0] || ''
+    // Roles must be bare nouns only ("developer"), never "a developer" —
+    // the article ("a " / "一名") is a separate static sibling.
+    const cleanRoles = roles
+      .map((role) => String(role || '').replace(/^(a|an|一名)\s+/i, '').trim())
+      .filter(Boolean)
+
+    if (!enabled || !cleanRoles.length) {
+      el.textContent = fallback || cleanRoles[0] || ''
       el.dataset.typing = 'false'
       return undefined
     }
@@ -32,7 +38,8 @@ function TypewriterText({ roles, enabled, className, fallback }) {
     const write = (next) => {
       current = next
       el.textContent = next
-      el.dataset.typing = next.length > 0 ? 'true' : 'false'
+      // Keep caret painted while the variable noun is empty; article stays put.
+      el.dataset.typing = 'true'
     }
 
     const schedule = (delay) => {
@@ -43,7 +50,7 @@ function TypewriterText({ roles, enabled, className, fallback }) {
     const step = () => {
       if (cancelled) return
 
-      const role = roles[roleIndex] || ''
+      const role = cleanRoles[roleIndex] || ''
 
       if (!deleting) {
         if (current.length < role.length) {
@@ -63,7 +70,7 @@ function TypewriterText({ roles, enabled, className, fallback }) {
       }
 
       deleting = false
-      roleIndex = (roleIndex + 1) % roles.length
+      roleIndex = (roleIndex + 1) % cleanRoles.length
       schedule(320)
     }
 
@@ -90,6 +97,7 @@ export default function IntroWelcomeSection() {
     () => getDict('home.introTypewriterRoles') || [],
     [getDict, lang]
   )
+  const typewriterArticle = t('home.introHeadlineArticle')
 
   const revealSection = useCallback(() => {
     const section = sectionRef.current
@@ -125,7 +133,6 @@ export default function IntroWelcomeSection() {
     return () => observer.disconnect()
   }, [revealSection])
 
-  const staticRole = typewriterRoles[0] || ''
   const typewriterActive = motionEnabled && revealed
 
   return (
@@ -134,7 +141,7 @@ export default function IntroWelcomeSection() {
       id="section-intro"
       className={styles.introWelcome}
       data-scroll-section="intro"
-      data-motion="split,parallax"
+      data-motion="parallax"
       aria-label={t('home.introAria')}
     >
       <div className={styles.waveDecor} aria-hidden="true">
@@ -153,10 +160,13 @@ export default function IntroWelcomeSection() {
       <div className={styles.introWelcomeInner}>
         <div className={styles.introWelcomeCopy} data-parallax data-parallax-from="24" data-parallax-to="-16">
           <h2 className={styles.introHeadline}>
-            <span className={styles.introHeadlinePrefix} data-split="chars">
+            <span className={styles.introHeadlinePrefix}>
               {t('home.introHeadlinePrefix')}
             </span>
             <span className={styles.introHeadlineRole}>
+              <span className={styles.introHeadlineArticle} aria-hidden="true">
+                {typewriterArticle}
+              </span>
               {typewriterActive ? (
                 <TypewriterText
                   roles={typewriterRoles}
@@ -164,7 +174,9 @@ export default function IntroWelcomeSection() {
                   className={styles.introHeadlineDynamic}
                 />
               ) : (
-                <span className={styles.introHeadlineDynamic}>{staticRole}</span>
+                <span className={styles.introHeadlineDynamic}>
+                  {String(typewriterRoles[0] || '').replace(/^(a|an|一名)\s+/i, '')}
+                </span>
               )}
             </span>
           </h2>

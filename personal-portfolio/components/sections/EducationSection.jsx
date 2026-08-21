@@ -130,18 +130,19 @@ export default function EducationSection() {
         ScrollTrigger.create({
           id: 'education-tree-st',
           trigger: scrollEl,
-          start: 'top 12%',
+          start: 'top top',
           end: `+=${runway}`,
           pin: pinEl,
-          scrub: 0.85,
+          scrub: true,
           animation: tl,
           anticipatePin: 0,
           pinSpacing: true,
-          invalidateOnRefresh: true
+          invalidateOnRefresh: true,
+          fastScrollEnd: true,
+          preventOverlaps: true
         })
 
         tl.progress(0)
-        ScrollTrigger.refresh()
       }, root)
     }
 
@@ -150,7 +151,6 @@ export default function EducationSection() {
       requestAnimationFrame(() => {
         if (cancelled) return
         build()
-        ScrollTrigger.refresh()
       })
     }
 
@@ -181,7 +181,7 @@ export default function EducationSection() {
       <div className="container">
         <div className={styles.head}>
           <div className={styles.kicker}>{t('nav.education')}</div>
-          <h2 className={styles.title} data-split="words">{t('about.education')}</h2>
+          <h2 className={styles.title}>{t('about.education')}</h2>
         </div>
       </div>
 

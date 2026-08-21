@@ -49,7 +49,6 @@ export default function FormStudioHero() {
           <NeoHomeHero
             left={t('home.heroLeft').toLowerCase()}
             right={t('home.heroRight').toLowerCase()}
-            kicker={t('home.eyebrow').toLowerCase()}
             inView={inView}
             fill
           />

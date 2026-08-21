@@ -6,11 +6,13 @@ import {
   saveHomeScroll,
   restoreHomeScroll,
   isHomePath,
-  clearSavedHomeScroll,
-  setPendingSection
+  setPendingSection,
+  getSavedHomeScroll,
+  clearPendingSection,
+  clearHomeHash
 } from './homeScrollRestore'
 import { commitClientNavigation } from './navigateCommit'
-import { detailReturnHref, sectionIdFromHref } from './scrollToSection'
+import { detailReturnHref } from './scrollToSection'
 import { lockBodyScroll, forceUnlockBodyScroll, getLockedScrollY, isBodyScrollLocked } from './scrollLock'
 
 export const EXPAND_MS = 520
@@ -129,8 +131,18 @@ export function rememberDetailReturn(href) {
   if (typeof window === 'undefined' || !href) return
 
   const targetPath = href.split('?')[0].split('#')[0]
-  const kind = targetPath.includes('/blog/') ? 'blog' : targetPath.includes('/projects/') ? 'projects' : null
+  const kind = targetPath.includes('/blog/')
+    ? 'blog'
+    : targetPath.includes('/projects/')
+      ? 'projects'
+      : null
   if (!kind) return
+
+  // Capture scroll before any lock/transition mutates it.
+  const scrollY = Math.max(0, Math.round(window.scrollY || window.pageYOffset || 0))
+  saveHomeScroll(scrollY)
+  clearPendingSection()
+  clearHomeHash()
 
   try {
     window.sessionStorage.setItem(
@@ -138,7 +150,7 @@ export function rememberDetailReturn(href) {
       JSON.stringify({
         kind,
         href: `${window.location.pathname}${window.location.search}${window.location.hash}`,
-        scrollY: window.scrollY,
+        scrollY,
         at: Date.now()
       })
     )
@@ -157,45 +169,76 @@ export function peekDetailReturnKind() {
   }
 }
 
+export function clearDetailReturn() {
+  if (typeof window === 'undefined') return
+  try {
+    window.sessionStorage.removeItem(DETAIL_RETURN_KEY)
+  } catch {}
+}
+
 export function getDetailReturnHref(kind) {
   return detailReturnHref(peekDetailReturnKind() || kind)
 }
 
 const PageTransitionContext = createContext(null)
 
+export function resetPageTransition() {
+  if (state.phase === 'idle' || state.phase === 'contracting') return
+  if (typeof window !== 'undefined' && isBodyScrollLocked()) {
+    forceUnlockBodyScroll(getLockedScrollY())
+  }
+  state = { ...state, phase: 'idle' }
+  emit()
+}
+
 export function PageTransitionProvider({ children }) {
   const transition = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  const navigateWithTransition = useCallback(async (href, routerPush) => {
+  const navigateWithTransition = useCallback(async (href, routerPush, options = {}) => {
     const targetPath = href.split('?')[0].split('#')[0]
     const goingHome = isHomePath(targetPath)
     const leavingHome = isHomePath()
+    const preferSection = options.preferSection || null
 
     const scrollY = isBodyScrollLocked() ? getLockedScrollY() : lockBodyScroll()
 
     if (leavingHome && !goingHome) {
       saveHomeScroll(scrollY)
+      clearPendingSection()
+      clearHomeHash()
     }
 
-    const homeSectionId = goingHome
-      ? peekDetailReturnKind() || sectionIdFromHref(href)
-      : null
+    const savedHomeY = goingHome ? getSavedHomeScroll() : 0
+    let homeSectionId = null
 
-    if (goingHome && homeSectionId && homeSectionId !== 'home') {
-      clearSavedHomeScroll()
-      setPendingSection(homeSectionId)
-      if (typeof window !== 'undefined') {
-        window.history.replaceState(null, '', detailReturnHref(homeSectionId))
+    if (goingHome) {
+      clearHomeHash()
+      clearPendingSection()
+
+      if (savedHomeY > 0) {
+        // Exact scroll restore — never jump to My & Project / other sections.
+        homeSectionId = null
+      } else if (preferSection) {
+        homeSectionId = preferSection
+        setPendingSection(preferSection)
+      } else {
+        const kind = peekDetailReturnKind()
+        if (kind && kind !== 'home') {
+          homeSectionId = kind
+          setPendingSection(kind)
+        }
       }
+
+      clearDetailReturn()
     }
 
     try {
-      // Expand first, then commit navigation. router.push is void and can be
-      // cancelled if we unlock/re-render before the App Router finishes.
       await playPageExitForNavigate()
-      const mode = await commitClientNavigation(href, routerPush, { timeoutMs: 1600 })
+      // Never rewrite history to `/#…` before this — that makes pathname look like
+      // home while the detail route is still mounted, and commit becomes a no-op.
+      const mode = await commitClientNavigation(href, routerPush, { timeoutMs: 1800 })
       if (mode === 'hard') {
-        // Full page load in progress — keep the cover up until unload.
+        // Keep cover up until unload; scroll restore happens after reload via storage.
         return
       }
 
@@ -228,7 +271,8 @@ export function PageTransitionProvider({ children }) {
       setTransitionOrigin,
       setTransitionOriginFromElement,
       playPageExit,
-      playPageEnter
+      playPageEnter,
+      resetPageTransition
     }),
     [transition, navigateWithTransition]
   )

@@ -97,7 +97,7 @@
 
 [data-split].motion-split-active {
   position: relative;
-  display: inline-block;
+  /* Preserve existing display (e.g. flex column mega-titles); do not force inline-block */
   max-width: 100%;
   vertical-align: top;
 }

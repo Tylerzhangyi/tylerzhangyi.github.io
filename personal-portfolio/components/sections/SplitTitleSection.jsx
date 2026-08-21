@@ -1,167 +1,115 @@
 'use client'
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { subscribeScroll } from '@/lib/scrollLoop'
-import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
 import styles from './split-title.module.css'
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v))
 const lerp = (a, b, t) => a + (b - a) * t
-const SPLIT_END = 58
+const SPLIT_END = 56
 
 function smoothstep(t) {
   return t * t * (3 - 2 * t)
 }
 
-function applySplitFrame({ progress, leftEl, rightEl, ampEl, sticky }) {
-  const splitPhase = clamp(progress / 0.72, 0, 1)
-  const splitEased = smoothstep(splitPhase)
-  const split = lerp(0, SPLIT_END, splitEased)
-  const fadeOut = clamp((progress - 0.68) / 0.32, 0, 1)
-  const opacity = lerp(1, 0, fadeOut)
-
-  sticky.classList.toggle(styles.splitTitleSectionStickyHidden, fadeOut > 0.92)
-
-  ;[leftEl, rightEl, ampEl].forEach((el) => {
-    if (!el) return
-    el.style.translate = ''
-  })
-
-  leftEl.style.transform = `translateX(${-split}vw)`
-  rightEl.style.transform = `translateX(${split}vw)`
-  if (ampEl) {
-    ampEl.style.transform = `scale(${lerp(1, 0.55, splitEased)})`
-    ampEl.style.opacity = String(lerp(1, 0, splitEased))
-  }
-  leftEl.style.opacity = String(opacity)
-  rightEl.style.opacity = String(opacity)
+function clearIndividualTransform(el) {
+  if (!el) return
+  el.style.translate = ''
+  el.style.scale = ''
+  el.style.rotate = ''
 }
 
+/**
+ * My & Project — same sticky-split pattern as AboutMeShowcase.
+ * Pure scroll math (no GSAP ScrollTrigger) so it never fights the education pin.
+ */
 export default function SplitTitleSection({
   sectionId,
   left,
   right,
   scrollSection = '',
   ariaLabel = '',
-  scrollHeight = '128vh'
+  scrollHeight = '200vh'
 }) {
   const sectionRef = useRef(null)
   const stickyRef = useRef(null)
   const ampRef = useRef(null)
   const leftRef = useRef(null)
   const rightRef = useRef(null)
-  const motionMode = useMotionMode()
-
   const [sectionActive, setSectionActive] = useState(false)
-
-  const resetSplitFrame = useCallback(() => {
-    const sticky = stickyRef.current
-    const leftEl = leftRef.current
-    const rightEl = rightRef.current
-    const ampEl = ampRef.current
-    if (!sticky || !leftEl || !rightEl) return
-
-    sticky.classList.remove(styles.splitTitleSectionStickyHidden)
-    ;[leftEl, rightEl, ampEl].forEach((el) => {
-      if (!el) return
-      el.style.translate = ''
-      el.style.transform = 'none'
-      el.style.opacity = '1'
-    })
-  }, [])
 
   const updateScroll = useCallback(() => {
     const section = sectionRef.current
     const sticky = stickyRef.current
-    const ampEl = ampRef.current
     const leftEl = leftRef.current
     const rightEl = rightRef.current
+    const ampEl = ampRef.current
     if (!section || !sticky || !leftEl || !rightEl) return
 
     if (window.matchMedia('(max-width: 809px)').matches) {
-      resetSplitFrame()
+      clearIndividualTransform(leftEl)
+      clearIndividualTransform(rightEl)
+      clearIndividualTransform(ampEl)
+      leftEl.style.transform = 'none'
+      rightEl.style.transform = 'none'
+      leftEl.style.opacity = '1'
+      rightEl.style.opacity = '1'
+      if (ampEl) {
+        ampEl.style.transform = 'none'
+        ampEl.style.opacity = '1'
+      }
+      sticky.classList.remove(styles.splitTitleSectionStickyHidden)
+      setSectionActive(true)
+      document.body.classList.remove('is-projects-intro-active')
       return
     }
 
     const vh = window.innerHeight
     const rect = section.getBoundingClientRect()
-    const inView = rect.top < vh * 0.92 && rect.bottom > 0
+    const inView = rect.top < vh * 0.98 && rect.bottom > vh * 0.02
     setSectionActive(inView)
     document.body.classList.toggle('is-projects-intro-active', inView)
 
     const scrollable = Math.max(section.offsetHeight - vh, 1)
     const progress = clamp(-rect.top / scrollable, 0, 1)
 
-    applySplitFrame({ progress, leftEl, rightEl, ampEl, sticky })
-  }, [resetSplitFrame])
+    const splitPhase = clamp(progress / 0.7, 0, 1)
+    const splitEased = smoothstep(splitPhase)
+    const split = lerp(0, SPLIT_END, splitEased)
+    const fadeOut = clamp((progress - 0.72) / 0.28, 0, 1)
+    const opacity = lerp(1, 0, fadeOut)
+
+    sticky.classList.toggle(styles.splitTitleSectionStickyHidden, fadeOut > 0.92)
+
+    clearIndividualTransform(leftEl)
+    clearIndividualTransform(rightEl)
+    clearIndividualTransform(ampEl)
+
+    leftEl.style.transform = `translateX(${-split}vw)`
+    rightEl.style.transform = `translateX(${split}vw)`
+    leftEl.style.opacity = String(opacity)
+    rightEl.style.opacity = String(opacity)
+
+    if (ampEl) {
+      ampEl.style.transform = `scale(${lerp(1, 0.5, splitEased)})`
+      ampEl.style.opacity = String(lerp(1, 0, splitEased))
+    }
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
     if (section) section.style.setProperty('--split-scroll-height', scrollHeight)
   }, [scrollHeight])
 
-  useLayoutEffect(() => {
-    const section = sectionRef.current
-    const sticky = stickyRef.current
-    const leftEl = leftRef.current
-    const rightEl = rightRef.current
-    const ampEl = ampRef.current
-    if (!section || !sticky || !leftEl || !rightEl) return undefined
-
-    const isMobile = window.matchMedia('(max-width: 809px)').matches
-
-    if (motionMode === 'reduced' || isMobile) {
-      resetSplitFrame()
-      return () => document.body.classList.remove('is-projects-intro-active')
-    }
-
-    if (motionMode === 'desktopFull') {
-      gsap.registerPlugin(ScrollTrigger)
-      const ctx = gsap.context(() => {
-        ScrollTrigger.create({
-          trigger: section,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.72,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const vh = window.innerHeight
-            const inView = section.getBoundingClientRect().top < vh * 0.92
-            setSectionActive(inView)
-            document.body.classList.toggle('is-projects-intro-active', inView)
-            applySplitFrame({
-              progress: self.progress,
-              leftEl,
-              rightEl,
-              ampEl,
-              sticky
-            })
-          }
-        })
-      }, section)
-
-      requestAnimationFrame(() => ScrollTrigger.refresh())
-
-      return () => {
-        ctx.revert()
-        document.body.classList.remove('is-projects-intro-active')
-      }
-    }
-
-    const unbindScroll = subscribeScroll(updateScroll, {
-      root: section,
-      rootMargin: '0px 0px -5% 0px'
-    })
-
+  useEffect(() => {
+    // Always listen — IO gating was skipping updates near section edges.
+    const unbindScroll = subscribeScroll(updateScroll)
     requestAnimationFrame(() => updateScroll())
-
     return () => {
       unbindScroll?.()
       document.body.classList.remove('is-projects-intro-active')
     }
-  }, [motionMode, resetSplitFrame, updateScroll])
+  }, [updateScroll])
 
   return (
     <section

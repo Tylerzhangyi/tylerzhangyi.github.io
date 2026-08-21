@@ -1,11 +1,12 @@
 .splitTitleSection {
-  min-height: var(--split-scroll-height, 108vh);
+  /* No overflow:hidden on the section — it breaks position:sticky vs the viewport. */
+  min-height: var(--split-scroll-height, 200vh);
   position: relative;
   background: #e5e5e5;
   color: #212121;
-  z-index: 1;
-  overflow: hidden;
-  margin-bottom: -4vh;
+  z-index: 5;
+  overflow: visible;
+  margin-bottom: 0;
 }
 
 .splitTitleSectionGrid {
@@ -49,7 +50,7 @@
   box-shadow: 0 4px 0 #000000;
   rotate: -8deg;
   opacity: 0;
-  transform: translateY(-16px);
+  transform: translateY(-16px) scale(0.85);
   transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -91,6 +92,7 @@
 .splitTitleSectionStickyHidden .splitAmpersand {
   opacity: 0;
   visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .splitTitleSectionTitles {
@@ -125,7 +127,7 @@
   padding: 0;
   white-space: nowrap;
   color: #212121;
-  text-shadow: none;
+  text-shadow: 0 4px 0 #000000;
   will-change: transform, opacity;
   opacity: 1;
   transform-origin: center center;
@@ -167,6 +169,12 @@
   .splitDecorBlock {
     width: 48px;
     height: 48px;
+  }
+
+  .splitTitleSectionStickyHidden .splitTitleSectionTitles,
+  .splitTitleSectionStickyHidden .splitAmpersand {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
 }
 

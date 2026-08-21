@@ -44,6 +44,14 @@ export function getLockedScrollY() {
 }
 
 export function forceUnlockBodyScroll(restoreY) {
+  if (typeof window === 'undefined') return
+
+  // Already unlocked — don't scrollTo(0) via empty lockedY.
+  if (lockCount === 0 && document.body.style.position !== 'fixed') {
+    document.body.style.overflow = ''
+    return
+  }
+
   lockCount = 0
   unlockBodyScroll(restoreY)
 }

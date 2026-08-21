@@ -20,7 +20,7 @@
   position: fixed;
   top: calc(var(--header-h, 72px) + 10px);
   left: 24px;
-  z-index: 10100;
+  z-index: 10090;
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -37,6 +37,7 @@
   text-transform: lowercase;
   cursor: pointer;
   box-shadow: var(--ink-shadow);
+  pointer-events: auto;
   transition:
     transform var(--dur-fast) var(--ease-out),
     box-shadow var(--dur-fast) var(--ease-out);

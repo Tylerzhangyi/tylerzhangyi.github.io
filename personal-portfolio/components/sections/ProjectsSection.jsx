@@ -9,10 +9,6 @@ import { bindCtaFollow } from '@/lib/cardCta'
 import { onScrollLayoutReady } from '@/lib/scrollLayout'
 import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
 import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
-import {
-  bindSectionEnterWake,
-  bindSectionLeaveChrome
-} from '@/lib/motionSystem/primitives/sectionWake'
 import { bindTiltCard } from '@/lib/motionSystem/primitives/tiltCard'
 import DetailLink from '@/components/DetailLink'
 import CardCta from '@/components/CardCta'
@@ -106,11 +102,13 @@ export default function ProjectsSection() {
           trigger: section,
           start: 'top top',
           end: () => `+=${Math.max(distance(), 1)}`,
-          scrub: 1,
+          scrub: 0.35,
           pin,
           pinSpacing: true,
-          anticipatePin: 1,
+          anticipatePin: 0,
           invalidateOnRefresh: true,
+          fastScrollEnd: true,
+          preventOverlaps: true,
           onEnter: () => setProjectsZone(true),
           onEnterBack: () => setProjectsZone(true),
           onLeave: () => setProjectsZone(false),
@@ -211,13 +209,6 @@ export default function ProjectsSection() {
     section.querySelectorAll('.project-card__media-wrap').forEach((wrap) => {
       cleanups.push(bindMagnetic(wrap, { maxPull: 18 }))
     })
-
-    const columns = Array.from(section.querySelectorAll('.projects-column'))
-    const chrome = section.querySelector('.projects-grid')
-    cleanups.push(bindSectionEnterWake(section, { targets: columns, mode: motionMode }))
-    if (chrome) {
-      cleanups.push(bindSectionLeaveChrome(section, { chrome, mode: motionMode }))
-    }
 
     motionCleanupsRef.current = cleanups
     return () => clearMotionCleanups()

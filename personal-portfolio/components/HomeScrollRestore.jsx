@@ -3,9 +3,12 @@
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import {
+  clearHomeHash,
+  clearPendingSection,
   clearSavedHomeScroll,
   consumePendingSection,
   getHashSection,
+  getSavedHomeScroll,
   isHomePath,
   restoreHomeScroll
 } from '@/lib/homeScrollRestore'
@@ -18,6 +21,15 @@ export default function HomeScrollRestore() {
 
   useEffect(() => {
     if (!isHomePath(pathname)) return
+
+    const savedY = getSavedHomeScroll()
+    if (savedY > 0) {
+      clearPendingSection()
+      restoreHomeScroll()
+      refreshScrollLayoutNow()
+      window.setTimeout(() => refreshScrollLayoutNow(), 200)
+      return
+    }
 
     const target = consumePendingSection() || getHashSection()
 
@@ -41,9 +53,7 @@ export default function HomeScrollRestore() {
       return
     }
 
-    if (!getHashSection()) {
-      restoreHomeScroll()
-    }
+    clearHomeHash()
   }, [pathname])
 
   return null

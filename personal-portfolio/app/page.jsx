@@ -36,7 +36,7 @@ export default function HomePage() {
       teardownLayout?.()
       teardownMotion.forEach((fn) => fn())
     }
-  }, [motionMode, lang, t])
+  }, [motionMode, lang])
 
   return (
     <div ref={rootRef} className="onepage">
@@ -50,7 +50,6 @@ export default function HomePage() {
       <section
         id="section-about"
         data-scroll-section="about"
-        data-motion="split"
         className="stack-section stack-section--about"
       >
         <AboutSection />
@@ -59,8 +58,7 @@ export default function HomePage() {
       <section
         id="section-education"
         data-scroll-section="education"
-        data-motion="split"
-        className="stack-section stack-section--solid stack-section--education reveal-fade-only"
+        className="stack-section stack-section--solid stack-section--education"
       >
         <EducationSection />
       </section>
@@ -71,7 +69,7 @@ export default function HomePage() {
         left={t('projectsIntro.left')}
         right={t('projectsIntro.right')}
         ariaLabel={t('projectsIntro.aria')}
-        scrollHeight="128vh"
+        scrollHeight="200vh"
       />
 
       <ProjectsSection />

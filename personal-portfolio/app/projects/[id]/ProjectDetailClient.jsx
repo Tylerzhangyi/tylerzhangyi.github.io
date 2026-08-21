@@ -3,18 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeftIcon, CubeIcon, RocketLaunchIcon } from '@heroicons/react/24/outline'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from '@/lib/i18n'
-import { getDetailReturnHref, usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
+import { usePageTransition, scrollDetailToTop } from '@/lib/pageTransition'
 import { resolveAssetUrl, handleImageError as onImageError } from '@/lib/assets'
 import { fetchProjectById } from '@/lib/data'
 import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
-import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
-import { bindDetailPageMotion } from '@/lib/motionSystem/primitives/splitReveal'
 import styles from '@/components/pages/project-detail.module.css'
 
-gsap.registerPlugin(ScrollTrigger)
+function homeHref() {
+  const base = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  return base ? `${base}/` : '/'
+}
 
 export default function ProjectDetailClient() {
   const params = useParams()
@@ -26,7 +25,6 @@ export default function ProjectDetailClient() {
     usePageTransition()
 
   const closeFabRef = useRef(null)
-  const contentRef = useRef(null)
 
   const [project, setProject] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -51,29 +49,24 @@ export default function ProjectDetailClient() {
     loadProject()
   }, [loadProject])
 
-  useEffect(() => {
-    if (loading || error || !project || !contentRef.current) return undefined
-
-    const cleanups = [bindDetailPageMotion(contentRef.current, motionMode)]
-
-    if (motionMode === 'desktopFull') {
-      if (closeFabRef.current) cleanups.push(bindMagnetic(closeFabRef.current))
-    }
-
-    return () => {
-      cleanups.forEach((fn) => fn?.())
-    }
-  }, [loading, error, project, motionMode])
-
   async function goBack(event) {
     if (event?.clientX != null) setTransitionOrigin(event.clientX, event.clientY)
-    else setTransitionOriginFromElement(document.querySelector(`.${styles.closeFab}`))
+    else setTransitionOriginFromElement(closeFabRef.current)
 
-    await navigateWithTransition(getDetailReturnHref('projects'), (path) => router.push(path, { scroll: false }))
+    const target = homeHref()
+    try {
+      await navigateWithTransition(target, (path) => router.push(path, { scroll: false }), {
+        preferSection: 'projects'
+      })
+    } catch {
+      window.location.assign(target)
+      return
+    }
 
-    window.setTimeout(() => {
-      ScrollTrigger.refresh()
-    }, 200)
+    // Soft nav can leave URL/view out of sync — hard-exit if still on a detail path.
+    if (typeof window !== 'undefined' && /\/projects\/[^/]+/.test(window.location.pathname)) {
+      window.location.assign(target)
+    }
   }
 
   const contentClassName =
@@ -105,8 +98,6 @@ export default function ProjectDetailClient() {
               ref={closeFabRef}
               type="button"
               className={styles.closeFab}
-              data-motion="magnetic,cursor-target"
-              data-cursor="back"
               onClick={goBack}
               aria-label="关闭详情"
             >
@@ -114,110 +105,108 @@ export default function ProjectDetailClient() {
               <span>{t('projectDetail.back')}</span>
             </button>
 
-            <div ref={contentRef} className={contentClassName}>
-            <header className={styles.projectHero}>
-              <div className={styles.heroCopy}>
-                <p className={styles.eyebrow}>Project / {String(project.id).padStart(2, '0')}</p>
-                <h1 className={styles.projectTitle} data-split="words">
-                  {project.name}
-                </h1>
-                <p className={styles.heroIntro}>{project.intro}</p>
-                <div className={styles.heroActions}>
-                  {project.demo && (
-                    <a
-                      href={project.demo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`${styles.projectLink} ${styles.projectLinkDemo}`}
-                    >
-                      <RocketLaunchIcon className={styles.iconInline} />
-                      {t('projectDetail.demo')}
-                    </a>
-                  )}
-                  {project.github && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={`${styles.projectLink} ${styles.projectLinkGithub}`}
-                    >
-                      <CubeIcon className={styles.iconInline} />
-                      {t('projectDetail.github')}
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.projectImageLarge}>
-                <img
-                  src={resolveAssetUrl(project.image) || '/photos/placeholder.jpg'}
-                  alt={project.name}
-                  onError={onImageError}
-                />
-              </div>
-            </header>
-
-            <div className={styles.detailGrid}>
-              <aside className={styles.sidePanel}>
-                <div className={styles.panelBlock}>
-                  <p className={styles.panelLabel}>{t('projectDetail.tech')}</p>
-                  <div className={styles.techList}>
-                    {project.technologies?.map((tech) => (
-                      <span key={tech} className={styles.techTagLarge}>
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className={styles.panelBlock}>
-                  <p className={styles.panelLabel}>{t('projectDetail.links')}</p>
-                  <div className={styles.projectLinks}>
+            <div className={contentClassName}>
+              <header className={styles.projectHero}>
+                <div className={styles.heroCopy}>
+                  <p className={styles.eyebrow}>Project / {String(project.id).padStart(2, '0')}</p>
+                  <h1 className={styles.projectTitle}>{project.name}</h1>
+                  <p className={styles.heroIntro}>{project.intro}</p>
+                  <div className={styles.heroActions}>
                     {project.demo && (
-                      <a href={project.demo} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                      <a
+                        href={project.demo}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${styles.projectLink} ${styles.projectLinkDemo}`}
+                      >
                         <RocketLaunchIcon className={styles.iconInline} />
                         {t('projectDetail.demo')}
                       </a>
                     )}
                     {project.github && (
-                      <a href={project.github} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${styles.projectLink} ${styles.projectLinkGithub}`}
+                      >
                         <CubeIcon className={styles.iconInline} />
                         {t('projectDetail.github')}
                       </a>
                     )}
                   </div>
                 </div>
-              </aside>
 
-              <div className={styles.mainColumn} data-motion="split">
-                <section className={styles.contentSection}>
-                  <h2 className={styles.sectionHeading}>{t('projectDetail.intro')}</h2>
-                  <p className={styles.introText}>{project.intro}</p>
-                </section>
-
-                {project.description && (
-                  <section className={styles.contentSection}>
-                    <h2 className={styles.sectionHeading}>{t('projectDetail.description')}</h2>
-                    <p className={styles.descriptionText}>{project.description}</p>
-                  </section>
-                )}
-              </div>
-            </div>
-
-            {project.screenshots?.length > 0 && (
-              <section className={`${styles.contentSection} ${styles.screenshotSection}`}>
-                <h2 className={styles.sectionHeading}>{t('projectDetail.screenshots')}</h2>
-                <div className={styles.screenshotsGrid}>
-                  {project.screenshots.map((screenshot, index) => (
-                    <img
-                      key={screenshot}
-                      src={resolveAssetUrl(screenshot)}
-                      alt={`${t('projectDetail.screenshot')} ${index + 1}`}
-                      onError={onImageError}
-                    />
-                  ))}
+                <div className={styles.projectImageLarge}>
+                  <img
+                    src={resolveAssetUrl(project.image) || '/photos/placeholder.jpg'}
+                    alt={project.name}
+                    onError={onImageError}
+                  />
                 </div>
-              </section>
-            )}
+              </header>
+
+              <div className={styles.detailGrid}>
+                <aside className={styles.sidePanel}>
+                  <div className={styles.panelBlock}>
+                    <p className={styles.panelLabel}>{t('projectDetail.tech')}</p>
+                    <div className={styles.techList}>
+                      {project.technologies?.map((tech) => (
+                        <span key={tech} className={styles.techTagLarge}>
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.panelBlock}>
+                    <p className={styles.panelLabel}>{t('projectDetail.links')}</p>
+                    <div className={styles.projectLinks}>
+                      {project.demo && (
+                        <a href={project.demo} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                          <RocketLaunchIcon className={styles.iconInline} />
+                          {t('projectDetail.demo')}
+                        </a>
+                      )}
+                      {project.github && (
+                        <a href={project.github} target="_blank" rel="noreferrer" className={styles.panelLink}>
+                          <CubeIcon className={styles.iconInline} />
+                          {t('projectDetail.github')}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </aside>
+
+                <div className={styles.mainColumn}>
+                  <section className={styles.contentSection}>
+                    <h2 className={styles.sectionHeading}>{t('projectDetail.intro')}</h2>
+                    <p className={styles.introText}>{project.intro}</p>
+                  </section>
+
+                  {project.description && (
+                    <section className={styles.contentSection}>
+                      <h2 className={styles.sectionHeading}>{t('projectDetail.description')}</h2>
+                      <p className={styles.descriptionText}>{project.description}</p>
+                    </section>
+                  )}
+                </div>
+              </div>
+
+              {project.screenshots?.length > 0 && (
+                <section className={`${styles.contentSection} ${styles.screenshotSection}`}>
+                  <h2 className={styles.sectionHeading}>{t('projectDetail.screenshots')}</h2>
+                  <div className={styles.screenshotsGrid}>
+                    {project.screenshots.map((screenshot, index) => (
+                      <img
+                        key={screenshot}
+                        src={resolveAssetUrl(screenshot)}
+                        alt={`${t('projectDetail.screenshot')} ${index + 1}`}
+                        onError={onImageError}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           </>
         )}

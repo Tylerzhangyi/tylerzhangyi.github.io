@@ -57,9 +57,9 @@ export default function AboutSection() {
         <div className={styles.introLayout}>
           <div className={styles.introTitleCol}>
             <p className={styles.introKicker}>{t('nav.about')}</p>
-            <h1 className={styles.introMegaTitle} data-split="words">
+            <h1 className={styles.introMegaTitle}>
               {titleWords.map((word, i) => (
-                <span key={word} className={i === titleWords.length - 1 ? styles.introMegaAccent : undefined}>
+                <span key={`${word}-${i}`} className={i === titleWords.length - 1 ? styles.introMegaAccent : undefined}>
                   {word}
                 </span>
               ))}

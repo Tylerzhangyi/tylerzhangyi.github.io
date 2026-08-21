@@ -5,11 +5,6 @@ import { useI18n } from '@/lib/i18n'
 import { bindCtaFollow } from '@/lib/cardCta'
 import { createBlogScroll } from '@/lib/blogScroll'
 import { useMotionMode } from '@/lib/motionSystem/MotionRoot'
-import { bindMagnetic } from '@/lib/motionSystem/primitives/magnetic'
-import {
-  bindSectionEnterWake,
-  bindSectionLeaveChrome
-} from '@/lib/motionSystem/primitives/sectionWake'
 import { bindTiltCard } from '@/lib/motionSystem/primitives/tiltCard'
 import DetailLink from '@/components/DetailLink'
 import styles from './blog.module.css'
@@ -154,16 +149,6 @@ export default function BlogSection({ embedded = true }) {
     section.querySelectorAll(`.${styles.blogCardInner}`).forEach((inner) => {
       cleanups.push(bindTiltCard(inner))
     })
-    section.querySelectorAll(`.${styles.blogPoster}`).forEach((poster) => {
-      cleanups.push(bindMagnetic(poster, { maxPull: 18 }))
-    })
-
-    const cards = Array.from(section.querySelectorAll(`.${styles.blogCard}`))
-    const chrome = section.querySelector(`.${styles.blogGrid}`)
-    cleanups.push(bindSectionEnterWake(section, { targets: cards, mode: motionMode, stagger: 0.06 }))
-    if (chrome) {
-      cleanups.push(bindSectionLeaveChrome(section, { chrome, mode: motionMode }))
-    }
 
     motionCleanupsRef.current = cleanups
     return () => clearMotionCleanups()
@@ -182,7 +167,7 @@ export default function BlogSection({ embedded = true }) {
       ref={sectionRef}
       id={embedded ? 'section-blog' : undefined}
       data-scroll-section="blog"
-      data-motion="tilt,magnetic"
+      data-motion="tilt"
       className={`blog-scroll ${styles.blogSection}`}
       style={{
         '--blog-count': String(posts.length),
